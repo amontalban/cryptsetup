@@ -1,0 +1,677 @@
+cryptsetup (2:1.0.4+svn29-1) unstable; urgency=low
+
+  * New upstream svn snapshot with several bugfixes
+    - remove 01_tries_fix.dpatch, added upstream
+
+ -- Jonas Meurer <mejo@debian.org>  Wed, 02 May 2007 02:48:37 +0200
+
+cryptsetup (2:1.0.4+svn26-3) unstable; urgency=low
+
+  * Add cryptdevice name to prompt before actually starting it. Thanks
+    to Joerg Jaspert. (closes: #421803)
+
+ -- Jonas Meurer <mejo@debian.org>  Wed, 02 May 2007 01:05:22 +0200
+
+cryptsetup (2:1.0.4+svn26-2) unstable; urgency=low
+
+  [ David Härdeman ]
+  * Fix typo in crypttab(5), the ext checkscript is called ext2, not
+    ext3. (closes: #410390)
+  * Use the initramfs-tools keymap support instead of our own (requires
+    initramfs-tools >= 0.87)
+  * Add support for usplash password prompt (closes: #397981)
+  * Remove the "ssl" and "gpg" options which are supported by keyscripts
+    since October 2006 (see NEWS for details).
+  * Spring cleaning of cryptdisks.functions, now supports multiple tries
+    for keyscripts and uses lsb logging. (closes: #420105, #383808)
+
+  [ Jonas Meurer ]
+  * Add 01_tries_fix.dpatch, makes the --tries commandline option work
+    again. (closes: #414326, #412064)
+  * Document the un_vol_id check script, remove the swap check script from
+    documentation. The swap check indeed is rather useless, thanks to Frank
+    Engler <bts.to.FrankEngler@spamgourmet.com>. The script itself is kept
+    for compability issues. (closes: #406837)
+  * Add smartcard keyscript and initramfs-tools hooks/scripts. This adds
+    support for disk encryption with smartcards, even for root disks.
+    Thanks a lot to Gerald Turner <gturner@unzane.com> for the patch and a
+    smartcard reader for testing this. (closes: #416528)
+  * update copyright file: change "program" to "package", and mention GPL
+    version 2. add a full disclaimer.
+  * Add "--showkeys" to the dmsetup invocation in decrypt_derived script.
+    (closes: #420399)
+  * Fixes in cryptdisks.functions:
+    - Don't suppress error messages at mount and unmount and don't break
+      if 'mount $point' fails.
+    - Fix handling of checks and prechecks, the vars somehow where mixed
+    - Really use $CHECKARGS if it's defined
+    - Rename "stopped" to "stopping" for devices which are shutdown at
+      'cryptdisks stop' (show a difference to already stopped devices).
+
+ -- Jonas Meurer <mejo@debian.org>  Sat, 28 Apr 2007 20:45:50 +0200
+
+cryptsetup (2:1.0.4+svn26-1) unstable; urgency=high
+
+  [ Jonas Meurer ]
+  * New upstream svn snapshot 1.0.4+svn26
+    - contains a slightly modified patch by Rob Walker
+      <rob@tenfoot.org.uk> to fix a sector size error. (closes: #403075)
+    - fixes a LUKS header corruption on arm, which downgrades bug
+      #403426 from critical to important.
+    - prevents password retrying with I/O errors.
+  * handle chainmode/essiv "plain" correctly in initramfs hook.
+    Thanks to Leonard Norrgard. (closes: #402417)
+  * remove 'rm -rf m4' from a clean target in debian/rules.
+  * urgency=high to get this into etch.
+
+  [ David Härdeman ]
+  * Document the difference in default hash functions between the
+    initramfs scripts and the plain cryptsetup binary. (closes: #398429)
+  * Verify symlinks for source devices when initramfs is generated and
+    correct if necessary. (closes: #405301)
+
+ -- Jonas Meurer <mejo@debian.org>  Tue,  9 Jan 2007 21:53:06 +0100
+
+cryptsetup (2:1.0.4+svn16-2) unstable; urgency=high
+
+  [ David Härdeman ]
+  * Add cbc to standard list of modules. Thanks to Michael Olbrich
+    <michael.olbrich@gmx.net>. (closes: #401370)
+  * Fix support for crypto-on-evms. Thanks to Enrico Gatto
+    <cat@legnago.linux.it>. (closes: #402417)
+
+  [ Jonas Meurer ]
+  * urgency=high to get this into etch.
+
+ -- Jonas Meurer <mejo@debian.org>  Thu, 14 Dec 2006 01:41:40 +0100
+
+cryptsetup (2:1.0.4+svn16-1) unstable; urgency=medium
+
+  [ David Härdeman ]
+  * Support adding separate blockcipher modules to initramfs image
+    (necessary for kernels >= 2.6.19)
+  * Hashing was previously not done correctly when decrypt_derived was used
+
+  [ Jonas Meurer ]
+  * Add new upstream patch 02_luks_var_keysize.dpatch. Cryptsetup no longer
+    segfaults with unsupported keysize. (closes: #381973)
+  * Urgency medium as we really want these fixes in etch.
+
+ -- Jonas Meurer <mejo@debian.org>  Tue, 28 Nov 2006 18:17:12 +0100
+
+cryptsetup (2:1.0.4-8) unstable; urgency=high
+
+  [ Jonas Meurer ]
+  * Add 'set -e' and 'if ...; then ... fi' to cryptdisks-early as well.
+
+  [ David Härdeman ]
+  * Make sure that a failed modprobe does not break with 'set -e'.
+    (closes: #398799)
+
+ -- Jonas Meurer <mejo@debian.org>  Thu, 16 Nov 2006 16:59:35 +0100
+
+cryptsetup (2:1.0.4-7) unstable; urgency=low
+
+  [ David Härdeman ]
+  * Do not try to configure resume devices which we cant get the key for
+    and also try harder to find resume devices.
+    (closes: #397887, #397888)
+  * Kill some more bashisms.
+  * Only try three times per crypto device in initramfs scripts to avoid
+    unbootable systems if a swap partition can't be setup.
+  * Added decrypt_derived keyscript and improved documentation of latest
+    changes, see README.initramfs for details.
+
+ -- Jonas Meurer <mejo@debian.org>  Tue, 14 Nov 2006 16:27:51 +0100
+
+cryptsetup (2:1.0.4-6) unstable; urgency=high
+
+  [ David Härdeman ]
+  * Improve LVM dependency checks in initramfs hook. Thanks to Loïc
+    Minier <lool@dooz.org> for the patch. (closes: #397633, #397651)
+
+ -- Jonas Meurer <mejo@debian.org>  Thu,  9 Nov 2006 13:55:48 +0100
+
+cryptsetup (2:1.0.4-5) unstable; urgency=high
+
+  [ David Härdeman ]
+  * Make sure that duplicate entries in initramfs do not block the boot
+    (closes: #397454)
+  * Do not check for the presence of a key if the keyscript option is
+    set (closes: #397450)
+
+ -- Jonas Meurer <mejo@debian.org>  Tue,  7 Nov 2006 18:03:41 +0100
+
+cryptsetup (2:1.0.4-4) unstable; urgency=high
+
+  [ David Härdeman ]
+  * Readd and document the kernel boot argument "cryptopts" due to user
+    demand
+  * Implement support for multiple device setup in initramfs.
+    (closes: #394136, #382280)
+  * Remove bashisms. (closes: #396092)
+  * Fix FTBFS by altering dpatch so that it is applied to Makefile.in.in
+    before configure is executed. (closes: #396126)
+
+  [ Jonas Meurer ]
+  * Only warn for insecure keyfile mode/owner. Add some information about
+    insecure keys in README.Debian. (closes: #395357, #394134)
+
+ -- Jonas Meurer <mejo@debian.org>  Fri,  3 Nov 2006 02:22:49 +0100
+
+cryptsetup (2:1.0.4-3) unstable; urgency=medium
+
+  [ Jonas Meurer ]
+  * Suggest dosfstools. Needed for the default settings in luksformat. Thanks
+    to Loïc Minier <lool@dooz.org>. (closes: #393473)
+  * Suggest initramfs-tools (>= 0.60) | linux-initramfs-tool as well.
+  * Still urgency=medium for the same reasons
+
+  [ David Härdeman ]
+  * Change the previous fix for #388871 to use the original patch from
+    Loïc Minier <lool@dooz.org>. This also removes the bogus UTF8 char.
+    (closes: #393895)
+
+ -- Jonas Meurer <mejo@debian.org>  Wed, 18 Oct 2006 23:03:47 +0200
+
+cryptsetup (2:1.0.4-2) unstable; urgency=medium
+
+  [ Jonas Meurer ]
+  * Fix postinst, use 'elif [ -z $foo] || [ -z $bar ]; then ...'
+  * Fix a typo in cryptdisks.functions, change $opt to $opts for more
+    consistency with the postinst script.
+  * Fix mount_fs() in cryptdisks.functions to actually do what we want it to
+    do. Up to now, the initscript stopped if a mountpoint failed to mount.
+  * urgency=medium to get cryptsetup 1.0.4 into etch
+
+ -- Jonas Meurer <mejo@debian.org>  Tue, 17 Oct 2006 16:16:02 +0200
+
+cryptsetup (2:1.0.4-1) unstable; urgency=low
+
+  [ David Härdeman ]
+  * Always update the current initramfs when a new version is installed
+  * Move the double-ssl decryption into a keyscript and change the ssl
+    option to use that script instead
+  * Move the gpg key decryption into a keyscript and change the gpg
+    option to use that script instead
+  * Clean up cryptdisks.functions
+  * Let initramfs-tools know that we need busybox in the initramfs image
+  * Fix bogus error message from initramfs hook, based on patch by
+    Loïc Minier <lool@dooz.org>. (closes: #388871)
+  * Remove the undocumented kernel boot argument "cryptopts"
+  * Always add some crypto modules/tools to the initramfs image unless
+    MODULES=dep. (closes: #389835)
+  * Update README.initramfs.
+  * Add checks and warnings that the ssl and gpg options are going away
+    in favour of the keyscript option
+  * Fix the decrypt_ssl script (closes: #390514)
+
+  [ Jonas Meurer ]
+  * New upstream release.
+    - [01_terminal_output.dpatch] removed, finally went upstream
+    - [02_docs_tries.dpatch] removed, went upstream
+    - [03_fix_build_error.dpatch] renamed to 01_fix_build_error.dpatch
+  * Fix SYNOPSIS in crypttab(5) manpage to show all arguments as mandatory.
+    Thanks to Michael Steinfurth.
+  * Check in postinst for entries with missing arguments in /etc/crypttab.
+    Warn is one is found. Thanks to Michael Steinfurth (closes: #388083)
+  * Fix pretest for encrypted swap. Allow unencrypted swap on the source
+    device. Thanks to Dennis Furey. (closes: #387158)
+  * Fix posttest for encrypted swap. Don't skip if a swap filesystem is found
+    on the target device. Thanks to Sam Couter. (closes: #385317)
+  * Use 'set -e' and 'if [ -r <file> ]; then ...; fi' in init script. Thanks
+    to Goswin Brederlow. (closes: #390354)
+  * change '... > &2' to ... >&2' in cryptdisks.functions
+
+ -- Jonas Meurer <mejo@debian.org>  Mon, 16 Oct 2006 19:22:41 +0200
+
+cryptsetup (2:1.0.4~rc2-1) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * Add some more german translations to de.po.
+  * Add a note to NEWS.Debian where the fix for #376393 is explained. thanks
+    to Robert Bihlmeyer for the report. (closes: #379719)
+  * Allow swap filesystems to be overwritten when the swap flag is set. thanks
+    to Raphaël Quinet for the report. (closes: #379771)
+  * Update to upstream 1.0.4-rc2. (closes: #378422, #379726, closes: #379723)
+  * removed patches 03-05, merged upstream.
+  * [01_terminal_output.dpatch] updated for new upstream.
+  * [02_docs_tries.dpatch] updated for new upstream, to fix luksDelKey
+    documentation and to give more information about the keysize.
+    (closes: #379084)
+
+  [ David Härdeman ]
+  * Make sure that README.initramfs is included in the package (closes
+    #380048)
+  * Replace panic calls in cryptsetup script with exit 1 to match the
+    behaviour of other scripts. The regular initramfs script will panic
+    later when root isn't detected anyway
+  * Make all four fields in crypttab mandatory (closes: #370180,
+    #376941)
+  * Add UTF8 keyboard input support to initramfs image (closes: #379737)
+  * Add a keyscript option (closes: #370302, #375913)
+  * [03_fix_build_error.dpatch] patch po/Makefile with more recent
+    gettext implementation.
+
+
+ -- Jonas Meurer <mejo@debian.org>  Mon,  4 Sep 2006 03:55:35 +0200
+
+cryptsetup (2:1.0.3-3) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * revert the change that for swap devices the vol_id check is run by
+    default. if the swap partition is encrypted with a random key, the check
+    will always fail. thanks to Mika Bostrom <bostik@bostik.iki.fi>
+    (closes: #371135, #371160, #377434)
+  * fix the vol_id checkscript to do what it's expected to do.
+  * add the un_vol_id checkscript, which does the reverse of vol_id.
+  * use 'check=un_vol_id, checkargs=swap' for swap devices per default.
+  * added do_close function to cryptdisks.functions, as do_swap needs to use
+    it. up to now, 'cryptsetup remove' was invoked regardless whether the
+    device contains a LUKS partition or not. this is fixed now too.
+  * allow custom check scripts. check only if $CHECK exists in
+    /lib/cryptsetup/checks/ and use the given value as full path otherwise.
+  * make precheck for no_luks mandatory, fail if any known filesystem is
+    found.
+  * update crypttab manpage to reflect the checksystem changes. added an own
+    section for check scripts. update the CheckSystem documentation.
+  * update and simplify the gen-ssl-key script, thanks to Markus Nass
+    <generalstone@gmx.net>
+  * move gen-ssl-key, decrypt_ssl and luksformat to debian/scripts in the
+    source.
+  * add new directory /lib/cryptsetup/scripts/ for key decryption scripts like
+    decrypt_ssl and decrypt_gpg.
+  * add 05_fix_pointer_and_int_comparison.dpatch, fixes compiler warnings on
+    64bit architectures. Thanks to David Härdeman for the patch.
+  * revert the order of do_start and do_stop at 'cryptdisks restart'. thanks
+    to Hans Peter Wiedau <hpw@quelltext.com> for pointing out that silly typo.
+    (closes: #377591)
+
+  [ David Härdeman ]
+  * Support root-on-crypto-on-lvm in the initramfs scripts without
+    having to change the root variable (closes: #371846)
+  * If possible, load correct keymap in the initramfs image before any
+    password prompts (closes: #376393)
+
+ -- Jonas Meurer <mejo@debian.org>  Mon, 10 Jul 2006 20:01:02 +0200
+
+cryptsetup (2:1.0.3-2) unstable; urgency=low
+
+  [ David Härdeman ]
+  * Add patch by Arjan Oosting <arjanoosting@home.nl) for lvm-on-cryptroot
+    in initramfs scripts (closes: #362564)
+
+  [ Jonas Meurer ]
+  * install luksformat to /usr/sbin, as it depends on perl (closes: #369923)
+  * use essiv cipher in luksformat, debian 2.6.16 kernels have essiv support
+    compiled in (closes: #369878)
+  * fix cryptsetup output, patch by David Härdeman <david@2gen.com>
+    (closes: #369575)
+  * add new check 'vol_id', which uses /lib/udev/vol_id from udev and supports
+    checks for any known filesystem type. implement a new option checkargs in
+    cryptdisks for that. suggest udev. closes one half of #370302. thanks to
+    Markus Nass and Darvid Härdeman for the suggestion.
+  * always check for a swap partition before running mkswap
+  * updated README.Debian, Checksystem.Doc and crypttab.5.txt accordingly.
+  * drop usage of strings from swap check, as it is in /usr/bin. thanks to
+    Markus Nass.
+
+ -- Jonas Meurer <mejo@debian.org>  Mon,  5 Jun 2006 18:27:07 +0200
+
+cryptsetup (2:1.0.3-1) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * new upstream release, 1.0.3 final
+    - Add alignPayload patch by Peter Palfrader (closes: #358388)
+    - meaningful exitcodes and password retrying by Johannes Weißl
+      (closes: #359277)
+  * add 01_terminal_timeout.dpatch from Andres Salomon <dilinger@debian.org>.
+    - gets rid of getpass(), which is obsolete according to manpage
+    - restores the terminal state before doing the timeout (closes: #364153)
+  * add 02_docs_tries.dpatch, to describe --tries in the cryptsetup manpage.
+  * add 03_stdin_input.dpatch from David Härdeman <david@2gen.com>,
+    fixes input from stdin, accepts input with more than 32 characters
+    (closes: #364529, #365333)
+  * add 04_status_exit_codes.dpatch from David Härdeman <david@2gen.com>,
+    fixes the exit codes of 'cryptsetup status'
+  * provide a cryptsetup-udeb package (closes: #358422)
+  * remove debian/luksformat.8 in clean target (closes: #358386)
+  * fix update-rc.d arguments to start cryptdisks in rc0 and rc6.
+    it is not really started [but stopped], but still the links need to be
+    named S48cryptdisks. otherwise it will be invoked before umountfs.
+  * add initramfs cryptroot functionality, thanks to David Härdeman
+    <david@2gen.com> for the patch (closes: #358452)
+  * rename /lib/cryptsetup/init_functions to cryptdisks.functions
+  * move most of /etc/init.d/cryptdisks to cryptdisks.functions.
+    /etc/init.d/cryptdisks now does not much more than importing
+    cryptdisks.functions. required for running two seperate cryptdisks
+    initscripts.
+  * split the cryptdisks initscript into cryptdisks-early and cryptdisks.
+    actually both scripts do the same except having slightly different output.
+    the early script is run before lvm/evms/... are started, and the other one
+    after they are started. (closes: #363007)
+  * add support for mount to cryptdisks. this makes it possible to use
+    keyfiles from removable media. see the crypttab.5 manpage for more
+    information.
+  * use upstream cryptsetup tries option instead of the shell code in
+    cryptdisks. rename cryptdisks 'retry' option to 'tries'.
+  * document the fact, that the default settings in /etc/default/cryptdisks
+    take only effect if the relevant option is set without a value in
+    crypttab. add the environment section to crypttab.5.txt (closes: #364203)
+  * update the TODO list.
+  * update crypdisks.default
+  * run do_swap and do_tmp. Thanks to Riku Voipio <riku.voipio@iki.fi>
+    (closes: #365633)
+  * bump Standards-Version to 3.7.2.0, no changes needed
+
+  [ David Härdeman ]
+  * add lvm capabilities to initramfs scripts (closes: #362564)
+  * add cryptsetup.postinst which executes update-initramfs when 
+    cryptsetup is first installed (not on upgrades)
+
+ -- Jonas Meurer <mejo@debian.org>  Sat, 13 May 2006 19:45:08 +0200
+
+cryptsetup (2:1.0.2+1.0.3-rc3-1) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * new upstream release candidate:
+    - fixes sector size of the temporary mapping (closes: #355156)
+    - more verbose error logging (closes: #353755, #356288, #258376)
+    - upstream accepted my patches to the manpage
+  * fixed spelling error in README.Debian
+  * removed debian/cryptsetup.sgml, outdated
+  * ran ispell against doc files in debian/, fixed many typos
+  * change /usr/share/cryptsetup to /lib/cryptsetup in crypttab.5.txt
+    (closes: #354910)
+  * add --build (and maybe even --host) to configure flags, for
+    cross-compiling
+  * remove debian/luksformat.8 in clean target
+  * fix bashism in cryptdisks. thanks to Michal Politowski
+    <mpol@charybda.icm.edu.pl> (closes: #356484)
+  * add support for openssl encrypted keys, based on a patch by General Stone
+    <generalstone@gmx.net> (closes: #350615)
+  * add some code to support gnupg encrypted keys, some parts are missing.
+
+ -- Jonas Meurer <mejo@debian.org>  Fri, 17 Mar 2006 00:42:41 +0100
+
+cryptsetup (2:1.0.2+1.0.3-rc2-1) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * new upstream version 1.0.3-rc2, fixing issues with devmapper
+  * new upstream version 1.0.3-rc1, doesn't use essiv per default
+  * new upstream version (1.0.2) released
+    - add --timeout option for interactive usage
+    - add --batch-mode option to suppress input verifications
+  * install local cryptsetup.8 copy instead of the upstream manpage
+    - mention --readonly as possible option to luksOpen (closes: #353753)
+    - mention --batch-mode, --timeout, --version
+    - transform remaining option hyphens from '-' to '\-'
+  * merged ubuntu patches:
+    - modify cryptdisks init script to use lsb functions
+    - add luksformat and a manpage
+  * removed postinst and postrm, empty scripts
+  * added a README.Debian and a TODO
+  * added a NEWS file for Debian, and explain both the upstream transition
+    from plain cryptsetup to cryptsetup-luks, and the check options for
+    crypttab.
+  * install manpages using dh_installman, not with install
+  * updated CryptoRoot.HowTo, mention /etc/mkinitrd/modules and different
+    linux-image versions. (closes: #344867)
+  * removed needless debian/hack
+  * added debian/watch
+  * bumped debhelper compat level to 5, add versioned depends on
+    debhelper (>> 5.0.0)
+  * update debian/cryptsetup.8 to mention batch-mode and timeout
+  * updated cryptdisks
+    - modify init script to use lsb functions, at least where possible
+    - updated comments for cryptdisks.default
+    - moved option parsing and setup of loopback devices to seperate functions.
+      added a new include file /lib/cryptsetup/init_functions with functions
+      parse_opts, lo_setup, check_key, do_luks, do_noluks, do_swap, do_tmp
+    - always check for the source device exists before running cryptsetup
+    - hardcode precheck for LUKS to use 'cryptsetup isLuks'. this is much safer
+      than allowing other random prechecks, as it manifests that the source
+      device actually is a LUKS partition.
+    - don't remove the LUKS device when postcheck fails, as the supplied
+      password/key is correct anyway.
+    - use the new 'timeout' commandline option of cryptsetup instead of an
+      external wrapper
+    - be silent for not existing devices per default. Implement the loud
+      option for crypttab to warn if a device does not exist.
+    - remerge postchecks and prechecks into checks.
+    - don't disable swap & luks combination, instead disable luks with
+      /dev/random, /dev/urandom or /dev/hwrandom as key.
+    - run parse_opts before check_key, to know whether we use luks or not
+
+  [ Michael Gebetsroither ]
+  * converted crypttab.sgml to asciidoc
+  * added dependencies for asciidoc to manpage conversion
+  * added developer documentation for a robust checksystem into cryptdisks
+
+ -- Jonas Meurer <mejo@debian.org>  Sun, 26 Feb 2006 20:04:49 +0100
+
+cryptsetup (2:1.0.1-16) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * already fixed in 2:1.0.1-14: binaries xor and delay from
+    usbcrypto.mkinitrd don't exist in debian. replaces with a perl script
+    and /bin/sleep. thanks to wesley terpstra for the help.
+    (closes: #324353)
+  * clean cryptdisks from bashisms (closes: #350360)
+  * check for /usr/bin/timeout before using it in cryptdisks. First, it's
+    only available when /usr is mounted, and that is not definitive when
+    cryptdisks is run at boot time. Second, timeout is a non-essential
+    debian package, and not neccecarily installed. The usage of
+    /usr/bin/timeout in any case is only a temporary workaround.
+  * move /usr/share/cryptsetup to /lib/cryptsetup, as the checks need to be
+    available at boot time, before local filesystems (like i.e. /usr) are
+    mounted.
+  * replace RETRY=`expr $RETRY - 1` with RETRY=$(($RETRY-1)), as expr is in
+    /usr/bin.
+  * install init.d script and default file with dh_installinit
+    (closes: #350548)
+  * don't build-depend on cvs
+
+ -- Jonas Meurer <mejo@debian.org>  Mon, 30 Jan 2006 17:54:50 +0100
+
+cryptsetup (2:1.0.1-15) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * rebuilt with -sa, to include the sources into upload
+
+ -- Jonas Meurer <mejo@debian.org>  Fri, 27 Jan 2006 18:18:46 +0100
+
+cryptsetup (2:1.0.1-14) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * added a configurable timeout option for interactive password
+    prompt. set the default timeout to 180 seconds in
+    /etc/default/cryptdisks, and documented the crypttab option in
+    the crypttab manpage. (closes: #328961)
+  * fixed the default "precheck" and "postcheck" options, currently
+    no useful precheck exists, so no default here.
+  * removed the dummy cryptsetup-luks package, ftpmaster complains
+    about it.
+
+  [ Michael Gebetsroither ]
+  * make small fixes to CryptoSwap.HowTo
+  * added postcheck for swap (closes: #342079)
+
+ -- Jonas Meurer <mejo@debian.org>  Fri, 27 Jan 2006 12:59:10 +0100
+
+cryptsetup (2:1.0.1-13) unstable; urgency=low
+
+  * split the "check" in a "precheck" and a "postcheck" option
+    - adds the possibility to check the source device before creating the
+      decrypted target device, useful for things like swap.
+
+ -- Jonas Meurer <mejo@debian.org>  Sun, 22 Jan 2006 21:24:06 +0100
+
+cryptsetup (2:1.0.1-12) unstable; urgency=low
+
+  * correctly parse options in cryptdisks (closes: #304399)
+  * remove the moduledir /usr/lib/cryptsetup from the deb, it's
+    empty anyway (closes: #334648)
+  * replace /usr/local/bin/delay with /bin/sleep in usbcrypto.mkinitrd
+  * cosmetical changes to /etc/crypttab
+  * add "check" and "retry" options to cryptdisks script,
+    thanks to A Mennucc <debdev@mennucci.sns.it>. (closes: #290626)
+
+ -- Jonas Meurer <mejo@debian.org>  Sun, 22 Jan 2006 19:46:18 +0100
+
+cryptsetup (2:1.0.1-11) unstable; urgency=low
+
+  * include sources although the debian revision is not -1
+
+ -- Jonas Meurer <mejo@debian.org>  Sun, 22 Jan 2006 16:35:12 +0100
+
+cryptsetup (2:1.0.1-10) unstable; urgency=low
+
+  * introduce an epoch to make upgrade happen 
+
+ -- Jonas Meurer <mejo@debian.org>  Sun, 22 Jan 2006 09:02:47 +0100
+
+cryptsetup (1.0.1-9) unstable; urgency=low
+
+  * rename the package to cryptsetup, provide a dummy cryptsetup-luks package
+  * initial upload to debian
+
+ -- Jonas Meurer <mejo@debian.org>  Sun, 22 Jan 2006 08:06:25 +0100
+
+cryptsetup-luks (1.0.1-8) unstable; urgency=low
+
+  * use upstream tarball as orig.tar.gz and keep debian changes in diff.gz
+  * change to use dpatch
+  * adjust build environment to work with upstream sources, and without
+    autogen.sh
+  * merge fixes for debian scripts from cryptsetup.
+  * keep cryptsetup manpage untouched, as merging cryptsetup and
+    cryptsetup-luks manpages is rather complex.
+  * set mandir to /usr/share/man for configure
+  * add a lintian-override file
+
+ -- Jonas Meurer <mejo@debian.org>  Sun, 22 Jan 2006 06:48:30 +0100
+
+cryptsetup-luks (1.0.1-7) unstable; urgency=high
+
+  * make cryptsetup create work again (patch for lib/libdevmapper.c) 
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Sat, 21 Jan 2006 14:39:36 +0100
+
+cryptsetup-luks (1.0.1-6) unstable; urgency=low
+
+  * recompile for new libdevmapper 
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Tue, 10 Jan 2006 15:10:17 +0100
+
+cryptsetup-luks (1.0.1-5) unstable; urgency=low
+
+  * improved documentation for /etc/crypttab 
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Mon,  7 Nov 2005 17:05:20 +0100
+
+cryptsetup-luks (1.0.1-4) unstable; urgency=low
+
+  * added luks option for /etc/crypttab (thx to Fabian Thorns
+    <fabian@thorns.it> for the initial patch)
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Thu,  3 Nov 2005 19:22:59 +0100
+
+cryptsetup-luks (1.0.1-3) unstable; urgency=low
+
+  * completly switched to luks upstream
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Thu, 11 Aug 2005 22:14:16 +0200
+
+cryptsetup-luks (1.0.1-2) unstable; urgency=low
+
+  * fixed build dependencies 
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Mon, 20 Jun 2005 22:30:38 +0200
+
+cryptsetup-luks (1.0.1-1) unstable; urgency=low
+
+  * synced with luks upstream
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Mon, 20 Jun 2005 16:22:53 +0200
+
+cryptsetup-luks (1.0-5) unstable; urgency=low
+
+  * fixed a small typo in the manpage
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Sat, 23 Apr 2005 11:06:31 +0200
+
+cryptsetup-luks (1.0-4) unstable; urgency=low
+
+  * cleand source-tree for submitting a wishlist report into debian BTS
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Tue, 19 Apr 2005 18:44:13 +0200
+
+cryptsetup-luks (1.0-3) unstable; urgency=low
+
+  * updatet dependencies (libdevmapper1.00 => libdevmapper1.01) 
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Tue, 19 Apr 2005 13:51:10 +0200
+
+cryptsetup-luks (1.0-2) unstable; urgency=low
+
+  * replaced original debian cryptsetup manpage with manpage from
+    cryptsetup-luks 
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Sun,  3 Apr 2005 13:33:55 +0200
+
+cryptsetup-luks (1.0-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Sat,  2 Apr 2005 23:29:43 +0200
+
+cryptsetup-luks (0.993-3) unstable; urgency=low
+
+  * fixed dependencis 
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Sun, 13 Feb 2005 01:28:11 +0100
+
+cryptsetup-luks (0.993-2) unstable; urgency=low
+
+  * fixed a few source problems
+  * fixed post/pre install scripts
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Sat, 12 Feb 2005 16:18:07 +0100
+
+cryptsetup-luks (0.993-1) unstable; urgency=low
+
+  * synced with luks upstream 
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Sat, 12 Feb 2005 15:50:21 +0100
+
+cryptsetup-luks (0.992-5) unstable; urgency=low
+
+  * fixed a few problems in den debian source package 
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Sat, 12 Feb 2005 04:22:30 +0100
+
+cryptsetup-luks (0.992-4) unstable; urgency=low
+
+  * debianized the package
+  * cleand up build system
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Sat, 12 Feb 2005 00:12:43 +0100
+
+cryptsetup-luks (0.992-3) unstable; urgency=low
+
+  * Fixed typo
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Fri, 11 Feb 2005 18:38:42 +0100
+
+cryptsetup-luks (0.992-2) unstable; urgency=low
+
+  * Added note within description 
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Fri, 11 Feb 2005 18:21:03 +0100
+
+cryptsetup-luks (0.992-1) unstable; urgency=low
+
+  * "integrated LUKS" support (very messy hack)
+
+ -- Michael Gebetsroither <michael.geb@gmx.at>  Thu, 10 Feb 2005 18:16:21 +0100

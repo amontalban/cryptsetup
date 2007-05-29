@@ -1,0 +1,75 @@
+cryptsetup (2:1.0.4+svn16-1) unstable; urgency=high
+
+  The --key-file=- argument has changed. If a --hash parameter is passed, it
+  will now be honored. This means that the decrypt_derived keyscript will in
+  some situations create a different key than previously meaning that any swap
+  partitions that rely on the script will have to be recreated. To emulate the
+  old behaviour, make sure that you pass "--hash=plain" to cryptsetup.
+
+ -- David Härdeman <david@hardeman.nu>  Tue, 21 Nov 2006 21:29:50 +0100
+
+cryptsetup (2:1.0.4-7) unstable; urgency=low
+
+  The cryptsetup initramfs scripts now also tries to detect swap
+  partitions used for software suspend (swsusp/suspend2/uswsusp) and
+  to set them up during the initramfs stage. See README.initramfs for
+  more details.
+
+ -- David Härdeman <david@hardeman.nu>  Mon, 13 Nov 2006 19:27:02 +0100
+
+cryptsetup (2:1.0.4-1) unstable; urgency=low
+
+   The ssl and gpg options in /etc/crypttab have been deprecated in
+   favour of the keyscripts option. The options will still work, but
+   generate warnings. You should change any lines containing these
+   options to use keyscript=/lib/cryptsetup/scripts/decrypt_old_ssl or
+   keyscript=/lib/cryptsetup/scripts/decrypt_gpg instead as support
+   will be completely removed in the future.
+
+ -- David Härdeman <david@hardeman.nu>  Mon, 16 Oct 2006 00:00:12 +0200
+
+cryptsetup (2:1.0.3-4) unstable; urgency=low
+
+   Up to now, the us keymap was loaded at the passphrase prompt in the boot
+   process and ascii characters were always used. With this upload this is
+   fixed, meaning that the correct keymap is loaded and the keyboard is
+   (optionally) set to UTF8 mode before the passphrase prompt.
+
+   This may result in your password not working any more in the boot process.
+   In this case, you should add a new key with cryptsetup luksAddKey with your
+   correct keymap loaded.
+
+   Additionally, all four fields are now mandatory in /etc/crypttab. An entry
+   which does not contain all fields will be ignored. It is recommented to
+   set cipher, size and hash anyway, as defaults may change in the future.
+
+   If you didn't set any of these settings yet, then you should add
+       cipher=aes-cbc-plain,size=128,hash=ripemd160
+   to the the options in /etc/crypttab. See man crypttab(5) for more details.
+
+ -- David Härdeman <david@2gen.com>  Sat, 19 Aug 2006 18:08:40 +0200
+
+cryptsetup (2:1.0.2+1.0.3-rc2-2) unstable; urgency=low
+
+   The crypttab 'retry' has been renamed to 'tries' to reflect upstreams
+   functionality. Default is 3 tries now, even if the option is not given.
+   See the crypttab.5 manpage for more information.
+
+ -- Jonas Meurer <mejo@debian.org>  Fri, 28 Apr 2006 17:42:15 +0200
+
+cryptsetup (2:1.0.2+1.0.3-rc2-1) unstable; urgency=low
+
+    Since release 2:1.0.1-9, the cryptsetup package uses cryptsetup-luks as
+    upstream source. This is a enhanced version of plain cryptsetup which
+    includes support for the LUKS extension, a standard on-disk format for
+    hard disk encryption. Plain dm-crypt (as provided by the old cryptsetup
+    package) is still available, thus backwards compatibility is given.
+    Nevertheless it is recommended to update your encrypted partitions to
+    LUKS, as this implementation is more secure than the plain dm-crypt.
+
+    Another major change is the check option for crypttab. It allows to
+    configure checks that are run after cryptsetup has been invoked, and
+    prechecks to be run against the source device before cryptsetup has been
+    invoked. See man crypttab(5) or README.Debian for more information.
+
+ -- Jonas Meurer <mejo@debian.org>  Fri,  3 Feb 2006 13:41:35 +0100
