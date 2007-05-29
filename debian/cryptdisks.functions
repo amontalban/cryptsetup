@@ -16,6 +16,12 @@ fi
 
 MOUNT="$CRYPTDISKS_MOUNT"
 
+case "$CRYPTDISKS_ENABLE" in
+[Nn]*)
+       exit 0
+       ;;
+esac
+
 # Always output to console
 stdin=`readlink /proc/self/fd/0`
 if [ "${stdin#/dev/null}" != "$stdin" ] && [ "$ON_VT" != "yes" ]; then

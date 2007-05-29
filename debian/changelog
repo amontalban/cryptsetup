@@ -72,6 +72,7 @@ cryptsetup (2:1.0.4+svn29-1ubuntu3) gusty; urgency=low
     strange error message. thanks to mvo for the patch (LP: #116633)
   * remove file debian/initramfs-cryptroot-script from source. it is not
     installed anywhere, and a leftover from the last merge.
+  * add missing hunk of cryptsetup.functions compared to debian package.
 
  -- Reinhard Tartler <siretart@ubuntu.com>  Tue, 29 May 2007 15:02:57 +0200
 
