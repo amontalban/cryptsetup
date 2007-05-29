@@ -73,6 +73,9 @@ cryptsetup (2:1.0.4+svn29-1ubuntu3) gusty; urgency=low
   * remove file debian/initramfs-cryptroot-script from source. it is not
     installed anywhere, and a leftover from the last merge.
   * add missing hunk of cryptsetup.functions compared to debian package.
+  * reapply http://librarian.launchpad.net/7329604/bug85640.debdiff to
+    debian/initramfs/cryptroot-script, since stgraber's patch has been
+    lost in the last merge. (LP: #85640)
 
  -- Reinhard Tartler <siretart@ubuntu.com>  Tue, 29 May 2007 15:02:57 +0200
 
