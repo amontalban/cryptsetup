@@ -66,6 +66,17 @@ cryptsetup (2:1.0.5-1) unstable; urgency=low
 
  -- Jonas Meurer <mejo@debian.org>  Fri, 27 Jul 2007 04:59:33 +0200
 
+cryptsetup (2:1.0.4+svn29-1ubuntu1) gutsy; urgency=low
+
+  * Merge from Debian unstable. Remaining Ubuntu changes:
+    - stop usplash on user input. Ubuntu: #62751
+    - Always output and read from the console.  Ubuntu: #58794.
+    - Wait for Udev to be ready to avoid partition non-detection. (LP: #85640)
+  * Modify Maintainer value to match Debian-Maintainer-Field Spec
+  
+
+ -- Andrea Veri <bluekuja@ubuntu.com>  Sun,  6 May 2007 22:33:25 +0200
+
 cryptsetup (2:1.0.4+svn29-1) unstable; urgency=low
 
   * New upstream svn snapshot with several bugfixes
@@ -118,6 +129,20 @@ cryptsetup (2:1.0.4+svn26-2) unstable; urgency=low
 
  -- Jonas Meurer <mejo@debian.org>  Sat, 28 Apr 2007 20:45:50 +0200
 
+cryptsetup (2:1.0.4+svn26-1ubuntu2) feisty; urgency=low
+
+  * Wait for Udev to be ready to avoid partition non-detection. (LP: #85640)
+
+ -- Stéphane Graber <stgraber@ubuntu.com>  Thu,  14 Apr 2007 10:03:41 +0200
+
+cryptsetup (2:1.0.4+svn26-1ubuntu1) feisty; urgency=low
+
+  * merge debian changes. Remaining ubuntu changes:
+    - stop usplash on user input. Ubuntu: #62751
+    - Always output and read from the console.  Ubuntu: #58794.
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat,  3 Feb 2007 21:30:03 +0100
+
 cryptsetup (2:1.0.4+svn26-1) unstable; urgency=high
 
   [ Jonas Meurer ]
@@ -166,6 +191,28 @@ cryptsetup (2:1.0.4+svn16-1) unstable; urgency=medium
   * Urgency medium as we really want these fixes in etch.
 
  -- Jonas Meurer <mejo@debian.org>  Tue, 28 Nov 2006 18:17:12 +0100
+
+cryptsetup (2:1.0.4-8ubuntu2) feisty; urgency=low
+
+  * fix and improve initramfs hook: terminate usplash if running, since
+    adequate secure text input is not possible with usplash ATM
+  * usplash support: Terminate usplash before asking a password. 
+    Closes https://bugs.launchpad.net/ubuntu/+source/cryptsetup/+bug/62751
+
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 24 Jan 2007 22:43:28 +0100
+
+cryptsetup (2:1.0.4-8ubuntu1) feisty; urgency=low
+
+  * merge debian changes, remaining patches:
+    - Always output and read from the console.  Ubuntu: #58794.
+  * other changes have been merged or do noy apply anymore
+  * read password via usplash if available in initramfs for rootfs. based on a patch from  
+    Swen Thümmler (Thanks for that!)  Ubuntu #62751
+  * read password from initscript via usplash if running. should fix the
+    rest of Ubuntu #62751. Only problem with that patch: It asks only once
+    for the password! improvements welcome!
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sun, 19 Nov 2006 20:04:19 +0100
 
 cryptsetup (2:1.0.4-8) unstable; urgency=high
 
@@ -323,6 +370,27 @@ cryptsetup (2:1.0.4~rc2-1) unstable; urgency=low
 
 
  -- Jonas Meurer <mejo@debian.org>  Mon,  4 Sep 2006 03:55:35 +0200
+
+cryptsetup (2:1.0.3-3ubuntu3) edgy; urgency=low
+
+  * Always output and read from the console.  Ubuntu: #58794.
+
+ -- Scott James Remnant <scott@ubuntu.com>  Thu, 21 Sep 2006 03:05:18 +0100
+
+cryptsetup (2:1.0.3-3ubuntu2) edgy; urgency=low
+
+  * Load the dm-crypt module on startup.  Ubuntu: #53475.
+
+ -- Scott James Remnant <scott@ubuntu.com>  Wed, 23 Aug 2006 11:53:49 +0200
+
+cryptsetup (2:1.0.3-3ubuntu1) edgy; urgency=low
+
+  * Sync with Debian:
+    Remaining Ubuntu Changes
+    + debian/cryptdisks.functions:
+      - Tell usplash to quit if we ask for a passphrase
+
+ -- Sebastian Dröge <slomo@ubuntu.com>  Tue, 11 Jul 2006 20:03:27 +0200
 
 cryptsetup (2:1.0.3-3) unstable; urgency=low
 
