@@ -263,14 +263,14 @@ do_luks () {
 	else
 		if test "x$INTERACTIVE" != "xyes" ; then
 			PARAMS="$PARAMS --key-file=$key"
-			$CRYPTCMD $PARAMS luksOpen $src $dst <&1
+			cryptsetup $PARAMS luksOpen $src $dst <&1
 		else
 			if [ -x /sbin/usplash_write -a -p /dev/.initramfs/usplash_outfifo ]; then
 			     	/sbin/usplash_write "QUIT"
 				# saftey sleep !
 				sleep 2
 			fi
-			$CRYPTCMD $PARAMS luksOpen $src $dst <&1
+			cryptsetup $PARAMS luksOpen $src $dst <&1
 		fi
 	fi
 
