@@ -66,6 +66,12 @@ cryptsetup (2:1.0.5-1) unstable; urgency=low
 
  -- Jonas Meurer <mejo@debian.org>  Fri, 27 Jul 2007 04:59:33 +0200
 
+cryptsetup (2:1.0.4+svn29-1ubuntu2) gutsy; urgency=low
+
+  * modprobe dm-mod from cryptsetup.functions. (LP: #64625, #91405)
+
+ -- Reinhard Tartler <siretart@ubuntu.com>  Tue, 29 May 2007 13:31:39 +0200
+
 cryptsetup (2:1.0.4+svn29-1ubuntu1) gutsy; urgency=low
 
   * Merge from Debian unstable. Remaining Ubuntu changes:
@@ -73,7 +79,6 @@ cryptsetup (2:1.0.4+svn29-1ubuntu1) gutsy; urgency=low
     - Always output and read from the console.  Ubuntu: #58794.
     - Wait for Udev to be ready to avoid partition non-detection. (LP: #85640)
   * Modify Maintainer value to match Debian-Maintainer-Field Spec
-  
 
  -- Andrea Veri <bluekuja@ubuntu.com>  Sun,  6 May 2007 22:33:25 +0200
 
