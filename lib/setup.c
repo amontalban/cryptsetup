@@ -608,7 +608,7 @@ out:
 
 static int __crypt_luks_open(int arg, struct setup_backend *backend, struct crypt_options *options)
 {
-	struct luks_masterkey *mk=NULL;
+	struct luks_masterkey *mk;
 	struct luks_phdr hdr;
 	char *password; int passwordLen;
 	struct device_infos infos;
@@ -632,6 +632,7 @@ static int __crypt_luks_open(int arg, struct setup_backend *backend, struct cryp
 		options->flags |= CRYPT_FLAG_READONLY;
 
 start:
+	mk=NULL;
 	options->key_size = 0; // FIXME, define a clean interface some day.
 
 	if(get_key(options,"Enter LUKS passphrase: ",&password,&passwordLen))
