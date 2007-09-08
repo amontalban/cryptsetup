@@ -46,6 +46,27 @@ cryptsetup (2:1.0.5-2) unstable; urgency=low
 
  -- Jonas Meurer <mejo@debian.org>  Mon, 24 Sep 2007 15:42:06 +0200
 
+cryptsetup (2:1.0.5-1ubuntu1) gutsy; urgency=low
+
+  * Merge new debian version. Remaining changes:
+    - cryptsetup is linked dynamically against libgcrypt and libgpg-error.
+      This will break systems where /usr is a separate encrypted filesystem
+      but not have other bad consequences (in particular, systems with
+      encrypted root are still fine).  The upsides include better
+      security supportability and smaller packages.
+    - libcryptsetup.so et al removed from the binary packages.  They have
+      no stable ABI and are not suitable for use by other packages, and
+      were in violation of library policies etc.  They're not needed since
+      the cryptsetup executable statically contains the relevant parts of
+      libcryptsetup.
+    - cryptdisks.functions: remove #!/bin/bash as it isn't a script
+      by itself; it's only sourced by other scripts.  This gets rid
+      of the lintian warning `script-not-executable' for this file.
+    - stop usplash on user input. LP: #62751
+    - Always output and read from the console. LP: #58794.
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 08 Sep 2007 19:04:54 +0200
+
 cryptsetup (2:1.0.5-1) unstable; urgency=low
 
   [ Jonas Meurer ]
