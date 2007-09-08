@@ -66,6 +66,12 @@ cryptsetup (2:1.0.5-1) unstable; urgency=low
 
  -- Jonas Meurer <mejo@debian.org>  Fri, 27 Jul 2007 04:59:33 +0200
 
+cryptsetup (2:1.0.4+svn29-1ubuntu6) gutsy; urgency=low
+
+  * Add notes by Ilkka Tuohela in a new file debian/README.ubuntu
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 08 Sep 2007 18:43:56 +0200
+
 cryptsetup (2:1.0.4+svn29-1ubuntu5) gutsy; urgency=low
 
   * cryptsetup is linked dynamically against libgcrypt and libgpg-error.
