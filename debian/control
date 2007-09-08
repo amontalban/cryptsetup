@@ -7,6 +7,7 @@ Uploaders: Jonas Meurer <mejo@debian.org>
 Build-Depends: debhelper (>= 5.0.0), libgcrypt11-dev, libdevmapper-dev, libpopt-dev, uuid-dev, libselinux1-dev, libsepol1-dev, gettext, libtool, autoconf, automake1.9, dpatch, xsltproc, docbook-xsl, asciidoc
 Standards-Version: 3.7.2.2
 Homepage: http://luks.endorphin.org/
+XSBC-Vcs-Bzr: http://bazaar.launchpad.net/~ubuntu-core-dev/cryptsetup/ubuntu
 
 Package: cryptsetup
 Architecture: any

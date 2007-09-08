@@ -64,6 +64,8 @@ cryptsetup (2:1.0.5-1ubuntu1) gutsy; urgency=low
       of the lintian warning `script-not-executable' for this file.
     - stop usplash on user input. LP: #62751
     - Always output and read from the console. LP: #58794.
+  * Add XSBC-Vcs-Bzr tag to indicate that this package is managed using
+    bzr on launchpad.
 
  -- Reinhard Tartler <siretart@tauware.de>  Sat, 08 Sep 2007 19:04:54 +0200
 
