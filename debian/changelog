@@ -46,13 +46,13 @@ cryptsetup (2:1.0.5-2) unstable; urgency=low
 
  -- Jonas Meurer <mejo@debian.org>  Mon, 24 Sep 2007 15:42:06 +0200
 
-cryptsetup (2:1.0.5-1ubuntu3) UNRELEASED; urgency=low
+cryptsetup (2:1.0.5-1ubuntu3) gutsy; urgency=low
 
   * Bump libgcrypt11 build-dependency again to 1.2.4-2ubuntu2 to eliminate
     libnsl linkage; should finally produce a usable cryptsetup binary for
     the udeb.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Sep 2007 13:36:32 +0100
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Sep 2007 15:28:52 +0100
 
 cryptsetup (2:1.0.5-1ubuntu2) gutsy; urgency=low
 
