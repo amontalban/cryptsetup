@@ -46,6 +46,17 @@ cryptsetup (2:1.0.5-2) unstable; urgency=low
 
  -- Jonas Meurer <mejo@debian.org>  Mon, 24 Sep 2007 15:42:06 +0200
 
+cryptsetup (2:1.0.5-1ubuntu4) UNRELEASED; urgency=low
+
+  [ Stephan Hermann ]
+  * debian/initramfs/cryptroot-hook: (LP: #73862)
+    - Added patch to install aes optimized cypher module
+
+  [ Reinhard Tartler ]
+  * re-applying old patch to new package version
+
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 19 Sep 2007 17:48:43 +0200
+
 cryptsetup (2:1.0.5-1ubuntu3) gutsy; urgency=low
 
   * Bump libgcrypt11 build-dependency again to 1.2.4-2ubuntu2 to eliminate

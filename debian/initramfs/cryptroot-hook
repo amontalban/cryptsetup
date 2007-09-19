@@ -261,7 +261,13 @@ get_device_modules() {
 	ivhash=$(echo "$value" | cut -d ":" -s -f2)
 
 	if [ -n "$cipher" ]; then
-		echo "$cipher"
+		# Add assembly optimized module if it exists
+		asm_module=`find "$MODULESDIR"/kernel/arch/ -name "$cipher"\*`
+		if [ $asm_module ];then
+			echo `basename "$asm_module"|sed s/.ko//`
+		else
+			echo "$cipher"
+		fi
 	else
 		return 1
 	fi
@@ -357,9 +363,18 @@ add_device() {
 
 # Unless MODULES = "dep", we always add a basic subset of modules/tools
 if [ "$MODULES" != "dep" ]; then
-	for mod in dm_mod dm_crypt aes sha256 cbc; do
+	for mod in dm_mod dm_crypt sha256 cbc; do
 		manual_add_modules $mod
 	done
+
+	# Add assembly optimized AES module if it exists
+	asm_module=`find "$MODULESDIR"/kernel/arch/ -name aes\*`
+	if [ $asm_module ];then
+		manual_add_modules `basename "$asm_module"|sed s/.ko//`
+	else
+		manual_add_modules aes
+	fi
+
 	copy_exec /sbin/cryptsetup /sbin
 	copy_exec /sbin/dmsetup /sbin
 fi
