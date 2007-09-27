@@ -54,6 +54,9 @@ cryptsetup (2:1.0.5-1ubuntu4) UNRELEASED; urgency=low
 
   [ Reinhard Tartler ]
   * re-applying old patch to new package version
+  * try to load optimized cypher module in cryptsetup.functions as well,
+    because cryptroot-hook is only executed when we really have a
+    cryptoroot.
 
  -- Reinhard Tartler <siretart@tauware.de>  Wed, 19 Sep 2007 17:48:43 +0200
 

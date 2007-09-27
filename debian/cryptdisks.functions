@@ -412,6 +412,18 @@ do_close () {
 	return $?
 }
 
+load_optimized_aes_module () {
+        local asm_module modulesdir
+
+        # find directory with kernel modules
+        modulesdir="/lib/modules/`uname -r`"
+        # Add assembly optimized AES module if it exists
+        asm_module=`ls -1 "$modulesdir"/kernel/arch/*/*/aes*.ko`
+        if [ $asm_module ];then
+           insmod $asm_module 2>/dev/null || true
+        fi
+}
+
 # Sets up all entries in crypttab
 do_start () {
 	local dst src key opts result
@@ -420,6 +432,7 @@ do_start () {
 	modprobe -qb dm-crypt || true
 	dmsetup mknodes > /dev/null 2>&1 || true
 	log_action_begin_msg "Starting $INITSTATE crypto disks"
+	load_optimized_aes_module
 	mount_fs
 
 	egrep -v "^[[:space:]]*(#|$)" "$TABFILE" | while read dst src key opts; do
