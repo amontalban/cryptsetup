@@ -1,3 +1,51 @@
+cryptsetup (2:1.0.5-2) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * Add libselinux1-dev and libsepol1-dev to build-depends. Detected by
+    the build daemon from hell by Steinar H. Gunderson. Thanks to Manoj
+    Srivastava for advice.
+  * Fix the watchfile
+  * Fix cryptopensc-hook to honor key=none. Thanks to Daniel Baumann
+    (closes: #436434)
+  * Remove outdated README.html and example usbcrypto.* scripts from
+    documentation. Add example usbcrypto.udev script. Thanks to Volker Sauer
+    for the update. (closes: #409775)
+  * Document that stdin is read different with '--key-file=-' than without.
+    Thanks to Marc Haber. (closes: #418450)
+  * Document that --timeout is useless in conjunction with --key-file. Thanks
+    Alexander Zangerl. (closes: #421693)
+  * [03_check_for_root.dpatch] Check for UID == 0 before actually doing
+    something. Thanks to Benjamin Seidenberg. (closes: #401766)
+  * [04_fix_unused_or_unitialized_variables.dpatch] Fix some gcc warnings
+    about unused or unitialized variables. Thanks to Ludwig Nussel for the
+    patch.
+  * [05_segfault_at_nonexisting_device.dpatch] Fix segfault when trying to
+    open a non existing device. Thanks to Ludwig Nussel for the patch.
+    (closes: #438198)
+  * Add CFLAGS="$(CFLAGS)" before ./configure invocation in debian/rules.
+    This way CFLAGS are passed to the configure script. Thanks to Gordon
+    Farquharson for the patch. (closes: #438450)
+  * Add a warning about missing hash option in crypttab to initramfs
+    cryptoroot hook. Thanks to Sebastian Leske for the patch.
+    (closes: #438169)
+  * Add support for openct using data objects on a smartcard as key. Thanks to
+    Daniel Baumann <baumann@swiss-it.ch> for patch and documentation.
+    (closes: #438473)
+  * Polish opensc_decrypt and openct_decrypt.
+  * Add initramfs patch by maximilian attems. Bump depends on initramfs-tools
+    to (>= 0.91). (closes: #441428)
+  * several cleanups to make lintian happy:
+    - remove #!/bin/sh from cryptsetup.functions as it is not executable.
+    - remove unused-override configure-generated-file-in-source config.log.
+    - add some hyphen fixes to patches/02_manpage.dpatch
+  * Filter out the detection of filesystem type 'minix' in checks vol_id and
+    un_vol_id if checking for any valid filesystem. The minix fs signature
+    seems short enough to be detected erroneously by /lib/udev/vol_id.
+    Thanks to Fredrik Olofsson and arno for the bugreport. (closes: #411784)
+  * Add Homepage field to debian/control.
+
+ -- Jonas Meurer <mejo@debian.org>  Mon, 24 Sep 2007 15:42:06 +0200
+
 cryptsetup (2:1.0.5-1) unstable; urgency=low
 
   [ Jonas Meurer ]
