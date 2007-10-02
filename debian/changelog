@@ -1,4 +1,4 @@
-cryptsetup (2:1.0.5-2ubuntu1) UNRELEASED; urgency=low
+cryptsetup (2:1.0.5-2ubuntu1) gutsy; urgency=low
 
   * Merge new debian version. Remaining changes:
     - cryptsetup is linked dynamically against libgcrypt and libgpg-error.
