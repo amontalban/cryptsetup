@@ -23,8 +23,8 @@ MOUNT="$CRYPTDISKS_MOUNT"
 
 case "$CRYPTDISKS_ENABLE" in
 [Nn]*)
-       exit 0
-       ;;
+	exit 0
+	;;
 esac
 
 # Always output to console
