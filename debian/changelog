@@ -1,3 +1,13 @@
+cryptsetup (2:1.0.5-2ubuntu3) hardy; urgency=low
+
+  * RELIABILY FIX: lib/libdevmapper.c: Ensure that pending device creation
+    events are being processed by calling /sbin/udevsettle. Patch based on
+    OpenSUSE bug #285478, LP: #132373.
+  * Fix debian/rules to not fail to build if autom4te.cache is left behind
+    from a previous incomplete build.
+
+ -- Reinhard Tartler <siretart@tauware.de>  Fri, 02 Nov 2007 20:53:31 +0100
+
 cryptsetup (2:1.0.5-2ubuntu1) gutsy; urgency=low
 
   * Merge new debian version. Remaining changes:
