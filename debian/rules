@@ -85,7 +85,7 @@ clean-patched:
 
 	rm -f debian/crypttab.5 debian/crypttab.5.xml debian/luksformat.8
 	rm -f config.mess
-	rm -f autom4te.cache 
+	rm -rf autom4te.cache 
 	rm -f src/cryptsetup.static
 
 	dh_clean 
