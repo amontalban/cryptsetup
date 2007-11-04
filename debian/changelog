@@ -2,8 +2,9 @@ cryptsetup (2:1.0.5-2ubuntu4) hardy; urgency=low
 
   * reapply changes from version 2:1.0.5-2ubuntu2, got dropped with last
     upload. Sorry, pitti.
+  * convert patch to lib/libdevmapper.c to a dpatch.
 
- -- Reinhard Tartler <siretart@tauware.de>  Sun, 04 Nov 2007 21:27:05 +0100
+ -- Reinhard Tartler <siretart@tauware.de>  Sun, 04 Nov 2007 21:42:43 +0100
 
 cryptsetup (2:1.0.5-2ubuntu3) hardy; urgency=low
 
