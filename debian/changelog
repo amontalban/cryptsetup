@@ -10,6 +10,23 @@ cryptsetup (2:1.0.5-2ubuntu3) hardy; urgency=low
 
  -- Reinhard Tartler <siretart@tauware.de>  Fri, 02 Nov 2007 20:53:31 +0100
 
+cryptsetup (2:1.0.5-2ubuntu2) gutsy; urgency=low
+
+  * debian/initramfs/cryptroot-script:
+    - If the supplied password worked, remove the prompt from usplash again,
+      so that the user has some visual feedback that everything is alright.
+      (LP: #151305)
+    - Do not show the UUID device node of the outer physical device. It is
+      scary ("/dev/disk/by-uuid/1234yadayada") and displaying it does not
+      improve security at all: If attackers can tamper with your initramfs,
+      they can also change the prompt, and if the UUID of the physical device
+      changes, then booting will not even get that far. Now it is a much more
+      friendly "Enter passphrase for sda5_crypt:" which is still technical,
+      but it's necessary to point out which device will be unlocked in case
+      there are several.
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Thu, 11 Oct 2007 19:51:58 +0200
+
 cryptsetup (2:1.0.5-2ubuntu1) gutsy; urgency=low
 
   * Merge new debian version. Remaining changes:
