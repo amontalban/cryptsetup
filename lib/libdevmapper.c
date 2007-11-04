@@ -184,6 +184,21 @@ static int dm_create_device(int reload, struct crypt_options *options,
 	if (dmi.read_only)
 		options->flags |= CRYPT_FLAG_READONLY;
 
+	/*
+	 * patch inspired from
+	 * https://bugzilla.novell.com/show_bug.cgi?id=285478
+	 *
+	 * At this point, it is quite likely that there are currently
+	 * devmapper events being processed. In order to avoid
+	 * workarounds (which involve calling udevsettle at the
+	 * 'right' places in scripts integrating cryptsetup), we are
+	 * checking here if udevsettle is available and call it if it
+	 * is.
+	 */
+	if (0 == access("/sbin/udevsettle", X_OK)) {
+		system("/sbin/udevsettle");
+	}
+	
 	r = 0;
 	
 out:
