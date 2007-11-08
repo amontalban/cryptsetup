@@ -1,9 +1,11 @@
 cryptsetup (2:1.0.5-2ubuntu5) hardy; urgency=low
 
   * reenable additional udevsettle calls in cryptroot hook from
-    https://launchpad.net/bugs/85640, LP: #132373
+    https://launchpad.net/bugs/85640, LP: #132373.
+  * change maintainer to ubuntu-core-dev.
+  * use Vcs-Bzr instead of XSCB-Vcs-Bzr header in debian/control.
 
- -- Reinhard Tartler <siretart@tauware.de>  Thu, 08 Nov 2007 23:48:09 +0100
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 08 Nov 2007 23:52:19 +0100
 
 cryptsetup (2:1.0.5-2ubuntu4) hardy; urgency=low
 
