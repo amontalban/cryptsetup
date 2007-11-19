@@ -445,6 +445,13 @@ do_start () {
 			continue
 		fi
 
+		# parse UUID= symlinks
+		if [ ${src#UUID=} != $src ]; then
+			src="/dev/disk/by-uuid/${src#UUID=}"
+		elif [ ${src#LABEL=} != $src ]; then
+			src="/dev/disk/by-label/${src#LABEL=}"
+		fi
+
 		# Make sure source device exists
 		if [ ! -r "$src" ]; then
 			if [ "$LOUD" = "yes" ]; then

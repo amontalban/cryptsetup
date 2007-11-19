@@ -61,6 +61,11 @@ parse_options()
 			;;
 		source=*)
 			cryptsource=${x#source=}
+			if [ ${cryptsource#UUID=} != $cryptsource ]; then
+				cryptsource="/dev/disk/by-uuid/${cryptsource#UUID=}"
+			elif [ ${cryptsource#LABEL=} != $cryptsource ]; then
+				cryptsource="/dev/disk/by-label/${cryptsource#LABEL=}"
+			fi
 			;;
 		lvm=*)
 			cryptlvm=${x#lvm=}
