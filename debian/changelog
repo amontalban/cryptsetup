@@ -1,4 +1,4 @@
-cryptsetup (2:1.0.5-2ubuntu6) UNRELEASED; urgency=low
+cryptsetup (2:1.0.5-2ubuntu6) hardy; urgency=low
 
   * Make cryptsetup understand devices specified by UUID=... or LABEL= 
     in crypttab. (LP: #153597)
