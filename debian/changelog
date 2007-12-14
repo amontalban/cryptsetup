@@ -1,3 +1,10 @@
+cryptsetup (2:1.0.5-2ubuntu7) hardy; urgency=low
+
+  * debian/initramfs/cryptroot-script: call udevadm instead of udevsettle
+  * debian/patches/06_call_udevsettle.dpatch: likewise
+
+ -- Scott James Remnant <scott@ubuntu.com>  Fri, 14 Dec 2007 16:11:36 +0000
+
 cryptsetup (2:1.0.5-2ubuntu6) hardy; urgency=low
 
   * Make cryptsetup understand devices specified by UUID=... or LABEL= 
