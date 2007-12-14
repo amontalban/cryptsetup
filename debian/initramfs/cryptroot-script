@@ -159,7 +159,7 @@ setup_mapping()
 		activate_evms $cryptsource
 	fi
 	# Wait for udev to be ready, see https://launchpad.net/bugs/85640
-	if [ -x /sbin/udevadm settle ]; then
+	if [ -x /sbin/udevadm ]; then
 		/sbin/udevadm settle --timeout=30
 	fi
 
@@ -239,7 +239,7 @@ setup_mapping()
 
 	if [ $count -lt 3 ]; then
 		# Wait for udev to be ready, see https://launchpad.net/bugs/85640
-		if [ -x /sbin/udevadm settle ]; then
+		if [ -x /sbin/udevadm ]; then
 			/sbin/udevadm settle --timeout=30
 		fi
 		return 0

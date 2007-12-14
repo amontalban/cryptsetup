@@ -22,7 +22,7 @@
 +	 * checking here if udevsettle is available and call it if it
 +	 * is.
 +	 */
-+	if (0 == access("/sbin/udevadm settle", X_OK)) {
++	if (0 == access("/sbin/udevadm", X_OK)) {
 +		system("/sbin/udevadm settle");
 +	}
 +	

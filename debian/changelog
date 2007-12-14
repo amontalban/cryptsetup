@@ -1,3 +1,9 @@
+cryptsetup (2:1.0.5-2ubuntu8) hardy; urgency=low
+
+  * Fix -x calls and access() call.
+
+ -- Scott James Remnant <scott@ubuntu.com>  Fri, 14 Dec 2007 16:54:53 +0000
+
 cryptsetup (2:1.0.5-2ubuntu7) hardy; urgency=low
 
   * debian/initramfs/cryptroot-script: call udevadm instead of udevsettle
