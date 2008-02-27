@@ -7,10 +7,10 @@
 ## DP: Improve the upstream manpage
 
 @DPATCH@
-
---- cryptsetup-1.0.5/man/cryptsetup.8
-+++ cryptsetup-1.0.5/man/cryptsetup.8
-@@ -88,7 +88,9 @@
+diff -urNad ubuntu~/man/cryptsetup.8 ubuntu/man/cryptsetup.8
+--- ubuntu~/man/cryptsetup.8	2008-02-27 17:41:20.000000000 +0100
++++ ubuntu/man/cryptsetup.8	2008-02-27 17:42:54.000000000 +0100
+@@ -88,10 +88,12 @@
  query for passwords twice. Useful, when creating a (regular) mapping for the first time, or when running \fIluksFormat\fR.
  .TP
  .B "\-\-key-file, \-d"
@@ -20,7 +20,11 @@
 +If the key file is "-", stdin will be used. This is different from how cryptsetup usually reads from stdin. See section \fBNOTES ON PASSWORD PROCESSING\fR for more information.
  .TP
  .B "\-\-key-size, \-s"
- set key size in bits. Has to be a multiple of 8 bits. The key size is limited by the used cipher. See output of /proc/crypto for more information. Can be used for \fIcreate\fR or \fIluksFormat\fR, all other LUKS actions will ignore this flag, as the key-size is specified by the partition header. Default is 128.
+-set key size in bits. Has to be a multiple of 8 bits. The key size is limited by the used cipher. See output of /proc/crypto for more information. Can be used for \fIcreate\fR or \fIluksFormat\fR, all other LUKS actions will ignore this flag, as the key-size is specified by the partition header. Default is 128.
++set key size in bits. Has to be a multiple of 8 bits. The key size is limited by the used cipher. See output of /proc/crypto for more information. Can be used for \fIcreate\fR or \fIluksFormat\fR, all other LUKS actions will ignore this flag, as the key-size is specified by the partition header. Default is 128 for \fIluksFormat\fR and 256 for \fIcreate\fR.
+ .TP
+ .B "\-\-size, \-b"
+ force the size of the underlaying device in sectors.
 @@ -112,7 +114,7 @@
  Do not ask for confirmation. This option is only relevant for \fIluksFormat\fR.
  .TP
@@ -37,10 +41,10 @@
 -.SH NOTES ON PASSWORD PROCESSING FOR REGULAR MAPPINGS
 -\fIFrom a file descriptor or a terminal\fR: Password processing is new-line sensitive, meaning the reading will stop after encountering \\n. It will processed the read material with the default hash or the hash given by \-\-hash. After hashing it will be cropped to the key size given by \-s (default 256 bits).
 +.SH NOTES ON PASSWORD PROCESSING
-+\fIFrom a file descriptor or a terminal\fR: Password processing is new-line sensitive, meaning the reading will stop after encountering \\n. It will processed the read material (without newline) with the default hash or the hash given by \-\-hash. After hashing it will be cropped to the key size given by \-s (default 256 bits).
++\fIFrom a file descriptor or a terminal\fR: Password processing is new-line sensitive, meaning the reading will stop after encountering \\n. It will processed the read material (without newline) with the default hash or the hash given by \-\-hash. After hashing it will be cropped to the key size given by \-s.
  
 -\fIFrom stdin\fR: Reading will continue until EOF (so using e.g. /dev/random as stdin will not work). After that the read data will be hashed with the default hash or the hash given by \-\-hash and the result will be cropped to the keysize given by \-s (default 256 bits). If "plain" is used as an argument to the hash option, the input data will not be hashed. Instead it will be zero padded (if shorter than the keysize) or truncated (if longer than the keysize) and used directly as the key. No warning will be given if the amount of data read from stdin is less than the keysize.
-+\fIFrom stdin\fR: Reading will continue until EOF (so using e.g. /dev/random as stdin will not work), with the trailing newline stripped. After that the read data will be hashed with the default hash or the hash given by \-\-hash and the result will be cropped to the keysize given by \-s (default 256 bits). If "plain" is used as an argument to the hash option, the input data will not be hashed. Instead it will be zero padded (if shorter than the keysize) or truncated (if longer than the keysize) and used directly as the key. No warning will be given if the amount of data read from stdin is less than the keysize.
++\fIFrom stdin\fR: Reading will continue until EOF (so using e.g. /dev/random as stdin will not work), with the trailing newline stripped. After that the read data will be hashed with the default hash or the hash given by \-\-hash and the result will be cropped to the keysize given by \-s. If "plain" is used as an argument to the hash option, the input data will not be hashed. Instead it will be zero padded (if shorter than the keysize) or truncated (if longer than the keysize) and used directly as the key. No warning will be given if the amount of data read from stdin is less than the keysize.
  
  \fIFrom a key file\fR: It will be cropped to the size given by \-s. If there is insufficient key material in the key file, cryptsetup will quit with an error.
 +
