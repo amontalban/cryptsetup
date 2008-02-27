@@ -1,4 +1,4 @@
-cryptsetup (2:1.0.5-2ubuntu9) UNRELEASED; urgency=low
+cryptsetup (2:1.0.5-2ubuntu9) hardy; urgency=low
 
   * debian/scripts/luksformat: Use 256 bit key size by default.
     (LP: #78508)
