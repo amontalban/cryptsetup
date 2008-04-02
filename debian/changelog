@@ -1,3 +1,14 @@
+cryptsetup (2:1.0.5-2ubuntu10) UNRELEASED; urgency=low
+
+  * debian/initramfs/cryptroot-script: Do not mention the name of the
+    encrypted device. It is just technobabble anyway (sda4_crypt), and there
+    is just one root partition ever, so it is not needed to tell apart
+    different partitions. From a security POV, someone who can change your
+    initramfs to boot a different root partition can just as well change the
+    strings, too. (LP: #201413)
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Wed, 02 Apr 2008 15:51:53 +0200
+
 cryptsetup (2:1.0.5-2ubuntu9) hardy; urgency=low
 
   * debian/scripts/luksformat: Use 256 bit key size by default.
