@@ -1,4 +1,4 @@
-cryptsetup (2:1.0.5-2ubuntu10) UNRELEASED; urgency=low
+cryptsetup (2:1.0.5-2ubuntu10) hardy; urgency=low
 
   * debian/initramfs/cryptroot-script: Do not mention the name of the
     encrypted device. It is just technobabble anyway (sda4_crypt), and there
