@@ -1,3 +1,10 @@
+cryptsetup (2:1.0.5-2ubuntu11) UNRELEASED; urgency=low
+
+  * debian/initramfs/cryptroot-script: Do show the disk name after all, since
+    some people use multiple encrypted partitions as LVM PVs. (LP: #201413)
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Sun, 06 Apr 2008 11:54:41 -0600
+
 cryptsetup (2:1.0.5-2ubuntu10) hardy; urgency=low
 
   * debian/initramfs/cryptroot-script: Do not mention the name of the
