@@ -43,8 +43,8 @@ diff -urNad cryptsetup-1.0.6~pre1~/lib/libdevmapper.c cryptsetup-1.0.6~pre1/lib/
 +	 * checking here if udevsettle is available and call it if it
 +	 * is.
 +	 */
-+	if (0 == access("/sbin/udevsettle", X_OK)) {
-+		system("/sbin/udevsettle");
++	if (0 == access("/sbin/udevadm", X_OK)) {
++		system("/sbin/udevadm settle");
 +	}
 +	
  	r = 0;
