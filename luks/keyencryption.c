@@ -181,7 +181,7 @@ int LUKS_encrypt_to_storage(char *src, size_t srcLength,
 {
 	
 	return LUKS_endec_template(src,srcLength,hdr,key,keyLength, device, sector, backend,	
-				   (ssize_t (*)(int, void *, size_t)) write_blockwise, O_RDWR | O_EXCL);
+				   (ssize_t (*)(int, void *, size_t)) write_blockwise, O_RDWR);
 }	
 
 int LUKS_decrypt_from_storage(char *dst, size_t dstLength, 
