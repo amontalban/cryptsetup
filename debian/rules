@@ -47,8 +47,6 @@ config.status: configure.in patch
 	autoconf
 	
 	CFLAGS="$(CFLAGS)" ./configure $(confflags) \
-		--host=$(DEB_HOST_GNU_TYPE) \
-		--build=$(DEB_BUILD_GNU_TYPE) \
 		--prefix=/usr \
 		--sbindir=/sbin \
 		--mandir=/usr/share/man
@@ -62,16 +60,19 @@ build: build-stamp
 build-stamp: config.status
 	dh_testdir
 	asciidoc -d manpage -b docbook debian/crypttab.5.txt
+	asciidoc -d manpage -b docbook debian/cryptdisks_start.8.txt
 	sed -i 's/<emphasis role="strong">/<emphasis role="bold">/g' debian/crypttab.5.xml
+	sed -i 's/<emphasis role="strong">/<emphasis role="bold">/g' debian/cryptdisks_start.8.xml
 	xsltproc -o debian/crypttab.5 /usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl \
 		debian/crypttab.5.xml
+	xsltproc -o debian/cryptdisks_start.8 /usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl \
+		debian/cryptdisks_start.8.xml
 	pod2man --section=8 --center="Administrative commands" --release="" debian/scripts/luksformat \
 		debian/luksformat.8
 	$(MAKE)
 	# cannot depend on libraries in /usr !
 	gcc lib/.libs/*.o src/*.o luks/.libs/*.o -o src/cryptsetup.static \
-		-lpopt -ldevmapper -luuid /usr/lib/libgcrypt.a \
-		/usr/lib/libgpg-error.a
+		-lpopt -ldevmapper -luuid /usr/lib/libgcrypt.a /usr/lib/libgpg-error.a
 	touch build-stamp
 
 clean: clean-patched unpatch
@@ -85,8 +86,9 @@ clean-patched:
 	if test -f config.mess; then rm -f `cat config.mess`; fi
 
 	rm -f debian/crypttab.5 debian/crypttab.5.xml debian/luksformat.8
+	rm -f debian/cryptdisks_start.8 debian/cryptdisks_start.8.xml
 	rm -f config.mess
-	rm -f autom4te.cache 
+	rm -rf autom4te.cache 
 	rm -f src/cryptsetup.static
 
 	dh_clean 
@@ -104,9 +106,8 @@ install: build
 	install -m 0644 debian/cryptdisks.functions $(CURDIR)/debian/cryptsetup/lib/cryptsetup/
 	install -m 0755 debian/checks/* $(CURDIR)/debian/cryptsetup/lib/cryptsetup/checks/
 	install -m 0755 debian/scripts/luksformat $(CURDIR)/debian/cryptsetup/usr/sbin/
+	install -m 0755 debian/scripts/cryptdisks_start $(CURDIR)/debian/cryptsetup/usr/sbin/
 	install -m 0755 debian/scripts/decrypt_* $(CURDIR)/debian/cryptsetup/lib/cryptsetup/scripts/
-	install -m 0644 debian/cryptsetup.lintian-override \
-		$(CURDIR)/debian/cryptsetup/usr/share/lintian/overrides/cryptsetup
 	install -m 0755 debian/initramfs/cryptroot-hook \
 		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/hooks/cryptroot
 	install -m 0755 debian/initramfs/cryptroot-script \
@@ -137,8 +138,14 @@ binary-arch: build install
 	cp -a $(CURDIR)/debian/cryptsetup/etc $(CURDIR)/debian/cryptsetup-udeb/
 	cp -a $(CURDIR)/debian/cryptsetup/lib $(CURDIR)/debian/cryptsetup-udeb/
 	cp -a $(CURDIR)/debian/cryptsetup/sbin $(CURDIR)/debian/cryptsetup-udeb/
+	
+	# Get rid of libcryptsetup.so since it has no stable API.
+	# We instead statically link the relevant code
+	# into the cryptsetup executable, so the .so is not needed.
+	rm -rf $(CURDIR)/debian/cryptsetup/usr/lib
+
 #	dh_install
-	dh_installman debian/crypttab.5 debian/luksformat.8
+	dh_installman debian/crypttab.5 debian/luksformat.8 debian/cryptdisks_start.8
 	dh_link -a
 	dh_strip -a
 	dh_compress -a

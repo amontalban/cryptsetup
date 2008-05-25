@@ -1,0 +1,32 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+
+## 03_check_for_root.dpatch
+## by Jonas Meurer <mejo@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: check for UID == 0 before actually doing anything.
+
+@DPATCH@
+diff -urNad cryptsetup-1.0.6~pre1~/src/cryptsetup.c cryptsetup-1.0.6~pre1/src/cryptsetup.c
+--- cryptsetup-1.0.6~pre1~/src/cryptsetup.c	2007-12-01 17:46:10.000000000 +0100
++++ cryptsetup-1.0.6~pre1/src/cryptsetup.c	2007-12-04 13:25:23.000000000 +0100
+@@ -6,6 +6,8 @@
+ #include <errno.h>
+ #include <unistd.h>
+ #include <assert.h>
++#include <unistd.h>
++#include <sys/types.h>
+ 
+ #include <libcryptsetup.h>
+ #include <popt.h>
+@@ -424,6 +426,10 @@
+ 
+ int main(int argc, char **argv)
+ {
++	if (geteuid() != 0) {
++		fprintf(stderr, _("You have to be root to use cryptsetup!\n"));
++		return EXIT_FAILURE;
++	}
+ 	static char *popt_tmp;
+ 	static struct poptOption popt_help_options[] = {
+ 		{ NULL,    '\0', POPT_ARG_CALLBACK, help, 0, NULL,                         NULL },

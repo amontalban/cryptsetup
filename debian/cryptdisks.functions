@@ -1,3 +1,8 @@
+#
+# This file is for inclusion with
+#    . /lib/cryptsetup/cryptdisks.functions
+# and should not be executed directly.
+
 PATH="/sbin:/bin"
 TABFILE=/etc/crypttab
 CRYPTDISKS_ENABLE="Yes"
@@ -72,6 +77,20 @@ parse_opts () {
 			fi
 			PARAMS="$PARAMS -h $VALUE"
 			;;
+		offset)
+			if [ -z "$VALUE" ]; then
+				log_warning_msg "$dst: no value for offset option, skipping"
+				return 1
+			fi
+			PARAMS="$PARAMS -o $VALUE"
+			;;
+		skip)
+			if [ -z "$VALUE" ]; then
+				log_warning_msg "$dst: no value for skip option, skipping"
+				return 1
+			fi
+			PARAMS="$PARAMS -p $VALUE"
+			;;
 		verify)
 			PARAMS="$PARAMS -y"
 			;;
@@ -135,6 +154,11 @@ parse_opts () {
 		luks)
 			USELUKS=yes
 			;;
+		noearly)
+			if [ "$INITSTATE" = "early" ]; then
+				IGNORE="yes"
+			fi
+			;;
 		loud)
 			LOUD=yes
 			;;
@@ -156,7 +180,7 @@ parse_opts () {
 
 # Set up loopback devices
 lo_setup () {
-	local loopdev
+	#local loopdev
 
 	if [ ! -f "$src" ]; then
 		return 0
@@ -174,6 +198,17 @@ lo_setup () {
 
 	losetup "$loopdev" "$src" || return 1
 	src="$loopdev"
+	return 0
+}
+
+rm_lo_setup () {
+	if [ ! -f "$src" ]; then
+		return 0
+	fi
+
+	if [ -n "$loopdev" ]; then
+		losetup -d "$loopdev" || return 1
+	fi
 	return 0
 }
 
@@ -391,7 +426,94 @@ do_close () {
 	return $?
 }
 
+load_optimized_module () {
+	local module optmodule
+	module="$1"
+
+	optmodule=$(find "/lib/modules/$(uname -r)/kernel/arch" -name "${module}*.ko" 2> /dev/null)
+	if [ -n "$optmodule" ] && [ "$(echo -n "$optmodule" | wc -l)" -eq 1 ]; then
+		modprobe "$optmodule" 2>/dev/null && return 0
+	fi
+
+	modprobe "$module" 2>/dev/null || return 1
+	return 0
+}
+
 # Sets up all entries in crypttab
+handle_crypttab_line () {
+	dst=$1
+	src=$2
+	key=$3
+	opts=$4
+
+	# Make sure that all fields are present
+	if [ -z "$dst" ]; then
+		continue
+	elif [ -z "$src" ] || [ -z "$key" ] || [ -z "$opts" ]; then
+		device_msg "$dst" "skipped, missing parameters"
+		continue
+	fi
+
+	# parse UUID= symlinks
+	if [ ${src#UUID=} != $src ]; then
+		src="/dev/disk/by-uuid/${src#UUID=}"
+	elif [ ${src#LABEL=} != $src ]; then
+		src="/dev/disk/by-label/${src#LABEL=}"
+	fi
+
+	# Make sure source device exists
+	if [ ! -r "$src" ]; then
+		if [ "$LOUD" = "yes" ]; then
+			device_msg "$dst" "skipped, device $src does not exist"
+		fi
+		continue
+	fi
+
+	# Make sure that target device doesn't exist
+	if [ -b "/dev/mapper/$dst" ]; then
+		device_msg "$dst" "running"
+		continue
+	fi
+
+	# All checks passed, do the preparatory steps
+	if ! parse_opts "$opts"; then
+		device_msg "$dst" "invalid opts"
+		continue
+	elif ! check_key; then
+		device_msg "$dst" "invalid key"
+		continue
+	elif ! lo_setup; then
+		device_msg "$dst" "loopback failed"
+	fi
+
+	# Do the real setup
+	if [ "$IGNORE" = "yes" ]; then
+		result="ignore"
+	else
+		log_progress_msg "$dst (starting)"
+		result="ok"
+		if [ "$USELUKS" = "yes" ]; then
+			do_luks || result="fail"
+		else
+			do_noluks || result="fail"
+		fi
+	fi
+
+	# Finish up
+	if [ "$result" = "ignore" ]; then
+		device_msg "$dst" "ignored"
+	elif [ "$result" != "ok" ]; then
+		rm_lo_setup
+		device_msg "$dst" "failed"
+	else
+		do_swap
+		do_tmp
+		device_msg "$dst" "started"
+	fi
+
+	return 0
+}
+
 do_start () {
 	local dst src key opts result
 
@@ -402,60 +524,10 @@ do_start () {
 	mount_fs
 
 	egrep -v "^[[:space:]]*(#|$)" "$TABFILE" | while read dst src key opts; do
-
-		# Make sure that all fields are present
-		if [ -z "$dst" ]; then
-			continue
-		elif [ -z "$src" ] || [ -z "$key" ] || [ -z "$opts" ]; then
-			device_msg "$dst" "skipped, missing parameters"
-			continue
-		fi
-
-		# Make sure source device exists
-		if [ ! -r "$src" ]; then
-			if [ "$LOUD" = "yes" ]; then
-				device_msg "$dst" "skipped, device $src does not exist"
-			fi
-			continue
-		fi
-
-		# Make sure that target device doesn't exist
-		if [ -b "/dev/mapper/$dst" ]; then
-			device_msg "$dst" "running"
-			continue
-		fi
-
-		# All checks passed, do the preparatory steps
-		if ! parse_opts "$opts"; then
-			device_msg "$dst" "invalid opts"
-			continue
-		elif ! check_key; then
-			device_msg "$dst" "invalid key"
-			continue
-		elif ! lo_setup; then
-			device_msg "$dst" "loopback failed"
-		fi
-
-		# Do the real setup
-		log_progress_msg "$dst (starting)"
-		result="ok"
-		if [ "$USELUKS" = "yes" ]; then
-			do_luks || result="fail"
-		else
-			do_noluks || result="fail"
-		fi
-
-		# Finish up
-		if [ "$result" != "ok" ]; then
-			log_progress_msg "$dst (failed)"
-		else
-			do_swap
-			do_tmp
-			log_progress_msg "$dst (started)"
-		fi
+		handle_crypttab_line "$dst" "$src" "$key" "$opts"
 	done
-
 	umount_fs
+
 	log_action_end_msg 0
 }
 
@@ -473,7 +545,7 @@ do_stop () {
 			continue
 		fi
 
-		opencount=$(dmsetup info -c --noheadings -o open "$dst" 2> /dev/null)
+		opencount=$(dmsetup info -c --noheadings -o open "$dst" 2> /dev/null || true)
 		if [ -z "$opencount" ]; then
 			device_msg "$dst" "error"
 			continue
@@ -482,21 +554,28 @@ do_stop () {
 			continue
 		fi
 
-		major=$(dmsetup info -c --noheadings -o major "$dst" 2> /dev/null)
-		minor=$(dmsetup info -c --noheadings -o minor "$dst" 2> /dev/null)
+		#major=$(dmsetup info -c --noheadings -o major "$dst" 2> /dev/null || true)
+		#minor=$(dmsetup info -c --noheadings -o minor "$dst" 2> /dev/null || true)
+		src_major=$(dmsetup deps "$dst" 2> /dev/null | sed -e 's/^.*(\([0-9]*\), [0-9]*)$/\1/g' || true)
+		src_minor=$(dmsetup deps "$dst" 2> /dev/null | sed -e 's/^.*([0-9]*, \([0-9]*\))$/\1/g' || true)
 
-		if [ -z "$major" ] || [ -z "$minor" ]; then
+		if [ -z "$src_major" ] || [ -z "$src_minor" ]; then
 			device_msg "$dst" "error"
 			continue
 		fi
 
 		do_close
-		log_action_cont_msg "$dst (stopping)"
 
 		# Detach loopback device, if attached
-		if [ -f "$src" ] && [ -n "$loopmajor" ] && [ "$loopmajor" = "$major" ]; then 
-			losetup -d "/dev/loop$minor" > /dev/null 2>&1 || true
+		if [ "$src_major" = "7" ]; then
+			loopdev="/dev/loop${src_minor}"
+			if ! rm_lo_setup; then
+				device_msg "$dst" "detaching loopback failed"
+				continue
+			fi
 		fi
+
+		log_action_cont_msg "$dst (stopping)"
 	done
 
 	log_action_end_msg 0
