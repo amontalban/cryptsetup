@@ -132,5 +132,5 @@ int LUKS_decrypt_from_storage(char *dst, size_t dstLength,
 			      char *key, size_t keyLength,
 			      const char *device,
 			      unsigned int sector, struct setup_backend *backend);
-
+int LUKS_device_ready(const char *device, int mode);
 #endif

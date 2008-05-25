@@ -62,8 +62,14 @@ int hash(const char *backend_name, const char *hash_name,
 struct setup_backend *get_setup_backend(const char *name);
 void put_setup_backend(struct setup_backend *backend);
 
+void hexprint(char *d, int n);
+
+int sector_size_for_device(const char *device);
 ssize_t write_blockwise(int fd, const void *buf, size_t count);
 ssize_t read_blockwise(int fd, void *_buf, size_t count);
 ssize_t write_lseek_blockwise(int fd, const char *buf, size_t count, off_t offset);
+
+
+int get_key(char *prompt, char **key, int *passLen, int key_size, const char *key_file, int passphrase_fd, int timeout, int how2verify);
 
 #endif /* INTERNAL_H */

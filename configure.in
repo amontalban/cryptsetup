@@ -1,5 +1,5 @@
 AC_PREREQ(2.57)
-AC_INIT(cryptsetup,1.0.5)
+AC_INIT(cryptsetup,1.0.6-pre1)
 AC_CONFIG_SRCDIR(src/cryptsetup.c)
 
 AM_CONFIG_HEADER([config.h:config.h.in])
@@ -99,7 +99,7 @@ MODULE_HELPER(libdevmapper,
 	AC_CHECK_LIB(sepol, sepol_bool_set)
 	AC_CHECK_LIB(selinux, is_selinux_enabled)
 	AC_CHECK_LIB(devmapper, dm_task_set_name,,unset have_module)
-	AC_CHECK_HEADER(libdevmapper.h,,unset have_module=)
+	AC_CHECK_HEADER(libdevmapper.h,,unset have_module)
 	LIBDEVMAPPER_LIBS="$LIBS"
 	LIBS="$saved_LIBS"
 	AC_SUBST(LIBDEVMAPPER_LIBS)

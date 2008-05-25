@@ -26,7 +26,7 @@ The first field 'target device' describes the mapped 'device name'.
 It must be a plain filename without any directories.
 A mapped device */dev/mapper/*'device name' will be created by *cryptsetup(8)* crypting data from and onto the 'source device'.
 
-The second field 'source device' describes the block special device that should hold the encrypted data.
+The second field 'source device' describes either the block special device or file (which will be automatically mounted as loop device) that should hold the encrypted data.
 
 The third field 'key file' describes the file to use for decrypting the encrypted data of the 'source device'.
 
@@ -51,6 +51,12 @@ Encryption key size. See *cryptsetup -s*.
 
 *hash*=<hash>::
 Hash algorithm. See *cryptsetup -h*.
+
+*offset*=<offset>::
+Start offset. Uses *cryptsetup -o*.
+
+*skip*=<skip>::
+Skip sectors at the beginning. Uses *cryptsetup -p*.
 
 *verify*::
 Verify password. Uses *cryptsetup -y*.
@@ -91,6 +97,12 @@ want to disable retries, give tries=1 as argument. Default is 3.
 If key is "'none'", the cryptdisks script interactively prompts for a
 password. The timeout option specifies the time in seconds to wait for
 the password before timing out.
+
+*noearly*::
+Cryptdisks is invoked two times at the boot process. Once before lvm, evms,
+raid, etc. are started, and once after that. Sometimes you need to start your
+encrypted disks in a special order. With this option the first invokation of
+cryptdisks ignores the device.
 
 *loud*::
 Be loud. Print warnings if a device does not exist.

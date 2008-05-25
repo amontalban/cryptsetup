@@ -18,6 +18,13 @@
 
 #define	CRYPT_TARGET	"crypt"
 
+#define UDEVSETTLE	"/sbin/udevsettle"
+
+static void run_udevsettle(void)
+{
+	system(UDEVSETTLE);
+}
+
 static void set_dm_error(int level, const char *file, int line,
                          const char *f, ...)
 {
@@ -184,6 +191,9 @@ static int dm_create_device(int reload, struct crypt_options *options,
 	if (dmi.read_only)
 		options->flags |= CRYPT_FLAG_READONLY;
 
+	/* run udevsettle to avoid a race in libdevmapper causing busy dm devices */
+	run_udevsettle();
+
 	r = 0;
 	
 out:
@@ -258,7 +268,7 @@ static int dm_query_device(int details, struct crypt_options *options,
 	options->skip = 0;
 	options->size = length;
 	if (details) {
-		char *cipher, *key_, *device, *tmp;
+		char *cipher, *key_, *device;
 		uint64_t val64;
 
 		set_error("Invalid dm table");
