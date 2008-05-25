@@ -118,7 +118,7 @@ int LUKS_write_phdr(const char *device, struct luks_phdr *hdr)
 	struct luks_phdr convHdr;
 	int r;
 	
-	devfd = open(device,O_RDWR | O_DIRECT | O_SYNC | O_EXCL);
+	devfd = open(device,O_RDWR | O_DIRECT | O_SYNC);
 	if(-1 == devfd) { 
 		set_error(_("Can't open device %s"), device);
 		return -EINVAL;
@@ -386,7 +386,7 @@ static int wipe(const char *device, unsigned int from, unsigned int to)
 	unsigned int bufLen = (to - from) * SECTOR_SIZE;
 	int r = 0;
 	
-	devfd = open(device, O_RDWR | O_DIRECT);
+	devfd = open(device, O_RDWR | O_DIRECT | O_SYNC);
 	if(devfd == -1) {
 		set_error(_("Can't open device %s"), device);
 		return -EINVAL;
@@ -405,8 +405,6 @@ static int wipe(const char *device, unsigned int from, unsigned int to)
 			r = -EIO;
 			break;
 		}
-
-		fsync(devfd); fsync(devfd); sync();
 	}
 
 	free(buffer);
