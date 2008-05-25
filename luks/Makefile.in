@@ -237,7 +237,7 @@ INCLUDES = -D_GNU_SOURCE			\
 	-D_FILE_OFFSET_BITS=64                  \
         -I$(top_srcdir)/lib
 
-EXTRA_DIST = sha/hmac.c testing/fileDiffer.py
+EXTRA_DIST = sha/hmac.c testing/fileDiffer.py testing/compatimage.bz2
 ORIG_IMG = /tmp/luks-test-orig
 IMG = /tmp/luks-test
 IMG1 = /tmp/luks-test1

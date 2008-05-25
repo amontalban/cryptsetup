@@ -3,6 +3,16 @@
 
 #include <stdint.h>
 
+
+#define CRYPT_LOG_NORMAL 0
+#define CRYPT_LOG_ERROR  1
+
+struct interface_callbacks { 
+    int (*yesDialog)(char *msg);
+    void (*log)(int class, char *msg);
+};
+
+
 #define	CRYPT_FLAG_VERIFY	        (1 << 0)
 #define CRYPT_FLAG_READONLY	        (1 << 1)
 #define	CRYPT_FLAG_VERIFY_IF_POSSIBLE	(1 << 2)
@@ -32,6 +42,8 @@ struct crypt_options {
 
  	uint64_t	align_payload;
 	int             tries;
+
+	struct interface_callbacks *icb;
 };
 
 int crypt_create_device(struct crypt_options *options);
@@ -39,12 +51,15 @@ int crypt_update_device(struct crypt_options *options);
 int crypt_resize_device(struct crypt_options *options);
 int crypt_query_device(struct crypt_options *options);
 int crypt_remove_device(struct crypt_options *options);
-int crypt_luksInit(struct crypt_options *options);
+int crypt_luksFormat(struct crypt_options *options);
 int crypt_luksOpen(struct crypt_options *options);
-int crypt_luksDelKey(struct crypt_options *options);
+int crypt_luksKillSlot(struct crypt_options *options);
+int crypt_luksRemoveKey(struct crypt_options *options);
 int crypt_luksAddKey(struct crypt_options *options);
 int crypt_luksUUID(struct crypt_options *options);
 int crypt_isLuks(struct crypt_options *options);
+int crypt_luksFormat(struct crypt_options *options);
+int crypt_luksDump(struct crypt_options *options);
 
 void crypt_get_error(char *buf, size_t size);
 void crypt_put_options(struct crypt_options *options);

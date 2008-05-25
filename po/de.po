@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cryptsetup 1.0.1.fk01\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-05-06 21:34+0200\n"
+"POT-Creation-Date: 2007-12-01 17:31+0100\n"
 "PO-Revision-Date: 2005-08-18 19:52+0200\n"
 "Last-Translator: Florian Knauf <i-sys@gmx.net>\n"
 "Language-Team: German <de@li.org>\n"
@@ -16,162 +16,186 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-15\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: luks/keyencryption.c:61
-#, c-format
-msgid "Unable to obtain sector size for %s"
-msgstr ""
-
-#: luks/keyencryption.c:109
-msgid "Failed to obtain device mapper directory."
-msgstr ""
-
-#: luks/keymanage.c:79 luks/keymanage.c:120 luks/keymanage.c:390
-#, fuzzy, c-format
-msgid "Can't open device: %s\n"
-msgstr "Fehler beim Öffnen des Geräts: %s"
-
-#: luks/keymanage.c:86
-#, c-format
-msgid "%s is not a LUKS partition\n"
-msgstr ""
-
-#: luks/keymanage.c:89
-#, fuzzy
-msgid "unknown hash spec in phdr"
-msgstr "Unbekannter Hash im Partitions-Header"
-
-#: luks/keymanage.c:92
-#, c-format
-msgid "unknown version %d\n"
-msgstr ""
-
-#: luks/keymanage.c:213
-#, c-format
-msgid "key %d active, purge first.\n"
-msgstr ""
-
-#: luks/keymanage.c:218
-#, c-format
-msgid ""
-"key material section %d includes too few stripes. Header manipulation?\n"
-msgstr ""
-
-#: luks/keymanage.c:281
-#, c-format
-msgid "key %d is disabled.\n"
-msgstr ""
-
-#: luks/keymanage.c:427
-#, c-format
-msgid "Key %d not active. Can't wipe.\n"
-msgstr ""
-
-#: src/cryptsetup.c:56
-msgid "<name> <device>"
-msgstr ""
-
-#: src/cryptsetup.c:56
-msgid "create device"
-msgstr ""
-
-#: src/cryptsetup.c:57 src/cryptsetup.c:58 src/cryptsetup.c:59
-#: src/cryptsetup.c:60 src/cryptsetup.c:67
-msgid "<name>"
-msgstr ""
-
-#: src/cryptsetup.c:57
-msgid "remove device"
-msgstr ""
-
-#: src/cryptsetup.c:58
-msgid "modify active device"
-msgstr ""
-
-#: src/cryptsetup.c:59
-#, fuzzy
-msgid "resize active device"
-msgstr "Die Größe des Gerätes"
-
-#: src/cryptsetup.c:60
-msgid "show device status"
-msgstr ""
-
-#: src/cryptsetup.c:61 src/cryptsetup.c:64
-msgid "<device> [<new key file>]"
-msgstr ""
-
-#: src/cryptsetup.c:61
-#, fuzzy
-msgid "formats a LUKS device"
-msgstr "Kein Block-Device"
-
-#: src/cryptsetup.c:62
-msgid "<device> <name> "
-msgstr ""
-
-#: src/cryptsetup.c:62
-msgid "open LUKS device as mapping <name>"
-msgstr ""
-
-#: src/cryptsetup.c:63
-msgid "<device> <key slot>"
-msgstr ""
-
-#: src/cryptsetup.c:63
-msgid "wipes key with number <key slot> from LUKS device"
-msgstr ""
-
-#: src/cryptsetup.c:64
-msgid "add key to LUKS device"
-msgstr ""
-
-#: src/cryptsetup.c:65 src/cryptsetup.c:66 src/cryptsetup.c:68
-msgid "<device>"
-msgstr ""
-
-#: src/cryptsetup.c:65
-msgid "print UUID of LUKS device"
-msgstr ""
-
-#: src/cryptsetup.c:66
-msgid "tests <device> for LUKS partition header"
-msgstr ""
-
-#: src/cryptsetup.c:67
-msgid "remove LUKS mapping"
-msgstr ""
-
-#: src/cryptsetup.c:68
-msgid "dump LUKS partition information"
-msgstr ""
-
-#: src/cryptsetup.c:77
-#, c-format
-msgid "Command successful.\n"
-msgstr ""
-
-#: src/cryptsetup.c:90
-#, c-format
-msgid "Command failed"
-msgstr "Aufruf fehlgeschlagen"
-
-#: src/cryptsetup.c:226
-#, c-format
-msgid "This will overwrite data on %s irrevocably."
-msgstr "Daten auf %s werden unwiderruflich überschrieben."
-
-#: src/cryptsetup.c:227
-msgid "memory allocation error in action_luksFormat"
-msgstr "Fehler bei der Speicherallokation in action_luksFormat"
-
-#: src/cryptsetup.c:269
+#: lib/setup.c:627
 msgid ""
 "This is the last keyslot. Device will become unusable after purging this key."
 msgstr ""
 "Dies ist der letzte aktive Schlüssel. Das Gerät wird nach dem Entfernen des "
 "Schlüssels unbenutzbar sein."
 
-#: src/cryptsetup.c:349
+#: luks/keyencryption.c:65
+#, c-format
+msgid "Unable to obtain sector size for %s"
+msgstr ""
+
+#: luks/keyencryption.c:129
+msgid "Failed to obtain device mapper directory."
+msgstr ""
+
+#: luks/keymanage.c:82
+#, fuzzy, c-format
+msgid "Can't open device: %s\n"
+msgstr "Fehler beim Öffnen des Geräts: %s"
+
+#: luks/keymanage.c:89
+#, c-format
+msgid "%s is not a LUKS partition\n"
+msgstr ""
+
+#: luks/keymanage.c:92
+#, fuzzy
+msgid "unknown hash spec in phdr\n"
+msgstr "Unbekannter Hash im Partitions-Header"
+
+#: luks/keymanage.c:95
+#, c-format
+msgid "unknown LUKS version %d\n"
+msgstr ""
+
+#: luks/keymanage.c:123 luks/keymanage.c:391
+#, fuzzy, c-format
+msgid "Can't open device %s"
+msgstr "Fehler beim Öffnen des Geräts: %s"
+
+#: luks/keymanage.c:213
+#, c-format
+msgid "key %d active, purge first"
+msgstr ""
+
+#: luks/keymanage.c:218
+#, c-format
+msgid "key material section %d includes too few stripes. Header manipulation?"
+msgstr ""
+
+#: luks/keymanage.c:428
+#, c-format
+msgid "Key %d not active. Can't wipe.\n"
+msgstr ""
+
+#: luks/keymanage.c:473
+#, fuzzy, c-format
+msgid "Can't open device for %s%saccess: %s\n"
+msgstr "Fehler beim Öffnen des Geräts: %s"
+
+#: luks/keymanage.c:473
+msgid "exclusive "
+msgstr ""
+
+#: luks/keymanage.c:473
+msgid "writable "
+msgstr ""
+
+#: src/cryptsetup.c:59
+msgid "<name> <device>"
+msgstr ""
+
+#: src/cryptsetup.c:59
+msgid "create device"
+msgstr ""
+
+#: src/cryptsetup.c:60 src/cryptsetup.c:61 src/cryptsetup.c:62
+#: src/cryptsetup.c:63 src/cryptsetup.c:72
+msgid "<name>"
+msgstr ""
+
+#: src/cryptsetup.c:60
+msgid "remove device"
+msgstr ""
+
+#: src/cryptsetup.c:61
+msgid "modify active device"
+msgstr ""
+
+#: src/cryptsetup.c:62
+#, fuzzy
+msgid "resize active device"
+msgstr "Die Größe des Gerätes"
+
+#: src/cryptsetup.c:63
+msgid "show device status"
+msgstr ""
+
+#: src/cryptsetup.c:64 src/cryptsetup.c:66
+msgid "<device> [<new key file>]"
+msgstr ""
+
+#: src/cryptsetup.c:64
+#, fuzzy
+msgid "formats a LUKS device"
+msgstr "Kein Block-Device"
+
+#: src/cryptsetup.c:65
+msgid "<device> <name> "
+msgstr ""
+
+#: src/cryptsetup.c:65
+msgid "open LUKS device as mapping <name>"
+msgstr ""
+
+#: src/cryptsetup.c:66
+msgid "add key to LUKS device"
+msgstr ""
+
+#: src/cryptsetup.c:67
+msgid "<device> [<key file]]"
+msgstr ""
+
+#: src/cryptsetup.c:67
+msgid "removes supplied key or key file from LUKS device"
+msgstr ""
+
+#: src/cryptsetup.c:68 src/cryptsetup.c:69
+msgid "<device> <key slot>"
+msgstr ""
+
+#: src/cryptsetup.c:68
+msgid "wipes key with number <key slot> from LUKS device"
+msgstr ""
+
+#: src/cryptsetup.c:69
+msgid "identical to luksKillSlot, but deprecated action name"
+msgstr ""
+
+#: src/cryptsetup.c:70 src/cryptsetup.c:71 src/cryptsetup.c:73
+msgid "<device>"
+msgstr ""
+
+#: src/cryptsetup.c:70
+msgid "print UUID of LUKS device"
+msgstr ""
+
+#: src/cryptsetup.c:71
+msgid "tests <device> for LUKS partition header"
+msgstr ""
+
+#: src/cryptsetup.c:72
+msgid "remove LUKS mapping"
+msgstr ""
+
+#: src/cryptsetup.c:73
+msgid "dump LUKS partition information"
+msgstr ""
+
+#: src/cryptsetup.c:123
+#, c-format
+msgid "Command successful.\n"
+msgstr ""
+
+#: src/cryptsetup.c:136
+#, c-format
+msgid "Command failed"
+msgstr "Aufruf fehlgeschlagen"
+
+#: src/cryptsetup.c:260
+#, c-format
+msgid "This will overwrite data on %s irrevocably."
+msgstr "Daten auf %s werden unwiderruflich überschrieben."
+
+#: src/cryptsetup.c:261
+msgid "memory allocation error in action_luksFormat"
+msgstr "Fehler bei der Speicherallokation in action_luksFormat"
+
+#: src/cryptsetup.c:408
 #, c-format
 msgid ""
 "\n"
@@ -180,7 +204,7 @@ msgstr ""
 "\n"
 "<action> ist eins der Folgenden:\n"
 
-#: src/cryptsetup.c:355
+#: src/cryptsetup.c:414
 #, c-format
 msgid ""
 "\n"
@@ -190,121 +214,121 @@ msgid ""
 "<key file> optional key file for the new key for luksAddKey action\n"
 msgstr ""
 
-#: src/cryptsetup.c:371
+#: src/cryptsetup.c:430
 msgid "Show this help message"
 msgstr "Diese Hilfemeldung anzeigen"
 
-#: src/cryptsetup.c:372
+#: src/cryptsetup.c:431
 msgid "Display brief usage"
 msgstr "Kurze Verwendungsbeschreibung anzeigen"
 
-#: src/cryptsetup.c:376
+#: src/cryptsetup.c:435
 msgid "Help options:"
 msgstr "Hilfe-Optionen:"
 
-#: src/cryptsetup.c:377
+#: src/cryptsetup.c:436
 #, fuzzy
 msgid "Shows more detailed error messages"
 msgstr "Diese Hilfemeldung anzeigen"
 
-#: src/cryptsetup.c:378
+#: src/cryptsetup.c:437
 msgid "The cipher used to encrypt the disk (see /proc/crypto)"
 msgstr "Der für die Verschlüsselung zu verwendende Cipher (siehe /proc/crypto)"
 
-#: src/cryptsetup.c:379
+#: src/cryptsetup.c:438
 msgid "The hash used to create the encryption key from the passphrase"
 msgstr ""
 "Der für die Erzeugung des Schlüssels aus der Phassphrase zu verwendende Hash"
 
-#: src/cryptsetup.c:380
+#: src/cryptsetup.c:439
 msgid "Verifies the passphrase by asking for it twice"
 msgstr "Überprüft das Paßwort durch eine Sicherheitsabfrage"
 
-#: src/cryptsetup.c:381
+#: src/cryptsetup.c:440
 msgid "Read the key from a file (can be /dev/random)"
 msgstr "Liest den Schlüssel aus einer Datei (kann /dev/random sein)"
 
-#: src/cryptsetup.c:382
+#: src/cryptsetup.c:441
 msgid "The size of the encryption key"
 msgstr "Die Größe des Schlüssels"
 
-#: src/cryptsetup.c:382
+#: src/cryptsetup.c:441
 msgid "BITS"
 msgstr "BITS"
 
-#: src/cryptsetup.c:383
+#: src/cryptsetup.c:442
 msgid "The size of the device"
 msgstr "Die Größe des Gerätes"
 
-#: src/cryptsetup.c:383 src/cryptsetup.c:384 src/cryptsetup.c:385
-#: src/cryptsetup.c:393
+#: src/cryptsetup.c:442 src/cryptsetup.c:443 src/cryptsetup.c:444
+#: src/cryptsetup.c:452
 msgid "SECTORS"
 msgstr "SEKTOREN"
 
-#: src/cryptsetup.c:384
+#: src/cryptsetup.c:443
 msgid "The start offset in the backend device"
 msgstr "Der Start-Offset im Backend-Gerät"
 
-#: src/cryptsetup.c:385
+#: src/cryptsetup.c:444
 msgid "How many sectors of the encrypted data to skip at the beginning"
 msgstr ""
 "Wieviele Sektoren der verschlüsselten Daten am Beginn übersprungen werden "
 "sollen"
 
-#: src/cryptsetup.c:386
+#: src/cryptsetup.c:445
 msgid "Create a readonly mapping"
 msgstr ""
 
-#: src/cryptsetup.c:387
+#: src/cryptsetup.c:446
 msgid "PBKDF2 iteration time for LUKS (in ms)"
 msgstr ""
 
-#: src/cryptsetup.c:388
+#: src/cryptsetup.c:447
 msgid "msecs"
 msgstr ""
 
-#: src/cryptsetup.c:389
+#: src/cryptsetup.c:448
 msgid "Do not ask for confirmation"
 msgstr "Es wird nicht nach einer Bestätigung gefragt"
 
-#: src/cryptsetup.c:390
+#: src/cryptsetup.c:449
 msgid "Print package version"
 msgstr ""
 
-#: src/cryptsetup.c:391
+#: src/cryptsetup.c:450
 msgid "Timeout for interactive passphrase prompt (in seconds)"
 msgstr "Zeit in Sekunden vor Abbruch der Abfrage des Passwort"
 
-#: src/cryptsetup.c:391
+#: src/cryptsetup.c:450
 msgid "secs"
 msgstr ""
 
-#: src/cryptsetup.c:392
+#: src/cryptsetup.c:451
 msgid "How often the input of the passphrase can be retried"
 msgstr "Wie oft die Eingabe des Passwortes wiederholt werden kann"
 
-#: src/cryptsetup.c:393
+#: src/cryptsetup.c:452
 msgid "Align payload at <n> sector boundaries - for luksFormat"
 msgstr ""
 
-#: src/cryptsetup.c:409
+#: src/cryptsetup.c:468
 #, fuzzy
 msgid "[OPTION...] <action> <action-specific>]"
 msgstr "[OPTION...] <Aktion> <Name> [<Gerät>]"
 
-#: src/cryptsetup.c:445
+#: src/cryptsetup.c:504
 msgid "Key size must be a multiple of 8 bits"
 msgstr "Schlüsselgröße muß ein Vielfaches von 8 Bit sein"
 
-#: src/cryptsetup.c:449
+#: src/cryptsetup.c:508
 msgid "Argument <action> missing."
 msgstr "Argument <Aktion> fehlt."
 
-#: src/cryptsetup.c:455
+#: src/cryptsetup.c:514
 msgid "Unknown action."
 msgstr "Unbekannte Aktion."
 
-#: src/cryptsetup.c:470
+#: src/cryptsetup.c:529
 #, c-format
 msgid "%s: requires %s as arguments"
 msgstr ""

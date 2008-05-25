@@ -30,6 +30,7 @@
 #include <errno.h>
 #include "sha1.h"
 #include "XORblock.h"
+#include "random.h"
 
 /* diffuse: Information spreading over the whole dataset with
  * the help of sha512. 
