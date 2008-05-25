@@ -1,6 +1,6 @@
 cryptsetup (2:1.0.6~pre1-1ubuntu1) UNRELEASED; urgency=low
 
-  * merge from debian
+  * Merge new debian version. Remaining changes:
 
  -- Reinhard Tartler <siretart@tauware.de>  Sun, 25 May 2008 16:47:28 +0200
 
