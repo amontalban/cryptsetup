@@ -20,6 +20,7 @@ static char *opt_hash = DEFAULT_HASH;
 static int opt_verify_passphrase = 0;
 static char *opt_key_file = NULL;
 static unsigned int opt_key_size = 0;
+static int opt_key_slot = -1;
 static uint64_t opt_size = 0;
 static uint64_t opt_offset = 0;
 static uint64_t opt_skip = 0;
@@ -150,6 +151,7 @@ static int action_create(int reload)
 		.hash = opt_hash,
 		.key_file = opt_key_file,
 		.key_size = ((opt_key_size)?opt_key_size:DEFAULT_KEY_SIZE)/8,
+		.key_slot = opt_key_slot,
 		.passphrase_fd = 0,	/* stdin */
 		.flags = 0,
 		.size = opt_size,
@@ -245,6 +247,7 @@ static int action_luksFormat(int arg)
 {
 	struct crypt_options options = {
 		.key_size = (opt_key_size != 0 ? opt_key_size : DEFAULT_LUKS_KEY_SIZE) / 8,
+		.key_slot = opt_key_slot,
 		.device = action_argv[0],
 		.cipher = opt_cipher?opt_cipher:DEFAULT_LUKS_CIPHER,
 		.new_key_file = action_argc > 1 ? action_argv[1] : NULL,
@@ -336,6 +339,7 @@ static int action_luksAddKey(int arg)
 		.device = action_argv[0],
 		.new_key_file = action_argc>1?action_argv[1]:NULL,
 		.key_file = opt_key_file,
+		.key_slot = opt_key_slot,
 		.flags = opt_verify_passphrase ? CRYPT_FLAG_VERIFY : (!opt_batch_mode?CRYPT_FLAG_VERIFY_IF_POSSIBLE : 0),
 		.iteration_time = opt_iteration_time,
 		.timeout = opt_timeout,
@@ -439,6 +443,7 @@ int main(int argc, char **argv)
 		{ "verify-passphrase", 'y',  POPT_ARG_NONE,                               &opt_verify_passphrase, 0, N_("Verifies the passphrase by asking for it twice"),                  NULL },
 		{ "key-file",          'd',  POPT_ARG_STRING,                             &opt_key_file,          0, N_("Read the key from a file (can be /dev/random)"),                   NULL },
 		{ "key-size",          's',  POPT_ARG_INT    | POPT_ARGFLAG_SHOW_DEFAULT, &opt_key_size,          0, N_("The size of the encryption key"),                                  N_("BITS") },
+		{ "key-slot",          'S',  POPT_ARG_INT,                                &opt_key_slot,          0, N_("Slot number for new key (default is first free)"),      NULL },
 		{ "size",              'b',  POPT_ARG_STRING,                             &popt_tmp,              1, N_("The size of the device"),                                          N_("SECTORS") },
 		{ "offset",            'o',  POPT_ARG_STRING,                             &popt_tmp,              2, N_("The start offset in the backend device"),                          N_("SECTORS") },
 		{ "skip",              'p',  POPT_ARG_STRING,                             &popt_tmp,              3, N_("How many sectors of the encrypted data to skip at the beginning"), N_("SECTORS") },

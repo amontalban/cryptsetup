@@ -430,7 +430,7 @@ static int __crypt_luks_format(int arg, struct setup_backend *backend, struct cr
 	}
 
 	/* Set key, also writes phdr */
-	r = LUKS_set_key(options->device, 0, password, passwordLen, &header, mk, backend); 
+	r = LUKS_set_key(options->device, options->key_slot==-1?0:(unsigned int)options->key_slot, password, passwordLen, &header, mk, backend);
 	if(r < 0) goto out; 
 
 	r = 0;
@@ -541,8 +541,9 @@ static int __crypt_luks_add_key(int arg, struct setup_backend *backend, struct c
 		.flags = options->flags,
 	};
 	int r;
+	int key_slot = options->key_slot;
 	
-	if (!LUKS_device_ready(options->device, O_RDWR | O_EXCL)) {
+	if (!LUKS_device_ready(options->device, O_RDWR)) {
 		set_error("Can not access device");
 		r = -ENOTBLK; goto out;
 	}
@@ -550,16 +551,28 @@ static int __crypt_luks_add_key(int arg, struct setup_backend *backend, struct c
 	r = LUKS_read_phdr(device, &hdr);
 	if(r < 0) return r;
 
-	/* Find empty key slot */
-	for(i=0; i<LUKS_NUMKEYS; i++) {
-		if(hdr.keyblock[i].active == LUKS_KEY_DISABLED) break;
-	}
-	if(i==LUKS_NUMKEYS) {
-		set_error("All slots full");
-		return -EINVAL;
-	}
-	keyIndex = i;
-	
+        if(key_slot != -1) {
+                if(key_slot >= LUKS_NUMKEYS) {
+                        set_error("slot %d too high, please pick between 0 and %d", key_slot, LUKS_NUMKEYS);
+                        return -EINVAL;
+                } else if(hdr.keyblock[key_slot].active != LUKS_KEY_DISABLED) {
+                        set_error("slot %d full, please pick another one", key_slot);
+                        return -EINVAL;
+                } else {
+                        keyIndex = key_slot;
+                }
+        } else {
+                /* Find empty key slot */
+                for(i=0; i<LUKS_NUMKEYS; i++) {
+                        if(hdr.keyblock[i].active == LUKS_KEY_DISABLED) break;
+                }
+                if(i==LUKS_NUMKEYS) {
+                        set_error("All slots full");
+                        return -EINVAL;
+                }
+                keyIndex = i;
+        }
+
 	optionsCheck.key_size = 0; // FIXME, define a clean interface some day.
 	get_key("Enter any LUKS passphrase: ",&password,&passwordLen, options->key_size, options->key_file, options->passphrase_fd, options->timeout, options->flags & ~(CRYPT_FLAG_VERIFY | CRYPT_FLAG_VERIFY_IF_POSSIBLE));
 	if(!password) {
@@ -602,7 +615,7 @@ static int luks_remove_helper(int arg, struct setup_backend *backend, struct cry
 	int keyIndex;
 	int openedIndex;
 	int r;
-	if (!LUKS_device_ready(options->device, O_RDWR | O_EXCL)) {
+	if (!LUKS_device_ready(options->device, O_RDWR)) {
 	    set_error("Can not access device");
 	    r = -ENOTBLK; goto out;
 	}
