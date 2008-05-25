@@ -1,6 +1,21 @@
-cryptsetup (2:1.0.6~pre1-1ubuntu1) UNRELEASED; urgency=low
+cryptsetup (2:1.0.6~pre1-1ubuntu1) intrepid; urgency=low
 
   * Merge new debian version. Remaining changes:
+    - cryptsetup is linked dynamically against libgcrypt and libgpg-error.
+      This will break systems where /usr is a separate encrypted filesystem
+      but not have other bad consequences (in particular, systems with
+      encrypted root are still fine).  The upsides include better
+      security supportability and smaller packages.
+    - stop usplash on user input. LP #62751
+    - debian/cryptdisks.functions: Always output and read from the console.
+      LP #58794.
+    - Add XSBC-Vcs-Bzr tag to indicate that this package is managed using
+      bzr on launchpad.
+    - debian/initramfs/cryptroot-hook: LP #73862
+      Added patch to install aes optimized cypher module
+    - try to load optimized cypher module in cryptsetup.functions as well,
+      because cryptroot-hook is only executed when we really have a
+      cryptoroot.
 
  -- Reinhard Tartler <siretart@tauware.de>  Sun, 25 May 2008 16:47:28 +0200
 
