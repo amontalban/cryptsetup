@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 XSBC-Original-Maintainer: Debian Cryptsetup Team <pkg-cryptsetup-devel@lists.alioth.debian.org>
 Uploaders: Jonas Meurer <mejo@debian.org>
-Build-Depends: debhelper (>= 5.0.0), libgcrypt11-dev (>= 1.2.4-2ubuntu2), libdevmapper-dev, libpopt-dev, uuid-dev, libselinux1-dev, libsepol1-dev, gettext, libtool, autoconf, automake1.9, dpatch, xsltproc, docbook-xsl, asciidoc
+Build-Depends: debhelper (>= 5.0.0), libgcrypt11-dev (>= 1.2.4-2ubuntu2), libdevmapper-dev, libpopt-dev, uuid-dev, libselinux1-dev, libsepol1-dev, gettext, libtool, autoconf, automake1.9, quilt (>= 0.40), xsltproc, docbook-xsl, asciidoc
 Standards-Version: 3.7.3.0
 Homepage: http://luks.endorphin.org/
 Vcs-Bzr: https://code.launchpad.net/~ubuntu-core-dev/cryptsetup/ubuntu
