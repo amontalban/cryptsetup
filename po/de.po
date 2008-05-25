@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cryptsetup 1.0.1.fk01\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-12-01 17:31+0100\n"
+"POT-Creation-Date: 2008-03-10 23:38+0100\n"
 "PO-Revision-Date: 2005-08-18 19:52+0200\n"
 "Last-Translator: Florian Knauf <i-sys@gmx.net>\n"
 "Language-Team: German <de@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-15\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lib/setup.c:627
+#: lib/setup.c:645
 msgid ""
 "This is the last keyslot. Device will become unusable after purging this key."
 msgstr ""
@@ -67,43 +67,39 @@ msgstr ""
 msgid "key material section %d includes too few stripes. Header manipulation?"
 msgstr ""
 
-#: luks/keymanage.c:428
+#: luks/keymanage.c:426
 #, c-format
 msgid "Key %d not active. Can't wipe.\n"
 msgstr ""
 
-#: luks/keymanage.c:473
+#: luks/keymanage.c:471
 #, fuzzy, c-format
 msgid "Can't open device for %s%saccess: %s\n"
 msgstr "Fehler beim Öffnen des Geräts: %s"
 
-#: luks/keymanage.c:473
+#: luks/keymanage.c:471
 msgid "exclusive "
 msgstr ""
 
-#: luks/keymanage.c:473
+#: luks/keymanage.c:471
 msgid "writable "
 msgstr ""
 
-#: src/cryptsetup.c:59
+#: src/cryptsetup.c:60 src/cryptsetup.c:74
 msgid "<name> <device>"
 msgstr ""
 
-#: src/cryptsetup.c:59
+#: src/cryptsetup.c:60
 msgid "create device"
 msgstr ""
 
-#: src/cryptsetup.c:60 src/cryptsetup.c:61 src/cryptsetup.c:62
-#: src/cryptsetup.c:63 src/cryptsetup.c:72
+#: src/cryptsetup.c:61 src/cryptsetup.c:62 src/cryptsetup.c:63
+#: src/cryptsetup.c:71
 msgid "<name>"
 msgstr ""
 
-#: src/cryptsetup.c:60
-msgid "remove device"
-msgstr ""
-
 #: src/cryptsetup.c:61
-msgid "modify active device"
+msgid "remove device"
 msgstr ""
 
 #: src/cryptsetup.c:62
@@ -137,14 +133,14 @@ msgid "add key to LUKS device"
 msgstr ""
 
 #: src/cryptsetup.c:67
-msgid "<device> [<key file]]"
+msgid "<device> [<key file>]"
 msgstr ""
 
 #: src/cryptsetup.c:67
 msgid "removes supplied key or key file from LUKS device"
 msgstr ""
 
-#: src/cryptsetup.c:68 src/cryptsetup.c:69
+#: src/cryptsetup.c:68 src/cryptsetup.c:73
 msgid "<device> <key slot>"
 msgstr ""
 
@@ -152,50 +148,63 @@ msgstr ""
 msgid "wipes key with number <key slot> from LUKS device"
 msgstr ""
 
-#: src/cryptsetup.c:69
-msgid "identical to luksKillSlot, but deprecated action name"
-msgstr ""
-
-#: src/cryptsetup.c:70 src/cryptsetup.c:71 src/cryptsetup.c:73
+#: src/cryptsetup.c:69 src/cryptsetup.c:70 src/cryptsetup.c:72
 msgid "<device>"
 msgstr ""
 
-#: src/cryptsetup.c:70
+#: src/cryptsetup.c:69
 msgid "print UUID of LUKS device"
 msgstr ""
 
-#: src/cryptsetup.c:71
+#: src/cryptsetup.c:70
 msgid "tests <device> for LUKS partition header"
 msgstr ""
 
-#: src/cryptsetup.c:72
+#: src/cryptsetup.c:71
 msgid "remove LUKS mapping"
 msgstr ""
 
-#: src/cryptsetup.c:73
+#: src/cryptsetup.c:72
 msgid "dump LUKS partition information"
 msgstr ""
 
-#: src/cryptsetup.c:123
+#: src/cryptsetup.c:73
+msgid "identical to luksKillSlot - DEPRECATED - see man page"
+msgstr ""
+
+#: src/cryptsetup.c:74
+msgid "modify active device - DEPRECATED - see man page"
+msgstr ""
+
+#: src/cryptsetup.c:124
 #, c-format
 msgid "Command successful.\n"
 msgstr ""
 
-#: src/cryptsetup.c:136
+#: src/cryptsetup.c:137
 #, c-format
 msgid "Command failed"
 msgstr "Aufruf fehlgeschlagen"
 
-#: src/cryptsetup.c:260
+#: src/cryptsetup.c:167
+#, c-format
+msgid ""
+"The reload action is deprecated. Please use \"dmsetup reload\" in case you "
+"really need this functionality.\n"
+"WARNING: do not use reload to touch LUKS devices. If that is the case, hit "
+"Ctrl-C now.\n"
+msgstr ""
+
+#: src/cryptsetup.c:266
 #, c-format
 msgid "This will overwrite data on %s irrevocably."
 msgstr "Daten auf %s werden unwiderruflich überschrieben."
 
-#: src/cryptsetup.c:261
+#: src/cryptsetup.c:267
 msgid "memory allocation error in action_luksFormat"
 msgstr "Fehler bei der Speicherallokation in action_luksFormat"
 
-#: src/cryptsetup.c:408
+#: src/cryptsetup.c:415
 #, c-format
 msgid ""
 "\n"
@@ -204,7 +213,7 @@ msgstr ""
 "\n"
 "<action> ist eins der Folgenden:\n"
 
-#: src/cryptsetup.c:414
+#: src/cryptsetup.c:421
 #, c-format
 msgid ""
 "\n"
@@ -214,121 +223,125 @@ msgid ""
 "<key file> optional key file for the new key for luksAddKey action\n"
 msgstr ""
 
-#: src/cryptsetup.c:430
+#: src/cryptsetup.c:437
 msgid "Show this help message"
 msgstr "Diese Hilfemeldung anzeigen"
 
-#: src/cryptsetup.c:431
+#: src/cryptsetup.c:438
 msgid "Display brief usage"
 msgstr "Kurze Verwendungsbeschreibung anzeigen"
 
-#: src/cryptsetup.c:435
+#: src/cryptsetup.c:442
 msgid "Help options:"
 msgstr "Hilfe-Optionen:"
 
-#: src/cryptsetup.c:436
+#: src/cryptsetup.c:443
 #, fuzzy
 msgid "Shows more detailed error messages"
 msgstr "Diese Hilfemeldung anzeigen"
 
-#: src/cryptsetup.c:437
+#: src/cryptsetup.c:444
 msgid "The cipher used to encrypt the disk (see /proc/crypto)"
 msgstr "Der für die Verschlüsselung zu verwendende Cipher (siehe /proc/crypto)"
 
-#: src/cryptsetup.c:438
+#: src/cryptsetup.c:445
 msgid "The hash used to create the encryption key from the passphrase"
 msgstr ""
 "Der für die Erzeugung des Schlüssels aus der Phassphrase zu verwendende Hash"
 
-#: src/cryptsetup.c:439
+#: src/cryptsetup.c:446
 msgid "Verifies the passphrase by asking for it twice"
 msgstr "Überprüft das Paßwort durch eine Sicherheitsabfrage"
 
-#: src/cryptsetup.c:440
+#: src/cryptsetup.c:447
 msgid "Read the key from a file (can be /dev/random)"
 msgstr "Liest den Schlüssel aus einer Datei (kann /dev/random sein)"
 
-#: src/cryptsetup.c:441
+#: src/cryptsetup.c:448
 msgid "The size of the encryption key"
 msgstr "Die Größe des Schlüssels"
 
-#: src/cryptsetup.c:441
+#: src/cryptsetup.c:448
 msgid "BITS"
 msgstr "BITS"
 
-#: src/cryptsetup.c:442
+#: src/cryptsetup.c:449
+msgid "Slot number for new key (default is first free)"
+msgstr ""
+
+#: src/cryptsetup.c:450
 msgid "The size of the device"
 msgstr "Die Größe des Gerätes"
 
-#: src/cryptsetup.c:442 src/cryptsetup.c:443 src/cryptsetup.c:444
-#: src/cryptsetup.c:452
+#: src/cryptsetup.c:450 src/cryptsetup.c:451 src/cryptsetup.c:452
+#: src/cryptsetup.c:460
 msgid "SECTORS"
 msgstr "SEKTOREN"
 
-#: src/cryptsetup.c:443
+#: src/cryptsetup.c:451
 msgid "The start offset in the backend device"
 msgstr "Der Start-Offset im Backend-Gerät"
 
-#: src/cryptsetup.c:444
+#: src/cryptsetup.c:452
 msgid "How many sectors of the encrypted data to skip at the beginning"
 msgstr ""
 "Wieviele Sektoren der verschlüsselten Daten am Beginn übersprungen werden "
 "sollen"
 
-#: src/cryptsetup.c:445
+#: src/cryptsetup.c:453
 msgid "Create a readonly mapping"
 msgstr ""
 
-#: src/cryptsetup.c:446
+#: src/cryptsetup.c:454
 msgid "PBKDF2 iteration time for LUKS (in ms)"
 msgstr ""
 
-#: src/cryptsetup.c:447
+#: src/cryptsetup.c:455
 msgid "msecs"
 msgstr ""
 
-#: src/cryptsetup.c:448
+#: src/cryptsetup.c:456
 msgid "Do not ask for confirmation"
 msgstr "Es wird nicht nach einer Bestätigung gefragt"
 
-#: src/cryptsetup.c:449
+#: src/cryptsetup.c:457
 msgid "Print package version"
 msgstr ""
 
-#: src/cryptsetup.c:450
+#: src/cryptsetup.c:458
 msgid "Timeout for interactive passphrase prompt (in seconds)"
 msgstr "Zeit in Sekunden vor Abbruch der Abfrage des Passwort"
 
-#: src/cryptsetup.c:450
+#: src/cryptsetup.c:458
 msgid "secs"
 msgstr ""
 
-#: src/cryptsetup.c:451
+#: src/cryptsetup.c:459
 msgid "How often the input of the passphrase can be retried"
 msgstr "Wie oft die Eingabe des Passwortes wiederholt werden kann"
 
-#: src/cryptsetup.c:452
+#: src/cryptsetup.c:460
 msgid "Align payload at <n> sector boundaries - for luksFormat"
 msgstr ""
 
-#: src/cryptsetup.c:468
+#: src/cryptsetup.c:476
 #, fuzzy
 msgid "[OPTION...] <action> <action-specific>]"
 msgstr "[OPTION...] <Aktion> <Name> [<Gerät>]"
 
-#: src/cryptsetup.c:504
+#: src/cryptsetup.c:512
 msgid "Key size must be a multiple of 8 bits"
 msgstr "Schlüsselgröße muß ein Vielfaches von 8 Bit sein"
 
-#: src/cryptsetup.c:508
+#: src/cryptsetup.c:516
 msgid "Argument <action> missing."
 msgstr "Argument <Aktion> fehlt."
 
-#: src/cryptsetup.c:514
+#: src/cryptsetup.c:522
 msgid "Unknown action."
 msgstr "Unbekannte Aktion."
 
-#: src/cryptsetup.c:529
+#: src/cryptsetup.c:537
 #, c-format
 msgid "%s: requires %s as arguments"
 msgstr ""

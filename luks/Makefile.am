@@ -47,7 +47,7 @@ KEY_MATERIAL1_EXT = S69632-133632
 LOOPDEV = /dev/loop/5
 
 test:
-	(cd ..; make)
+	(cd ..; make clean; make CFLAGS=-Werror)
 	@if [ `id -u` != 0 ]; then 	\
 		echo Not root; \
 	fi
