@@ -18,8 +18,9 @@ cryptsetup (2:1.0.6-1ubuntu1) intrepid; urgency=low
       cryptoroot.
   * other ubuntu changes have been merged into debian. Please report bugs
     if you believe some patches have been dropped.
+  * removed 07_typos_fix.patch, has been reviewed and applied upstream.
 
- -- Reinhard Tartler <siretart@tauware.de>  Sun, 25 May 2008 22:08:05 +0200
+ -- Reinhard Tartler <siretart@tauware.de>  Sun, 25 May 2008 22:52:30 +0200
 
 cryptsetup (2:1.0.6-1) unstable; urgency=low
 
