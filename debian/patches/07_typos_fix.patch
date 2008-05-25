@@ -2,37 +2,6 @@
 ##
 ##  fixes some typos in man pages.
 
-@DPATCH@
-diff -urNad ubuntu~/debian/crypttab.5.txt ubuntu/debian/crypttab.5.txt
---- ubuntu~/debian/crypttab.5.txt	2008-05-25 20:27:00.000000000 +0200
-+++ ubuntu/debian/crypttab.5.txt	2008-05-25 20:28:29.791740725 +0200
-@@ -108,7 +108,7 @@
- Be loud. Print warnings if a device does not exist.
- 
- *keyscript*=<path>::
--The executable at the inidicated path is executed with the 'key file' from the third 
-+The executable at the indicated path is executed with the 'key file' from the third 
- field of the crypttab as its only argument and the output is used as the key. This
- also works with encrypted root filesystems via initramfs if the executable is 
- self-contained (i.e. not a shell script which relies on external programs).
-@@ -147,7 +147,7 @@
- *Encrypted ext2 disk with interactive password, retry 5 times if the check fails*::
- cdisk1 /dev/sda2 none checkargs=ext2,tries=5
- 
--*Encrypted disk with interactive password, use a nondefault check script, no retries*::
-+*Encrypted disk with interactive password, use a non-default check script, no retries*::
- cdisk2 /dev/hdc1 none check=customscript,tries=1
- 
- *Encrypted disk with interactive password and twofish as cipher*::
-@@ -159,7 +159,7 @@
- Set to 'yes' to run cryptdisks at startup. Set to 'no' to disable cryptdisks.
- 
- *CRYPTDISKS_MOUNT*::
--Specifies the mountpoints that are mounted before cryptdisks is invoked. Useful
-+Specifies the mount points that are mounted before cryptdisks is invoked. Useful
- for keys on removable devices, such as cdrom, usbstick, flashcard, ...
- 
- *CRYPTDISKS_CHECK*::
 diff -urNad ubuntu~/man/cryptsetup.8 ubuntu/man/cryptsetup.8
 --- ubuntu~/man/cryptsetup.8	2008-05-25 20:27:00.000000000 +0200
 +++ ubuntu/man/cryptsetup.8	2008-05-25 20:30:42.782915083 +0200
@@ -101,14 +70,3 @@ diff -urNad ubuntu~/man/cryptsetup.8 ubuntu/man/cryptsetup.8
  To read images created with SuSE Linux 9.2's loop_fish2 use \-\-cipher
  twofish-cbc-null \-s 256 \-h sha512, for images created with even
  older SuSE Linux use \-\-cipher twofish-cbc-null \-s 192 \-h
-diff -urNad ubuntu~/man/cryptsetup.8.rej ubuntu/man/cryptsetup.8.rej
---- ubuntu~/man/cryptsetup.8.rej	1970-01-01 01:00:00.000000000 +0100
-+++ ubuntu/man/cryptsetup.8.rej	2008-05-25 20:30:44.402746825 +0200
-@@ -0,0 +1,7 @@
-+@@ -96,5 +96,5 @@
-+ .B "\-\-tries, \-T"
-+-How often the input of the passphrase shall be retried. This option is relevant evertime a password is asked, like \fIcreate\fR, \fIluksOpen\fR, \fIluksFormat\fR or \fIluksAddKey\fR. The default is 3 tries.
-++How often the input of the passphrase shall be retried. This option is relevant every time a password is asked, like \fIcreate\fR, \fIluksOpen\fR, \fIluksFormat\fR or \fIluksAddKey\fR. The default is 3 tries.
-+ .TP
-+ .B "\-\-align-payload=\fIvalue\fR"
-+ Align payload at a boundary of \fIvalue\fR 512-byte sectors.  This option is relevant for \fIluksFormat\fR.  If your block device lives on a RAID it is
