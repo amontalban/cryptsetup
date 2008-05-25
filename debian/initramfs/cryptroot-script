@@ -7,7 +7,7 @@ prereqs()
 {
 	# Make sure that cryptroot is run last in local-top
 	for req in /scripts/local-top/*; do
-		script=$(basename $req)
+		script=${req##*/}
 		if [ $script != cryptroot ]; then
 			echo $script
 		fi
@@ -43,6 +43,7 @@ parse_options()
 	cryptlvm=""
 	cryptkeyscript=""
 	cryptkey="" # This is only used as an argument to an eventual keyscript
+	crypttries=3
 
 	local IFS=" ,"
 	for x in $cryptopts; do
@@ -77,6 +78,14 @@ parse_options()
 			if [ "${x#key=}" != "none" ]; then
 				cryptkey=${x#key=}
 			fi
+			;;
+		tries=*)
+			crypttries="${x#tries=}"
+			case "$crypttries" in
+			  *[![:digit:].]*)
+				crypttries=3
+				;;
+			esac
 			;;
 		esac
 	done
@@ -159,7 +168,9 @@ setup_mapping()
 		activate_evms $cryptsource
 	fi
 	# Wait for udev to be ready, see https://launchpad.net/bugs/85640
-	if [ -x /sbin/udevsettle ]; then
+	if [ -x /sbin/udevadm ]; then
+		/sbin/udevadm settle --timeout=30
+	elif [ -x /sbin/udevsettle ]; then
 		/sbin/udevsettle --timeout=30
 	fi
 
@@ -170,16 +181,16 @@ setup_mapping()
 
 	# Prepare commands
 	if /sbin/cryptsetup isLuks $cryptsource > /dev/null 2>&1; then
-		cryptcreate="/sbin/cryptsetup luksOpen $cryptsource $crypttarget"
+		cryptcreate="/sbin/cryptsetup -T 1 luksOpen $cryptsource $crypttarget"
 	else
-		cryptcreate="/sbin/cryptsetup -c $cryptcipher -s $cryptsize -h $crypthash create $crypttarget $cryptsource"
+		cryptcreate="/sbin/cryptsetup -T 1 -c $cryptcipher -s $cryptsize -h $crypthash create $crypttarget $cryptsource"
 	fi
 	cryptremove="/sbin/cryptsetup remove $crypttarget"
 	NEWROOT="/dev/mapper/$crypttarget"
 
 	# Try to get a satisfactory password three times
 	count=0
-	while [ $count -lt 3 ]; do
+	while [ $crypttries -le 0 ] || [ $count -lt $crypttries ]; do
 		count=$(( $count + 1 ))
 
 		if [ -n "$cryptkeyscript" ]; then
