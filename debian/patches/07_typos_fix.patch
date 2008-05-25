@@ -1,8 +1,6 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## 07typos_fix.dpatch by  <bbyever@gmail.com>
+## 07_typos_fix.patch by  <bbyever@gmail.com>
 ##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: fixes some typos in man pages.
+##  fixes some typos in man pages.
 
 @DPATCH@
 diff -urNad ubuntu~/debian/crypttab.5.txt ubuntu/debian/crypttab.5.txt

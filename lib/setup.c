@@ -532,14 +532,6 @@ static int __crypt_luks_add_key(int arg, struct setup_backend *backend, struct c
 	char *password=NULL; unsigned int passwordLen;
 	unsigned int i; unsigned int keyIndex;
 	const char *device = options->device;
-	struct crypt_options optionsCheck = { 
-		.key_file = options->key_file,
-		.flags = options->flags & ~(CRYPT_FLAG_VERIFY | CRYPT_FLAG_VERIFY_IF_POSSIBLE),
-	};
-	struct crypt_options optionsSet = { 
-		.key_file = options->new_key_file,
-		.flags = options->flags,
-	};
 	int r;
 	int key_slot = options->key_slot;
 	
@@ -573,8 +565,15 @@ static int __crypt_luks_add_key(int arg, struct setup_backend *backend, struct c
                 keyIndex = i;
         }
 
-	optionsCheck.key_size = 0; // FIXME, define a clean interface some day.
-	get_key("Enter any LUKS passphrase: ",&password,&passwordLen, options->key_size, options->key_file, options->passphrase_fd, options->timeout, options->flags & ~(CRYPT_FLAG_VERIFY | CRYPT_FLAG_VERIFY_IF_POSSIBLE));
+	get_key("Enter any LUKS passphrase: ",
+                &password,
+                &passwordLen, 
+                0,
+                options->key_file, 
+                options->passphrase_fd, 
+                options->timeout, 
+                options->flags & ~(CRYPT_FLAG_VERIFY | CRYPT_FLAG_VERIFY_IF_POSSIBLE));
+
 	if(!password) {
 		r = -EINVAL; goto out;
 	}
@@ -583,12 +582,18 @@ static int __crypt_luks_add_key(int arg, struct setup_backend *backend, struct c
 	        options->icb->log(CRYPT_LOG_ERROR,"No key available with this passphrase.\n");
 		r = -EPERM; goto out;
 	} else
-	        logger(options, CRYPT_LOG_NORMAL,"key slot %d unlocked.\n",i);
+	        logger(options, CRYPT_LOG_NORMAL,"key slot %d unlocked.\n", r);
 
 	safe_free(password);
 	
-	optionsSet.key_size = 0; // FIXME, define a clean interface some day.
-	get_key("Enter new passphrase for key slot: ",&password,&passwordLen, options->key_size, options->new_key_file, options->passphrase_fd, options->timeout, options->flags);
+	get_key("Enter new passphrase for key slot: ",
+                &password,
+                &passwordLen,
+                0,
+                options->new_key_file,
+                options->passphrase_fd,
+                options->timeout, 
+                options->flags);
 	if(!password) {
 		r = -EINVAL; goto out;
 	}
@@ -649,6 +654,11 @@ static int luks_remove_helper(int arg, struct setup_backend *backend, struct cry
 			r = -EINVAL; goto out;
 		}
 		openedIndex = LUKS_open_any_key(device, password, passwordLen, &hdr, &mk, backend);
+                /* Clean up */
+                if (openedIndex >= 0) {
+                        LUKS_dealloc_masterkey(mk);
+                        mk = NULL;
+                }
 		if(openedIndex < 0 || keyIndex == openedIndex) {
                             options->icb->log(CRYPT_LOG_ERROR,"No remaining key available with this passphrase.\n");
 			    r = -EPERM; goto out;

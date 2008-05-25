@@ -26,17 +26,13 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-CRYPTSETUP_UDEB=cryptsetup-udeb
+# Include quilt stuff.
+include /usr/share/quilt/quilt.make
 
-UDEBNAME=$(CRYPTSETUP_UDEB)_$(DEBVERSION)_$(shell dpkg --print-architecture).udeb
-
-# Include dpatch stuff.
-include /usr/share/dpatch/dpatch.make
-
-config.status: configure.in patch
+configure: configure-stamp
+configure-stamp: $(QUILT_STAMPFN)
 	dh_testdir
 	find -xtype f ! -name manifest > manifest
-
 	# mini autogen.sh
 	rm -f ltmain.sh
 	cp /usr/share/libtool/ltmain.sh ltmain.sh
@@ -45,19 +41,17 @@ config.status: configure.in patch
 	autoheader
 	automake-1.9 --add-missing --gnu
 	autoconf
-	
 	CFLAGS="$(CFLAGS)" ./configure $(confflags) \
 		--prefix=/usr \
 		--sbindir=/sbin \
 		--mandir=/usr/share/man
 		#--enable-static \
-	
 	find -xtype f > manifest.new
 	diff manifest manifest.new | grep '>' | cut -b3- > config.mess
+	touch $@
 
 build: build-stamp
-
-build-stamp: config.status
+build-stamp: configure-stamp
 	dh_testdir
 	asciidoc -d manpage -b docbook debian/crypttab.5.txt
 	asciidoc -d manpage -b docbook debian/cryptdisks_start.8.txt
@@ -77,37 +71,32 @@ build-stamp: config.status
 	# cannot depend on libraries in /usr !
 	gcc lib/.libs/*.o src/*.o luks/.libs/*.o -o src/cryptsetup.static \
 		-lpopt -ldevmapper -luuid -lgcrypt -lgpg-error
-	touch build-stamp
+	gcc debian/askpass.c -o debian/askpass
+	touch $@
 
-clean: clean-patched unpatch
-
-clean-patched:
+clean: unpatch
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp 
-
 	if test -f Makefile; then $(MAKE) clean; fi
 	if test -f config.mess; then rm -f `cat config.mess`; fi
-
 	rm -f debian/crypttab.5 debian/crypttab.5.xml debian/luksformat.8
 	rm -f debian/cryptdisks_start.8 debian/cryptdisks_start.8.xml
 	rm -f debian/cryptdisks_stop.8 debian/cryptdisks_stop.8.xml
+	rm -f debian/askpass
 	rm -f config.mess
 	rm -rf autom4te.cache 
 	rm -f src/cryptsetup.static
+	dh_clean configure-stamp build-stamp install-stamp
 
-	dh_clean 
-
-install: build
+install: install-stamp
+install-stamp: build-stamp
 	dh_testdir
 	dh_testroot
-	dh_clean -a -k
+	dh_clean
 	dh_installdirs
 	mkdir -p $(CURDIR)/debian/cryptsetup-udeb/
-
 	$(MAKE) DESTDIR=$(CURDIR)/debian/cryptsetup install
 	cp src/cryptsetup.static $(CURDIR)/debian/cryptsetup/sbin/cryptsetup
-
 	install -m 0644 debian/cryptdisks.functions $(CURDIR)/debian/cryptsetup/lib/cryptsetup/
 	install -m 0755 debian/checks/* $(CURDIR)/debian/cryptsetup/lib/cryptsetup/checks/
 	install -m 0755 debian/scripts/luksformat $(CURDIR)/debian/cryptsetup/usr/sbin/
@@ -129,7 +118,9 @@ install: build
 	install -m 0755 debian/initramfs/cryptopensc-script-local-bottom \
 		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/scripts/local-bottom/cryptopensc
 	install -m 0644 debian/bash_completion $(CURDIR)/debian/cryptsetup/etc/bash_completion.d/cryptsetup
+	install -m 0755 debian/askpass $(CURDIR)/debian/cryptsetup/lib/cryptsetup/askpass
 	rmdir $(CURDIR)/debian/cryptsetup/usr/lib/cryptsetup
+	touch $@
 
 binary-indep: build install
 # We have nothing to do by default.
@@ -137,23 +128,19 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir
 	dh_testroot
-	dh_installchangelogs ChangeLog
-	dh_installdocs
-	dh_installexamples debian/scripts/gen-ssl-key debian/scripts/gen-old-ssl-key debian/usbcrypto.udev
+	dh_installchangelogs -a ChangeLog
+	dh_installdocs -a
+	dh_installexamples -a debian/scripts/gen-ssl-key debian/scripts/gen-old-ssl-key debian/usbcrypto.udev
 	dh_installinit -a --no-start --name=cryptdisks-early --update-rcd-params="start 26 S . start 59 0 6 ."
 	dh_installinit -a --no-start --name=cryptdisks --update-rcd-params="start 28 S . start 48 0 6 ."
+	dh_installman -a debian/crypttab.5 debian/luksformat.8 debian/cryptdisks_start.8 debian/cryptdisks_stop.8
 	cp -a $(CURDIR)/debian/cryptsetup/etc $(CURDIR)/debian/cryptsetup-udeb/
 	cp -a $(CURDIR)/debian/cryptsetup/lib $(CURDIR)/debian/cryptsetup-udeb/
 	cp -a $(CURDIR)/debian/cryptsetup/sbin $(CURDIR)/debian/cryptsetup-udeb/
-	
 	# Get rid of libcryptsetup.so since it has no stable API.
 	# We instead statically link the relevant code
 	# into the cryptsetup executable, so the .so is not needed.
 	rm -rf $(CURDIR)/debian/cryptsetup/usr/lib
-
-#	dh_install
-	dh_installman debian/crypttab.5 debian/luksformat.8 debian/cryptdisks_start.8 debian/cryptdisks_stop.8
-	dh_link -a
 	dh_strip -a
 	dh_compress -a
 	dh_fixperms -a
@@ -161,9 +148,8 @@ binary-arch: build install
 	dh_installdeb -a
 	dh_shlibdeps -a
 	dh_gencontrol -a
-	dh_md5sums
+	dh_md5sums -a
 	dh_builddeb -a
 
 binary: binary-indep binary-arch
-
-.PHONY: build clean clean-patched install binary-indep binary-arch binary patch unpatch
+.PHONY: configure build clean install binary-indep binary-arch binary patch unpatch

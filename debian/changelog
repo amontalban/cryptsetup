@@ -1,4 +1,4 @@
-cryptsetup (2:1.0.6~pre1+svn45-1ubuntu1) UNRELEASED; urgency=low
+cryptsetup (2:1.0.6-1ubuntu1) intrepid; urgency=low
 
   * Merge new debian version. Remaining changes:
     - cryptsetup is linked dynamically against libgcrypt and libgpg-error.
@@ -16,8 +16,47 @@ cryptsetup (2:1.0.6~pre1+svn45-1ubuntu1) UNRELEASED; urgency=low
     - try to load optimized cypher module in cryptsetup.functions as well,
       because cryptroot-hook is only executed when we really have a
       cryptoroot.
+  * other ubuntu changes have been merged into debian. Please report bugs
+    if you believe some patches have been dropped.
 
  -- Reinhard Tartler <siretart@tauware.de>  Sun, 25 May 2008 22:08:05 +0200
+
+cryptsetup (2:1.0.6-1) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * new upstream release
+    - reload option is depreciated and a warning is printed. (closes: #428288)
+  * convert patch system from dpatch to quilt.
+  * enhance the information regarding the default hash setting in NEWS.Debian.
+    Thanks to Ross Boylan <ross@biostat.ucsf.edu>.
+  * change author of keyslot patch to Marc Merlin in changelog, thanks to
+    U. Kuehn for raising that issue.
+  * doing some debian/rules redesign and cleanup, speeds up the build process.
+  * ignore devices with the noauto option early enough to prevent any checks
+    on them. Thanks to Joachim Breitner <nomeata@debian.org> (closes: #464672)
+  * update debian/copyright to actually mention copyright, thanks lintian.
+  * change script=$(basename $req) to script=${req##*/} in initramfs cryptroot
+    script. Thanks to Adeodato Simó <dato@net.com.org.es>. (closes: #466240)
+  * change test ... -a ... to [ ... ] && [ ... ] in the check scripts.
+  * add support for tries option to initramfs scripts. Thanks to Helmut Grohne
+    <helmut@subdivi.de>. (closes: #430158, #469869) Use --tries=1 for
+    cryptsetup in the initramfs script. Document the difference between
+    initscript and initramfs for tries=0 in the crypttab manpage.
+  * add, build and install askpass.c, a helper program by David Härdeman. The
+    idea is to use it for passphrase prompt in the initramfs script.
+
+  [ David Härdeman ]
+  * Work with LABEL=, UUID= and symlinks in /etc/fstab (closes: #466175)
+  * Improve module loading in initramfs hook so that the newer  as well
+    as arch specific crypto drivers are taken into consideration
+    (closes: #464673)
+  * Depend on race-free version of libdevmapper, thus making udevsettle
+    call from cryptsetup binary unnecessary. Also change call to
+    udevsettle in initramfs script (which is still useful as it related
+    to the source device) to optionally use udevadm if present (closes:
+    #456326).
+
+ -- Jonas Meurer <mejo@debian.org>  Mon, 31 Mar 2008 15:58:35 +0200
 
 cryptsetup (2:1.0.6~pre1+svn45-1) unstable; urgency=low
 
@@ -26,8 +65,9 @@ cryptsetup (2:1.0.6~pre1+svn45-1) unstable; urgency=low
       manpage.
     - Mentions luksKillSlot in the manpage. Thanks to Alexander Heinlein
       <alexander.heinlein@web.de>. (closes: #459206)
-    - Adds the patch by U Kuehn <ukuehn@acm.org> to support explicit key slots
-      for luksFormat, luksAddKey.
+    - Adds the patch by Marc Merlin <marc_www@merlins.org> to support explicit
+      key slots for luksFormat and luksAddKey. Thanks to U. Kuehn, who figured
+      out that this patch wasn't applied even though changelog said so.
     - Supports adding new keys to active devices again. Thanks to Tobias Frost
       <tobi@coldtobi.de> for the bugreport. (closes: #460409)
   * Add support for a custom filesystem for /tmp. Patch provided by

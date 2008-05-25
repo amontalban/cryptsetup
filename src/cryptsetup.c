@@ -59,19 +59,19 @@ static struct action_type {
 } action_types[] = {
 	{ "create",	action_create, 0, 2, N_("<name> <device>"), N_("create device") },
 	{ "remove",	action_remove, 0, 1, N_("<name>"), N_("remove device") },
-	{ "reload",	action_create, 1, 2, N_("<name>"), N_("modify active device") },
 	{ "resize",	action_resize, 0, 1, N_("<name>"), N_("resize active device") },
 	{ "status",	action_status, 0, 1, N_("<name>"), N_("show device status") },
 	{ "luksFormat",	action_luksFormat, 0, 1, N_("<device> [<new key file>]"), N_("formats a LUKS device") },
 	{ "luksOpen",	action_luksOpen, 0, 2, N_("<device> <name> "), N_("open LUKS device as mapping <name>") },
 	{ "luksAddKey",	action_luksAddKey, 0, 1, N_("<device> [<new key file>]"), N_("add key to LUKS device") },
-	{ "luksRemoveKey", action_luksRemoveKey, 0, 1, N_("<device> [<key file]]"), N_("removes supplied key or key file from LUKS device") },
+	{ "luksRemoveKey", action_luksRemoveKey, 0, 1, N_("<device> [<key file>]"), N_("removes supplied key or key file from LUKS device") },
 	{ "luksKillSlot",  action_luksKillSlot, 0, 2, N_("<device> <key slot>"), N_("wipes key with number <key slot> from LUKS device") },
-	{ "luksDelKey",  action_luksDelKey, 0, 2, N_("<device> <key slot>"), N_("identical to luksKillSlot, but deprecated action name") },
 	{ "luksUUID",	action_luksUUID, 0, 1, N_("<device>"), N_("print UUID of LUKS device") },
 	{ "isLuks",	action_isLuks, 0, 1, N_("<device>"), N_("tests <device> for LUKS partition header") },
 	{ "luksClose",	action_remove, 0, 1, N_("<name>"), N_("remove LUKS mapping") },
 	{ "luksDump",	action_luksDump, 0, 1, N_("<device>"), N_("dump LUKS partition information") },
+	{ "luksDelKey",  action_luksDelKey, 0, 2, N_("<device> <key slot>"), N_("identical to luksKillSlot - DEPRECATED - see man page") },
+	{ "reload",	action_create, 1, 2, N_("<name> <device>"), N_("modify active device - DEPRECATED - see man page") },
 	{ NULL, NULL, 0, 0, NULL }
 };
 
@@ -162,6 +162,9 @@ static int action_create(int reload)
 		.icb = &cmd_icb,
 	};
 	int r;
+
+        if(reload) 
+                fprintf(stderr, _("The reload action is deprecated. Please use \"dmsetup reload\" in case you really need this functionality.\nWARNING: do not use reload to touch LUKS devices. If that is the case, hit Ctrl-C now.\n"));
 
 	if (options.hash && strcmp(options.hash, "plain") == 0)
 		options.hash = NULL;
@@ -293,7 +296,7 @@ static int action_luksOpen(int arg)
 
 static int action_luksDelKey(int arg)
 {
-    fprintf(stderr,"luksDelKey is a deprecated action name.\nPlease use luksKillSlot that is completely identicaly (but more clear in naming)\n"); 
+    fprintf(stderr,"luksDelKey is a deprecated action name.\nPlease use luksKillSlot.\n"); 
     return action_luksKillSlot(arg);
 }
 
