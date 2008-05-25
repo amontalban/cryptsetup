@@ -360,7 +360,7 @@ static void wipeSpecial(char *buffer, size_t buffer_size, unsigned int turn)
 {
         unsigned int i;
 	
-        unsigned char write_modes[27][3] = {
+        unsigned char write_modes[][3] = {
                 {"\x55\x55\x55"}, {"\xaa\xaa\xaa"}, {"\x92\x49\x24"},
                 {"\x49\x24\x92"}, {"\x24\x92\x49"}, {"\x00\x00\x00"},
                 {"\x11\x11\x11"}, {"\x22\x22\x22"}, {"\x33\x33\x33"},
@@ -373,7 +373,7 @@ static void wipeSpecial(char *buffer, size_t buffer_size, unsigned int turn)
         };
 	
         for(i = 0; i < buffer_size / 3; ++i) {
-                memcpy(buffer, write_modes[turn - 3], 3);
+                memcpy(buffer, write_modes[turn], 3);
                 buffer += 3;
         }
 }
@@ -397,8 +397,8 @@ static int wipe(const char *device, unsigned int from, unsigned int to)
 
 	for(i = 0; i < 39; ++i) {
 		if     (i >=  0 && i <  5) getRandom(buffer, bufLen);
-		else if(i >=  5 && i < 33) wipeSpecial(buffer, bufLen, i);
-		else if(i >= 33 && i < 38) getRandom(buffer, bufLen);
+		else if(i >=  5 && i < 32) wipeSpecial(buffer, bufLen, i - 5);
+		else if(i >= 32 && i < 38) getRandom(buffer, bufLen);
 		else if(i >= 38 && i < 39) memset(buffer, 0xFF, bufLen);
 
 		if(write_lseek_blockwise(devfd, buffer, bufLen, from * SECTOR_SIZE) < 0) {
@@ -422,7 +422,7 @@ int LUKS_del_key(const char *device, unsigned int keyIndex)
 	r = LUKS_read_phdr(device, &hdr);
 	if(r != 0) {
 		/* placeholder */
-	} else if(hdr.keyblock[keyIndex].active != LUKS_KEY_ENABLED || keyIndex >= LUKS_NUMKEYS) {
+	} else if(keyIndex >= LUKS_NUMKEYS || hdr.keyblock[keyIndex].active != LUKS_KEY_ENABLED) {
 		set_error(_("Key %d not active. Can't wipe.\n"), keyIndex);
 		r = -1;
 	} else {

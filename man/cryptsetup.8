@@ -25,10 +25,6 @@ removes an existing mapping <name>. No options.
 .IP
 reports the status for the mapping <name>. No options.
 .PP
-\fIreload\fR <name>
-.IP
-modifies an active mapping <name>. Same options as for create.
-.PP
 \fIresize\fR <name>
 .IP
 resizes an active mapping <name>. <options> must include \-\-size 
@@ -58,6 +54,10 @@ identical to \fIremove\fR.
 .IP
 add a new key file/passphrase. An existing passphrase or key file (via \-\-key-file) must be supplied. The key file with the new material is supplied as a positional argument. <options> can be [\-\-key-file, \-\-key-slot].
 .PP
+\fIluksRemoveKey\fR <device> [<key file>] 
+.IP
+remove supplied key or key file from LUKS device
+.PP
 \fIluksKillSlot\fR <device> <key slot number>
 .IP
 wipe key with number <key slot> from LUKS device. A remaining passphrase or key file (via \-\-key-file) must be supplied. <options> can be [\-\-key-file].
@@ -80,6 +80,7 @@ dumps the header information of a LUKS partition. No options.
 .PP
 
 For more information about LUKS, see \fBhttp://luks.endorphin.org\fR
+
 .SH OPTIONS
 .TP
 .B "\-\-hash, \-h"
@@ -165,6 +166,32 @@ To read images created with SuSE Linux 9.2's loop_fish2 use \-\-cipher
 twofish-cbc-null \-s 256 \-h sha512, for images created with even
 older SuSE Linux use \-\-cipher twofish-cbc-null \-s 192 \-h
 ripemd160:20
+
+.SH DEPRECATED ACTIONS
+.PP
+\fIreload\fR <name> <device>
+.IP
+modifies an active mapping <name>. Same options as for
+create. 
+.B WARNING:
+Do not use this for LUKS devices, as the semantics
+are identical to the create action, which are totally incompatible
+with the LUKS key setup. 
+
+This action is deprected because it proved to be rarely useful.  It is
+uncommon to change the underlying device, key, or offset on the
+fly. In case, you really want to do this, you certainly know what you
+are doing and then you are probably better off with the swiss knive
+tool for device mapper, namely dmsetup. It provides you with the same
+functionality, see dmsetup reload.
+.PP
+\fIluksDelKey\fR <device> <key slot number>
+.IP
+identical to luksKillSlot, but deprecated action name. This option was
+renamed, as we introduced luksRemoveKey, a softer method for disabling
+password slots. To make a clear distinction that luksDelKey was more brutal than luksRemoveKey
+
+
 .SH "REPORTING BUGS"
 Report bugs to <dm-crypt@saout.de>.
 .SH COPYRIGHT
