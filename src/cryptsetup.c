@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <errno.h>
+#include <unistd.h>
 #include <assert.h>
 
 #include <libcryptsetup.h>
@@ -39,8 +40,10 @@ static int action_resize(int arg);
 static int action_status(int arg);
 static int action_luksFormat(int arg);
 static int action_luksOpen(int arg);
-static int action_luksDelKey(int arg);
 static int action_luksAddKey(int arg);
+static int action_luksDelKey(int arg);
+static int action_luksKillSlot(int arg);
+static int action_luksRemoveKey(int arg);
 static int action_isLuks(int arg);
 static int action_luksUUID(int arg);
 static int action_luksDump(int arg);
@@ -60,8 +63,10 @@ static struct action_type {
 	{ "status",	action_status, 0, 1, N_("<name>"), N_("show device status") },
 	{ "luksFormat",	action_luksFormat, 0, 1, N_("<device> [<new key file>]"), N_("formats a LUKS device") },
 	{ "luksOpen",	action_luksOpen, 0, 2, N_("<device> <name> "), N_("open LUKS device as mapping <name>") },
-	{ "luksDelKey",	action_luksDelKey, 0, 2, N_("<device> <key slot>"), N_("wipes key with number <key slot> from LUKS device") },
 	{ "luksAddKey",	action_luksAddKey, 0, 1, N_("<device> [<new key file>]"), N_("add key to LUKS device") },
+	{ "luksRemoveKey", action_luksRemoveKey, 0, 1, N_("<device> [<key file]]"), N_("removes supplied key or key file from LUKS device") },
+	{ "luksKillSlot",  action_luksKillSlot, 0, 2, N_("<device> <key slot>"), N_("wipes key with number <key slot> from LUKS device") },
+	{ "luksDelKey",  action_luksDelKey, 0, 2, N_("<device> <key slot>"), N_("identical to luksKillSlot, but deprecated action name") },
 	{ "luksUUID",	action_luksUUID, 0, 1, N_("<device>"), N_("print UUID of LUKS device") },
 	{ "isLuks",	action_isLuks, 0, 1, N_("<device>"), N_("tests <device> for LUKS partition header") },
 	{ "luksClose",	action_remove, 0, 1, N_("<name>"), N_("remove LUKS mapping") },
@@ -69,13 +74,54 @@ static struct action_type {
 	{ NULL, NULL, 0, 0, NULL }
 };
 
+/* Interface Callbacks */
+static int yesDialog(char *msg)
+{
+	int r = 0;
+	if(isatty(0) && !opt_batch_mode) {
+		char *answer=NULL;
+	        size_t size=0;
+		fprintf(stderr,"\nWARNING!\n========\n");
+		fprintf(stderr,"%s\n\nAre you sure? (Type uppercase yes): ",msg);
+		if(getline(&answer,&size,stdin) == -1)
+			return 0;
+		if(strcmp(answer,"YES\n") == 0)
+			r = 1;
+		free(answer);
+	} else
+		r = 1;
+	return r;
+}
+
+static void cmdLineLog(int class, char *msg) {
+    switch(class) {
+
+    case CRYPT_LOG_NORMAL:
+            fputs(msg, stdout);
+            break;
+    case CRYPT_LOG_ERROR:
+            fputs(msg, stderr);
+            break;
+    default:
+            fprintf(stderr, "Internal error on logging class for msg: %s", msg);
+            break;
+    }
+}
+
+static struct interface_callbacks cmd_icb = {
+        .yesDialog = yesDialog,
+        .log = cmdLineLog,
+};
+
+/* End ICBs */
+
 static void show_status(int errcode)
 {
 	char error[256];
 
 	if(!errcode) {
-	  fprintf(stderr, _("Command successful.\n"));
-	  return;
+                fprintf(stderr, _("Command successful.\n"));
+                return;
 	}
 
 	crypt_get_error(error, sizeof(error));
@@ -110,7 +156,8 @@ static int action_create(int reload)
 		.offset = opt_offset,
 		.skip = opt_skip,
 		.timeout = opt_timeout,
-		.tries = opt_tries
+		.tries = opt_tries,
+		.icb = &cmd_icb,
 	};
 	int r;
 
@@ -134,6 +181,7 @@ static int action_remove(int arg)
 {
 	struct crypt_options options = {
 		.name = action_argv[0],
+		.icb = &cmd_icb,
 	};
 	int r;
 
@@ -148,6 +196,7 @@ static int action_resize(int arg)
 	struct crypt_options options = {
 		.name = action_argv[0],
 		.size = opt_size,
+		.icb = &cmd_icb,
 	};
 	int r;
 
@@ -161,6 +210,7 @@ static int action_status(int arg)
 {
 	struct crypt_options options = {
 		.name = action_argv[0],
+		.icb = &cmd_icb,
 	};
 	int r;
 
@@ -191,23 +241,6 @@ static int action_status(int arg)
 	return r;
 }
 
-static int yesDialog(char *msg)
-{
-	int r = 0;
-	if(isatty(0) && !opt_batch_mode) {
-		char *answer=NULL;
-	        size_t size=0;
-		fprintf(stderr,"\nWARNING!\n========\n");
-		fprintf(stderr,"%s\n\nAre you sure? (Type uppercase yes): ",msg);
-		getline(&answer,&size,stdin);
-		if(strcmp(answer,"YES\n") == 0)
-			r = 1;
-		free(answer);
-	} else
-		r = 1;
-	return r;
-}
-
 static int action_luksFormat(int arg)
 {
 	struct crypt_options options = {
@@ -219,6 +252,7 @@ static int action_luksFormat(int arg)
 		.iteration_time = opt_iteration_time,
 		.timeout = opt_timeout,
 		.align_payload = opt_align_payload,
+		.icb = &cmd_icb,
 	};
 
 	int r = 0; char *msg = NULL;
@@ -240,7 +274,8 @@ static int action_luksOpen(int arg)
 		.device = action_argv[0],
 		.key_file = opt_key_file,
 		.timeout = opt_timeout,
-		.tries = opt_tries
+		.tries = opt_tries,
+		.icb = &cmd_icb,
 	};
 	int r; 
 
@@ -255,22 +290,42 @@ static int action_luksOpen(int arg)
 
 static int action_luksDelKey(int arg)
 {
+    fprintf(stderr,"luksDelKey is a deprecated action name.\nPlease use luksKillSlot that is completely identicaly (but more clear in naming)\n"); 
+    return action_luksKillSlot(arg);
+}
+
+static int action_luksKillSlot(int arg)
+{
 	struct crypt_options options = {
 		.device = action_argv[0],
 		.key_slot = atoi(action_argv[1]),
 		.key_file = opt_key_file,
 		.timeout = opt_timeout,
 		.flags = !opt_batch_mode?CRYPT_FLAG_VERIFY_ON_DELKEY : 0,
+		.icb = &cmd_icb,
 	};
 	int r; 
 
 	opt_verbose = 1;
-	if(LUKS_is_last_keyslot(options.device, options.key_slot) && 
-	   !yesDialog(_("This is the last keyslot. Device will become unusable after purging this key."))) {
-		r = -EINVAL;
-	} else {
-	        r = crypt_luksDelKey(&options);
-	}
+	r = crypt_luksKillSlot(&options);
+	show_status(-r);
+	return r;
+}
+
+static int action_luksRemoveKey(int arg)
+{
+	struct crypt_options options = {
+		.device = action_argv[0],
+		.new_key_file = action_argc>1?action_argv[1]:NULL,
+		.key_file = opt_key_file,
+		.timeout = opt_timeout,
+		.flags = !opt_batch_mode?CRYPT_FLAG_VERIFY_ON_DELKEY : 0,
+		.icb = &cmd_icb,
+	};
+	int r; 
+
+	opt_verbose = 1;
+	r = crypt_luksRemoveKey(&options);
 	show_status(-r);
 	return r;
 }
@@ -284,6 +339,7 @@ static int action_luksAddKey(int arg)
 		.flags = opt_verify_passphrase ? CRYPT_FLAG_VERIFY : (!opt_batch_mode?CRYPT_FLAG_VERIFY_IF_POSSIBLE : 0),
 		.iteration_time = opt_iteration_time,
 		.timeout = opt_timeout,
+		.icb = &cmd_icb,
 	};
 	int r; 
 
@@ -297,6 +353,7 @@ static int action_isLuks(int arg)
 {
 	struct crypt_options options = {
 		.device = action_argv[0],
+		.icb = &cmd_icb,
 	};
 	return crypt_isLuks(&options);
 }
@@ -305,8 +362,9 @@ static int action_luksUUID(int arg)
 {
 	struct crypt_options options = {
 		.device = action_argv[0],
+		.icb = &cmd_icb,
 	};
-	int r; 
+	int r;
 
 	r = crypt_luksUUID(&options);
 	if (r < 0)
@@ -318,6 +376,7 @@ static int action_luksDump(int arg)
 {
 	struct crypt_options options = {
 		.device = action_argv[0],
+		.icb = &cmd_icb,
 	};
 	int r; 
 
@@ -473,3 +532,8 @@ int main(int argc, char **argv)
 	}	
 	return action->handler(action->arg);
 }
+
+// Local Variables:
+// c-basic-offset: 8
+// indent-tabs-mode: nil
+// End:
