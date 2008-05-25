@@ -5,3 +5,4 @@
 04_fix_unused_or_unitialized_variables
 05_segfault_at_nonexisting_device
 06_call_udevsettle
+07typos_fix.dpatch

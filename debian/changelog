@@ -1,3 +1,9 @@
+cryptsetup (2:1.0.5-2ubuntu12) hardy; urgency=low
+
+  * added debian/patches/07_typos_fix.dpatch: fixed typos in man pages. (LP: #164181)
+
+ -- Bruno Barrera Yever <bbyever@gmail.com>  Mon, 07 Apr 2008 18:43:05 -0500
+
 cryptsetup (2:1.0.5-2ubuntu11) hardy; urgency=low
 
   * debian/initramfs/cryptroot-script: Do show the disk name after all, since
