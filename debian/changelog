@@ -1,3 +1,10 @@
+cryptsetup (2:1.0.6-1ubuntu2) intrepid; urgency=low
+
+  * Bugfix: "/etc/init.d/cryptdisks does not remove dead loopback device
+    if password failed". Patch by Noam Meltzer, thanks a lot (LP: #95050)
+
+ -- Reinhard Tartler <siretart@tauware.de>  Mon, 26 May 2008 20:18:14 +0200
+
 cryptsetup (2:1.0.6-1ubuntu1) intrepid; urgency=low
 
   * Merge new debian version. Remaining changes:

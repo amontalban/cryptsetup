@@ -314,7 +314,10 @@ do_luks () {
 				# saftey sleep !
 				sleep 2
 			fi
-			cryptsetup $PARAMS luksOpen $src $dst <&1
+			if ! cryptsetup $PARAMS luksOpen $src $dst <&1; then
+				losetup -d $src
+				/bin/false
+			fi
 		fi
 	fi
 
