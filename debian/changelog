@@ -5,8 +5,9 @@ cryptsetup (2:1.0.6-1ubuntu3) intrepid; urgency=low
     for the cryptdevice to appear. Reimplement the busy waiting loop found
     while waiting for the root file system. Patch based on work by Swâmi
     Petaramesh. LP: #164044
+  * debian/crypdisks.functions: call 'env' with full path. LP: #178829.
 
- -- Reinhard Tartler <siretart@tauware.de>  Mon, 26 May 2008 21:26:19 +0200
+ -- Reinhard Tartler <siretart@tauware.de>  Mon, 26 May 2008 22:12:32 +0200
 
 cryptsetup (2:1.0.6-1ubuntu2) intrepid; urgency=low
 

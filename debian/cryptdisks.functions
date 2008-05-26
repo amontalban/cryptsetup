@@ -30,7 +30,7 @@ esac
 # Always output to console
 stdin=`readlink /proc/self/fd/0`
 if [ "${stdin#/dev/null}" != "$stdin" ] && [ "$ON_VT" != "yes" ]; then
-    exec env ON_VT=yes /usr/bin/openvt -f -c `fgconsole` -w $0 "$@"
+    exec /usr/bin/env ON_VT=yes /usr/bin/openvt -f -c `fgconsole` -w $0 "$@"
 fi
 
 
