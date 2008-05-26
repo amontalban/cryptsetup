@@ -1,7 +1,7 @@
 cryptsetup (2:1.0.6-1ubuntu2) intrepid; urgency=low
 
-  * Bugfix: "/etc/init.d/cryptdisks does not remove dead loopback device
-    if password failed". Patch by Noam Meltzer, thanks a lot (LP: #95050)
+  * Simplify the patch in debian/cryptdisks.functions that stops usplash
+    before asking for a passphrase.
 
  -- Reinhard Tartler <siretart@tauware.de>  Mon, 26 May 2008 20:18:14 +0200
 
@@ -9,10 +9,6 @@ cryptsetup (2:1.0.6-1ubuntu1) intrepid; urgency=low
 
   * Merge new debian version. Remaining changes:
     - cryptsetup is linked dynamically against libgcrypt and libgpg-error.
-      This will break systems where /usr is a separate encrypted filesystem
-      but not have other bad consequences (in particular, systems with
-      encrypted root are still fine).  The upsides include better
-      security supportability and smaller packages.
     - stop usplash on user input. LP #62751
     - debian/cryptdisks.functions: Always output and read from the console.
       LP #58794.
