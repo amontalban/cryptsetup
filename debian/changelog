@@ -1,3 +1,9 @@
+cryptsetup (2:1.0.6-1ubuntu3) intrepid; urgency=low
+
+  * Parse comments in lines not starting with '#', LP: #185380
+
+ -- Reinhard Tartler <siretart@tauware.de>  Mon, 26 May 2008 21:26:19 +0200
+
 cryptsetup (2:1.0.6-1ubuntu2) intrepid; urgency=low
 
   * Simplify the patch in debian/cryptdisks.functions that stops usplash
