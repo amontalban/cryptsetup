@@ -38,7 +38,7 @@ fi
 parse_opts () {
 	local opts opt IFS PARAM VALUE
 
-	opts="echo -n $1 | sed 's/ *#.*//'"
+	opts=$(echo -n $1 | sed 's/ *#.*//')
 	LOUD=""
 	PARAMS=""
 	CHECK=""

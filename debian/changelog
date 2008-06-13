@@ -1,3 +1,9 @@
+cryptsetup (2:1.0.6-1ubuntu4) intrepid; urgency=low
+
+  * Fix configuration parsing (LP: #239808)
+
+ -- Kjell Braden <fnord@pentabarf.de>  Fri, 13 Jun 2008 19:10:54 +0200
+
 cryptsetup (2:1.0.6-1ubuntu3) intrepid; urgency=low
 
   * Parse comments in lines not starting with '#', LP: #185380
