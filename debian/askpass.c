@@ -1,3 +1,25 @@
+/*
+ * askpass.c - prompts a user for a passphrase using any suitable method
+ *             and prints the result to stdout.
+ *
+ * Copyright (C) 2008   David Härdeman <david@hardeman.nu>
+ *
+ * This package is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This package is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this package; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ */
+
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <unistd.h>
@@ -28,32 +50,33 @@ static void
 debug(const char *fmt, ...)
 {
 	va_list ap;
-	
+	static bool first = true;
+	static FILE *dbgfile;
+
 	if (!DEBUG)
 		return;
-	va_start(ap, fmt);
-	vfprintf(stderr, fmt, ap);
-	va_end(ap);
-}
 
-static void
-die_error(const char *fmt, ...)
-{
-	va_list ap;
+	if (first) {
+		first = false;
+		dbgfile = fopen("/tmp/askpass.debug", "a");
+	}
+
+	if (!dbgfile)
+		return;
 
 	va_start(ap, fmt);
-	vfprintf(stderr, fmt, ap);
+	vfprintf(dbgfile, fmt, ap);
 	va_end(ap);
-	exit(EXIT_FAILURE);
 }
 
 static void
 usage(const char *arg0, const char *errmsg)
 {
 	if (errmsg)
-		die_error("Error: %s\nUsage: %s PROMPT\n", errmsg, arg0);
+		fprintf(stderr, "Error: %s\nUsage: %s PROMPT\n", errmsg, arg0);
 	else
-		die_error("Usage: %s PROMPT\n", arg0);
+		fprintf(stderr, "Usage: %s PROMPT\n", arg0);
+	exit(EXIT_FAILURE);
 }
 
 static void
@@ -177,6 +200,13 @@ usplash_read(int fd, char **buf, size_t *size)
 {
 	debug("In usplash_read\n");
 	if (fifo_common_read(fd, &usplashbuf, &usplashused, &usplashsize)) {
+		while (usplashused > 0 && 
+		       (usplashbuf[usplashused - 1] == '\n') ||
+		       (usplashbuf[usplashused - 1] == '\0')) {
+			usplashused--;
+			usplashbuf[usplashused] = '\0';
+			debug("Correcting usplash read length\n");
+		}
 		*buf = usplashbuf;
 		*size = usplashused;
 		usplashwaiting = false;
@@ -460,6 +490,7 @@ main(int argc, char **argv, char **envp)
 		}
 	}
 
+	debug("Writing %i bytes to stdout\n", (int)passlen);
 	write(STDOUT_FILENO, pass, passlen);
 	disable_method(NULL);
 	exit(EXIT_SUCCESS);
