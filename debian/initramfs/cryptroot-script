@@ -175,7 +175,7 @@ setup_mapping()
 	# /usr/share/initramfs-tools/scripts/local, as suggested per
 	# https://launchpad.net/bugs/164044
 	if [ ! -e "$cryptsource" ] || ! /lib/udev/vol_id "$cryptsource" >/dev/null 2>&1; then
-		log_begin_msg "Waiting for encrypted source device..."
+		echo "Waiting for encrypted source device..."
 
 		# Default delay is 180s
 		if [ -z "${ROOTDELAY}" ]; then

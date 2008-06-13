@@ -1,8 +1,12 @@
 cryptsetup (2:1.0.6-1ubuntu4) intrepid; urgency=low
 
+  [ Kjell Braden ]
   * Fix configuration parsing (LP: #239808)
 
- -- Kjell Braden <fnord@pentabarf.de>  Fri, 13 Jun 2008 19:10:54 +0200
+  [ Reinhard Tartler ]
+  * cryptroot-script: use 'echo' instead of 'log_begin_msg' (LP: #237723)
+
+ -- Reinhard Tartler <siretart@tauware.de>  Fri, 13 Jun 2008 21:26:17 +0200
 
 cryptsetup (2:1.0.6-1ubuntu3) intrepid; urgency=low
 
