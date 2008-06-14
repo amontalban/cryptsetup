@@ -254,7 +254,8 @@ check_key () {
 	OMODE=$(ls -l "$key" | sed 's/[[:space:]].*//;s/^.\{7\}//')
 	GMODE=$(ls -l "$key" | sed 's/[[:space:]].*//;s/^.\{4\}\(.\{3\}\).*/\1/')
 	GROUP=$(ls -l "$key" | sed 's/^.\{11\}[^[:space:]]* [^[:space:]]* \([^[:space:]]*\).*/\1/')
-	OWNER=$( ls -l "$key" | sed 's/^.\{11\}[^[:space:]]* \([^[:space:]]*\).*/\1/')
+	# bugfix: make regex work if keyfile has extended attributes, https://launchpad.net/bugs/231339
+	OWNER=$( ls -l "$key" | sed 's/^.\{10\}[+]\?.[^[:space:]]* \([^[:space:]]*\).*/\1/')
 
 	# LUKS requires a persistent key, /dev/*random is not supported
 	if [ "$USELUKS" = "yes" ] && [ "$key" != "${key%random}" ]; then

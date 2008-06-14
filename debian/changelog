@@ -16,6 +16,7 @@ cryptsetup (2:1.0.6-2ubuntu1) intrepid; urgency=low
     in debian in another way.
   * cryptdisk.functions: remove spurious call to load_optimized_module.
     LP: #239946
+  * bugfix: make regex work if keyfile has extended attributes. LP: #231339.
 
  -- Reinhard Tartler <siretart@tauware.de>  Fri, 13 Jun 2008 21:41:26 +0200
 
