@@ -14,6 +14,8 @@ cryptsetup (2:1.0.6-2ubuntu1) intrepid; urgency=low
     debian/patches/06_run_udevsettle.patch
   * remove patch from LP #73862, loading optimized modules has been solved
     in debian in another way.
+  * cryptdisk.functions: remove spurious call to load_optimized_module.
+    LP: #239946
 
  -- Reinhard Tartler <siretart@tauware.de>  Fri, 13 Jun 2008 21:41:26 +0200
 

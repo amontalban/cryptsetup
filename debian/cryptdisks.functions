@@ -590,7 +590,6 @@ do_start () {
 	modprobe -qb dm-crypt || true
 	dmsetup mknodes > /dev/null 2>&1 || true
 	log_action_begin_msg "Starting $INITSTATE crypto disks"
-	load_optimized_module
 	mount_fs
 
 	egrep -v "^[[:space:]]*(#|$)" "$TABFILE" | while read dst src key opts; do
