@@ -17,8 +17,11 @@ cryptsetup (2:1.0.6-2ubuntu1) intrepid; urgency=low
   * cryptdisk.functions: remove spurious call to load_optimized_module.
     LP: #239946
   * bugfix: make regex work if keyfile has extended attributes. LP: #231339.
+  * remove patch in cryptdisks.functions for rexecing the script itself for
+    ensuring that a tty is always available. (See LP #58794.) According to
+    Scott, this is not necessary anymore.
 
- -- Reinhard Tartler <siretart@tauware.de>  Fri, 13 Jun 2008 21:41:26 +0200
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 14 Jun 2008 23:28:51 +0200
 
 cryptsetup (2:1.0.6-2) unstable; urgency=low
 

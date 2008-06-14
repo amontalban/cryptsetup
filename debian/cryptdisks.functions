@@ -27,12 +27,6 @@ case "$CRYPTDISKS_ENABLE" in
 	;;
 esac
 
-# Always output to console
-stdin=`readlink /proc/self/fd/0`
-if [ "${stdin#/dev/null}" != "$stdin" ] && [ "$ON_VT" != "yes" ]; then
-    exec /usr/bin/env ON_VT=yes /usr/bin/openvt -f -c `fgconsole` -w $0 "$@"
-fi
-
 
 # Parses the option field from the crypttab file
 parse_opts () {
