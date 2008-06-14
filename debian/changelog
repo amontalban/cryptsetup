@@ -1,3 +1,47 @@
+cryptsetup (2:1.0.6-2ubuntu1) intrepid; urgency=low
+
+  * Merge new debian version. Remaining changes:
+    - Add XSBC-Vcs-Bzr tag to indicate that this package is managed using
+      bzr on launchpad.
+    - debian/rules: cryptsetup is linked dynamically against libgcrypt and
+      libgpg-error.
+    - cryptdisks.functions: stop usplash on user input. LP #62751
+    - Parse comments in lines not starting with '#', LP #185380
+    - If the encrypted source device hasn't shown up yet, give it a
+      little while to deal with removable devices. LP #164044
+  * Depend on race-free version of libdevmapper, thus making udevsettle
+    call from cryptsetup binary unnecessary. Dropping patch
+    debian/patches/06_run_udevsettle.patch
+  * remove patch from LP #73862, loading optimized modules has been solved
+    in debian in another way.
+
+ -- Reinhard Tartler <siretart@tauware.de>  Fri, 13 Jun 2008 21:41:26 +0200
+
+cryptsetup (2:1.0.6-2) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * Taken from ubuntu:
+    - debian/scripts/luksformat: Use 256 bit key size by default. (LP: #78508)
+    - debian/patches/02_manpage.patch: Clarify default key sizes (128 for
+      luksFormat and 256 for create) in cryptsetup.8. (side-note in LP #78508)
+  * Use 'shred -uz' instead of 'rm -r' to remove a tempfile that contains a
+    key in gen-ssl-key example script.
+
+  [ David Härdeman ]
+  * Misc bugfixes to askpass, make sure it is installed to the correct
+    location and is built using pedantic mode.
+  * Change the initramfs script to use askpass to prompt for
+    passphrases, this should hopefully fix #382375 and #465902 once it
+    is enabled in the init scripts as well.
+  * Add a keyscript called passdev which allows a keyfile to be
+    retrieved from a device which is first mounted, mainly useful to get
+    keyfiles off USB devices etc.
+  * Unbreak MODULES=dep booting (closes: #478268)
+  * Relax checks for suspend devices a bit (closes: #477658)
+  * Convert man pages to docbook.
+
+ -- David Härdeman <david@hardeman.nu>  Mon, 26 May 2008 08:12:32 +0200
+
 cryptsetup (2:1.0.6-1ubuntu4) intrepid; urgency=low
 
   [ Kjell Braden ]

@@ -38,6 +38,8 @@ fi
 parse_opts () {
 	local opts opt IFS PARAM VALUE
 
+	# bugfix: support comments in lines not starting with an #
+	# https://bugs.launchpad.net/bugs/185380
 	opts=$(echo -n $1 | sed 's/ *#.*//')
 	LOUD=""
 	PARAMS=""
@@ -305,6 +307,7 @@ do_luks () {
 			tried=$(( $tried + 1 ))
 		done
 	else
+		# stop usplash on user input. LP #62751
 		if [ -x /sbin/usplash_write -a -p /dev/.initramfs/usplash_outfifo ]; then
 			/sbin/usplash_write "QUIT"
 			# saftey sleep !
