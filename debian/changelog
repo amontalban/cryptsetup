@@ -1,3 +1,9 @@
+cryptsetup (2:1.0.6-2ubuntu3) intrepid; urgency=low
+
+  * try harder to fix FTBFS.
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sun, 15 Jun 2008 11:42:54 +0200
+
 cryptsetup (2:1.0.6-2ubuntu2) intrepid; urgency=low
 
   * build docbook documentation using local dtds instead of trying to
