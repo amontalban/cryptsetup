@@ -1,5 +1,11 @@
 cryptsetup (2:1.0.6-2ubuntu6) intrepid; urgency=low
 
+  [ Kjell Braden ]
+  * load scripts/functions for log_{begin,end}_msg
+  * debian/initramfs/cryptroot-script: wait for the cryptsource, not the resulting mapped root device
+  * debian/initramfs/cryptroot-hook: copy binaries to the right directory
+
+  [ Reinhard Tartler ]
   * remove versioned build-depency on libdevmapper-dev, we are using a
     rather sophisticated loop for making sure the root filesystem appears.
 
