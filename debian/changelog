@@ -1,3 +1,19 @@
+cryptsetup (2:1.0.6-2ubuntu6) intrepid; urgency=low
+
+  * remove versioned build-depency on libdevmapper-dev, we are using a
+    rather sophisticated loop for making sure the root filesystem appears.
+
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 18 Jun 2008 00:26:43 +0200
+
+cryptsetup (2:1.0.6-2ubuntu5) intrepid; urgency=low
+
+  * Okay, I give up. include preprocessed manpages and adapt
+    debian/rules to easily produce those.
+    ATTENTION: on subsequent uploads, make sure that the manpages are
+    available and up-to-date.
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sun, 15 Jun 2008 13:33:07 +0200
+
 cryptsetup (2:1.0.6-2ubuntu4) intrepid; urgency=low
 
   * also use local dtd in debian/doc/variables.xml.in.
