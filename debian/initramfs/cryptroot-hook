@@ -478,9 +478,10 @@ if [ "$MODULES" != "dep" ] || [ "$setup" = "yes" ]; then
 		manual_add_modules $mod
 	done
 
-	copy_exec /sbin/cryptsetup
-	copy_exec /sbin/dmsetup
-	copy_exec /lib/cryptsetup/askpass
+	copy_exec /sbin/cryptsetup /sbin
+	copy_exec /sbin/dmsetup /sbin
+	mkdir -p $DESTDIR/lib/cryptsetup
+	copy_exec /lib/cryptsetup/askpass /lib/cryptsetup/
 fi
 
 exit 0
