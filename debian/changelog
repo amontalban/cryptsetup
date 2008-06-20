@@ -1,3 +1,10 @@
+cryptsetup (2:1.0.6-2ubuntu7) intrepid; urgency=low
+
+  * reintroduce changes from 2:1.0.6-2ubuntu5 that have been accidentally
+    dropped in version 2:1.0.6-2ubuntu6.
+
+ -- Reinhard Tartler <siretart@tauware.de>  Fri, 20 Jun 2008 15:15:54 +0200
+
 cryptsetup (2:1.0.6-2ubuntu6) intrepid; urgency=low
 
   [ Kjell Braden ]
