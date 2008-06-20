@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refentry SYSTEM "file:///usr/share/xml/docbook/schema/dtd/4.2/docbookx.dtd">
+
+<refentry>
+
+ <refmeta>
+  <refmiscinfo class="version">2:1.0.6-2ubuntu4</refmiscinfo>
+  <refmiscinfo class="source">cryptsetup</refmiscinfo>
+  <refmiscinfo class="manual">cryptsetup manual</refmiscinfo>
+ </refmeta>
+
+ <refentryinfo>
+  <date>2008-06-15</date>
+ </refentryinfo>
+
+</refentry>

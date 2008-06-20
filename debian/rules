@@ -21,6 +21,7 @@ else
 endif
 
 CFLAGS = -Wall -g
+MANPAGES = debian/doc/cryptdisks_start.8 debian/doc/cryptdisks_stop.8 debian/doc/crypttab.5
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0
@@ -55,14 +56,17 @@ configure-stamp: $(QUILT_STAMPFN)
 	diff manifest manifest.new | grep '>' | cut -b3- > config.mess
 	touch $@
 
-build: build-stamp
-build-stamp: configure-stamp
+$(MANPAGES):
 	dh_testdir
 	sed 's/VERSION/$(DEB_VERSION)/;s/DATE/$(DEB_DATE)/' \
 		debian/doc/variables.xml.in > debian/doc/variables.xml
 	xsltproc --nonet --xinclude -o debian/doc/				\
 		/usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl	\
 		debian/doc/manpages.xml
+
+build: build-stamp
+build-stamp: configure-stamp $(MANPAGES)
+	dh_testdir
 	pod2man --section=8 --center="Administrative commands" --release="" debian/scripts/luksformat \
 		debian/luksformat.8
 	$(MAKE)
@@ -80,7 +84,8 @@ clean: unpatch
 	if test -f Makefile; then $(MAKE) clean; fi
 	if test -f config.mess; then rm -f `cat config.mess`; fi
 	rm -f debian/luksformat.8
-	rm -f debian/doc/*.[0-9] debian/doc/variables.xml
+	# don't clean manpages since we are shipping them preprocessed
+	# rm -f debian/doc/*.[0-9] debian/doc/variables.xml
 	rm -f debian/scripts/passdev
 	rm -f debian/askpass
 	rm -f config.mess

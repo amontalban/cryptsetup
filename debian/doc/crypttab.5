@@ -1,0 +1,235 @@
+.\"     Title: crypttab
+.\"    Author: 
+.\" Generator: DocBook XSL Stylesheets v1.73.2 <http://docbook.sf.net/>
+.\"      Date: 2008-06-15
+.\"    Manual: cryptsetup manual
+.\"    Source: cryptsetup 2:1.0.6-2ubuntu4
+.\"
+.TH "CRYPTTAB" "5" "2008\-06\-15" "cryptsetup 2:1\.0\.6\-2ubuntu4" "cryptsetup manual"
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.SH "NAME"
+crypttab - static information about encrypted filesystems
+.SH "DESCRIPTION"
+The file \fI/etc/crypttab\fR contains descriptive information about encrypted filesystems\. \fIcrypttab\fR is only read by programs, and not written; it is the duty of the system administrator to properly create and maintain this file\. Each filesystem is described on a separate line; fields on each line are separated by tabs or spaces\. Lines starting with \(lq#\(rq are comments, empty lines are ignored\. The order of records in \fIcrypttab\fR is important because the init scripts sequentially iterate through \fIcrypttab\fR doing their thing\.
+.sp
+The first field, \fItarget\fR, describes the mapped device name\. It must be a plain filename without any directory components\. A mapped device which encrypts/decrypts data to/from the \fIsource device\fR will be created at \fI/dev/mapper/target\fR by \fBcryptsetup\fR\.
+.sp
+The second field, \fIsource device\fR, describes either the block special device or file (which will be automatically mounted as a loop device) that should hold the encrypted data\.
+.sp
+The third field, \fIkey file\fR, describes the file to use as a key for decrypting the data of the \fIsource device\fR\. It can also be a device name (e\.g\. \fI/dev/random\fR), note however that LUKS requires a persistent key and therefore does \fInot\fR support random data keys\.
+.sp
+If the \fIkey file\fR is the string \(lqnone\(rq, a passphrase will be read interactively from the console\. In this case, the options precheck, check, checkargs and tries may be useful\.
+.sp
+The fourth field, \fIoptions\fR, describes the cryptsetup options associated with the encryption process\. At minimum, the field should contain the string \fIluks\fR or the \fIcipher\fR, \fIhash\fR and \fIsize\fR options\.
+.sp
+Options are in the format: \fIkey\fR=\fIvalue\fR [,\fIkey\fR=\fIvalue\fR \&...]\. The supported options are described below\.
+.sp
+Note that all four fields are mandatory and that a missing field will lead to unspecified behaviour\.
+.sp
+.SH "OPTIONS"
+.PP
+\fIcipher\fR=<cipher>
+.RS 4
+Encryption algorithm\. See
+\fBcryptsetup \-c\fR\.
+.RE
+.PP
+\fIsize\fR=<size>
+.RS 4
+Encryption key size\. See
+\fBcryptsetup \-s\fR\.
+.RE
+.PP
+\fIhash\fR=<hash>
+.RS 4
+Hash algorithm\. See
+\fBcryptsetup \-h\fR\.
+.RE
+.PP
+\fIoffset\fR=<offset>
+.RS 4
+Start offset\. Uses
+\fBcryptsetup \-o\fR\.
+.RE
+.PP
+\fIskip\fR=<skip>
+.RS 4
+Skip sectors at the beginning\. Uses
+\fBcryptsetup \-p\fR\.
+.RE
+.PP
+\fIverify\fR
+.RS 4
+Verify password\. Uses
+\fBcryptsetup \-y\fR\.
+.RE
+.PP
+\fIreadonly\fR
+.RS 4
+The backing device is read\-only (eg: a dvd)\.
+.RE
+.PP
+\fIluks\fR
+.RS 4
+Use device with luks extensions\.
+.RE
+.PP
+\fIswap\fR
+.RS 4
+Run
+\fBmkswap\fR
+on the created device\.
+.RE
+.PP
+\fItmp\fR=<tmpfs>
+.RS 4
+Run
+\fBmkfs\fR
+with filesystem type <tmpfs> on the created device\. Default is ext2\.
+.RE
+.PP
+\fIprecheck\fR=<precheck>
+.RS 4
+Check the source device by suitable program; if the check fails, the device is not created; <precheck> is a script to check the source device\. The sourcedevice is given as an argument to the script\.
+.RE
+.PP
+\fIcheck\fR=<check>
+.RS 4
+Check the content of the device by a suitable program; if the check fails, the device is removed\. If a program is provided as an argument, it is run, giving the decrypted volume (target device) as the first argument, and the value of the checkargs option as the second argument\. Cryptdisks searches for the given program in
+\fI/lib/cryptsetup/checks/\fR\. Default is
+\fIvol_id\fR\.
+.RE
+.PP
+\fIcheckargs\fR=<arguments>
+.RS 4
+Give <arguments> as the second argument to the check script\. See the CHECKSCRIPTS section for more information\.
+.RE
+.PP
+\fItries\fR=<num>
+.RS 4
+The input of the passphrase is tried <num> times in case of failure\. If you want to disable retries, pass
+\(lqtries=1\(rq\. Default is 3\. For the root device,
+\(lqtries=0\(rq
+enables infinitive retries due to a special case in the initramfs scripts\.
+.RE
+.PP
+\fItimeout\fR=<sec>
+.RS 4
+If key is
+\(lqnone\(rq, the cryptdisks script interactively prompts for a password\. The timeout option specifies the time in seconds to wait for the password before timing out\.
+.RE
+.PP
+\fInoearly\fR
+.RS 4
+The cryptsetup init scripts are invoked twice during the boot process \- once before lvm, evms, raid, etc\. are started and once again after that\. Sometimes you need to start your encrypted disks in a special order\. With this option the device is ignored during the first invokation of the cryptsetup init scripts\.
+.RE
+.PP
+\fInoauto\fR
+.RS 4
+Entirely ignore the device at the boot process\. It\'s still possible to map the device manually using cryptdisks_start\.
+.RE
+.PP
+\fIloud\fR
+.RS 4
+Be loud\. Print warnings if a device does not exist\.
+.RE
+.PP
+\fIkeyscript\fR=<path>
+.RS 4
+The executable at the indicated path is executed with the
+\fIkey file\fR
+from the thirdfield of the crypttab as its only argument and the output is used as the key\. This also works with encrypted root filesystems via initramfs if the executable is self\-contained (i\.e\. not a shell script which relies on external programs not present in the standard initramfs environment)\.
+.RE
+.SH "CHECKSCRIPTS"
+.PP
+\fIvol_id\fR
+.RS 4
+Checks for any known filesystem\. Supports a filesystem type as argument via<checkargs>:no checkargs \- succeeds if any valid filesystem is found on the device\."none" \- succeeds if no valid filesystem is found on the device\."ext3" [or any other filesystem type like xfs, swap, crypto_LUKS, whatever] \- succeedsif an ext3 [or another given] filesystem type is found on the device\.
+.RE
+.PP
+\fIun_vol_id\fR
+.RS 4
+Checks for no known filesystem\. Supports a filesystem type as argument via<checkargs>:no checkargs \- succeeds if no valid filesystem is found on the device\."ext3" [or any other filesystem type like xfs, swap, crypto_LUKS, whatever] \- succeedsif no ext3 [or another given] filesystem type is found on the device\.
+.RE
+.PP
+\fIext2\fR
+.RS 4
+Checks for a valid ext2/ext3 filesystem\.
+.RE
+.PP
+\fIxfs\fR
+.RS 4
+Checks for a valid xfs filesystem\.
+.RE
+.SH "EXAMPLES"
+.PP
+
+.sp
+.RS 4
+.nf
+# Encrypted swap device
+cswap /dev/sda6 /dev/random swap
+    
+# Encrypted luks disk with interactive password
+cdisk0 /dev/hda1 none luks
+    
+# Encrypted ext2 disk with interactive password
+# \- retry 5 times if the check fails
+cdisk1 /dev/sda2 none checkargs=ext2,tries=5
+
+# Encrypted disk with interactive password
+# \- use a nondefault check script
+# \- no retries
+cdisk2 /dev/hdc1 none check=customscript,tries=1
+
+# Encrypted disk with interactive password
+# \- twofish as the cipher
+cdisk3 /dev/sda3 none cipher=twofish
+   
+.fi
+.RE
+.sp
+.SH "ENVIRONMENT"
+.PP
+\fICRYPTDISKS_ENABLE\fR
+.RS 4
+Set to
+\fIyes\fR
+to run cryptdisks at startup\. Set to
+\fIno\fR
+to disable cryptdisks\.
+.RE
+.PP
+\fICRYPTDISKS_MOUNT\fR
+.RS 4
+Specifies the mountpoints that are mounted before cryptdisks is invoked\. Useful for keys on removable devices, such as cdrom, usbstick, flashcard, etc\.
+.RE
+.PP
+\fICRYPTDISKS_CHECK\fR
+.RS 4
+Specifies the checkscript to be run against the target device, after cryptdisks has been invoked\. The target device is passed as the first and only argument to the checkscript\. Takes effect if the
+\fIcheck\fR
+option is given in crypttab with no value\.
+.RE
+.PP
+\fICRYPTDISKS_PRECHECK\fR
+.RS 4
+Specifies the checkscript to be run against the source device, before cryptdisks has been invoked\. The source device is given as the first and only argument to the checkscript\. Takes effect if the
+\fIprecheck\fR
+option is given in crypttab with no value\.
+.RE
+.PP
+\fICRYPTDISKS_TIMEOUT\fR
+.RS 4
+Specifies the time in seconds to wait for the password before timing out\. Takes effect if the
+\fItimeout\fR
+option is given in crypttab with no value\.
+.RE
+.SH "SEE ALSO"
+\fBcryptsetup\fR(8), \fI/etc/crypttab\fR
+.SH "AUTHOR"
+This manual page was originally written by Bastian Kleineidam <calvin@debian\.org> for the Debian distribution of cryptsetup\. It has been further improved by Michael Gebetsroither <michael\.geb@gmx\.at>, Jonas Meurer <jonas@freesources\.org> and David Härdeman <david@hardeman\.nu>\.
+.sp

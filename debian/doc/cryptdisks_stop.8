@@ -1,0 +1,26 @@
+.\"     Title: cryptdisk_stop
+.\"    Author: 
+.\" Generator: DocBook XSL Stylesheets v1.73.2 <http://docbook.sf.net/>
+.\"      Date: 2008-06-15
+.\"    Manual: cryptsetup manual
+.\"    Source: cryptsetup 2:1.0.6-2ubuntu4
+.\"
+.TH "CRYPTDISK_STOP" "8" "2008\-06\-15" "cryptsetup 2:1\.0\.6\-2ubuntu4" "cryptsetup manual"
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.SH "NAME"
+cryptdisks_stop - wrapper around cryptsetup which parses /etc/crypttab.
+.SH "SYNOPSIS"
+\fBcryptdisks_stop\fR \fI<name>\fR
+.sp
+.SH "DESCRIPTION"
+\fBcryptdisks_stop\fR is a wrapper around \fBcryptsetup\fR which parses \fB/etc/crypttab\fR just like the initscript /etc/init\.d/cryptdisks does, and stops the dm\-crypt mapping which corresponds to \fI<name>\fR\.
+.sp
+.SH "SEE ALSO"
+\fIcryptsetup\fR(8), \fIcrypttab\fR(5)
+.sp
+.SH "AUTHOR"
+This manual page was written by Jonas Meurer <mejo@debian\.org> in January 2008\.
+.sp
