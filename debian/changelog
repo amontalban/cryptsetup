@@ -1,3 +1,42 @@
+cryptsetup (2:1.0.6-4) unstable; urgency=medium
+
+  [ David Härdeman ]
+  * Make sure $IGNORE is reset as necessary, patch by Thomas Luzat
+    <thomas@luzat.com> (closes: #490199)
+  * Use askpass in init scripts as well (closes: #489033, #477203)
+
+  [ Jonas Meurer ]
+  * Don't copy_exec libgcc1 in cryptopensc initramfs hook, as it's already
+    copied by copy_exec /usr/sbin/pcscd automaticly. Thanks to Evgeni Golov
+    <sargentd@die-welt.net>. (closes: #490300)
+  * Remove the udev rules file again as the relevant rules are now provided
+    by dmsetup package which cryptsetup depends on.
+  * Add splashy support to askpass, thanks to John Hughes <john@calva.com>
+    for the patch. (closes: #492451) The support is limited to cryptroot
+    though, as splashy freezes for passphrase input dialogs from initscripts.
+    Document that in README.Debian.
+  * Now that askpass is used as keyscript for interactive mode, it's not
+    necessary to set cryptsetup parameter '--tries=$TRIES' and TRIES=1 for
+    interactive mode anymore in cryptdisks.functions.
+  * Implement special treatment for random passphrases now that we use
+    "--key-file=-" for all situations. Only necessary in do_noluks.
+  * Fix the passphrase prompt string in initramfs/cryptroot.script to use
+    $cryptsource instead of $cryptsources.
+  * Major documentation cleanup for lenny:
+    - Rewrite CryptoSwap.HowTo in README.Debian, remove CryptoSwap.HowTo.
+    - Refer to README.initramfs instead of CryptoRoot.HowTo for encrypted root
+      filesystem in README.Debian.
+    - Remove outdated docs CryptoRoot.HowTo, usbcrypto.udev and gen-old-ssl-key
+      as well as the decrypt_old_ssl keyscript.
+    - Remove debian/TODO, didn't have any useful content anyway.
+    - Fix section ''9. The "decrypt_derived" keyscript'': Add swap option to
+      the example line for crypttab and other minor fixes. Thanks to
+      Helmut Grohne <helmut@subdivi.de>. (closes: #491867)
+  * urgency=medium since important (#492451) and security (#477203) bugs get
+    fixed by this upload.
+
+ -- Jonas Meurer <mejo@debian.org>  Mon, 28 Jul 2008 00:21:44 +0200
+
 cryptsetup (2:1.0.6-3) unstable; urgency=low
 
   [ Jonas Meurer ]
