@@ -21,6 +21,8 @@
 
 
 #define _GNU_SOURCE
+#define _BSD_SOURCE
+#define _POSIX_C_SOURCE 1
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -36,6 +38,8 @@
 #include <sys/select.h>
 #include <sys/ioctl.h>
 #include <signal.h>
+#include <dirent.h>
+#include <linux/vt.h>
 
 #define DEBUG 0
 
@@ -139,57 +143,174 @@ reread:
  *****************************************************************************/
 #define USPLASH_WRITE_FIFO "/dev/.initramfs/usplash_fifo"
 #define USPLASH_READ_FIFO "/dev/.initramfs/usplash_outfifo"
-#define USPLASH_CONSOLE "/dev/tty8"
 static size_t usplashused = 0;
 static size_t usplashsize = 0;
 static char *usplashbuf = NULL;
 static bool usplashwaiting = false;
 
+static bool
+usplash_command(const char *cmd)
+{
+	int wrfd;
+	ssize_t len;
+	size_t towrite = strlen(cmd) + 1;
+	size_t written = 0;
+
+	wrfd = open(USPLASH_WRITE_FIFO, O_WRONLY | O_NONBLOCK);
+	if (wrfd < 0)
+		return false;
+
+	while (written < towrite) {
+		len = write(wrfd, cmd + written, towrite - written);
+		if (len <= 0)
+			break;
+		written += len;
+	}
+
+	close(wrfd);
+	if (written != towrite)
+		return false;
+	else
+		return true;
+}
+
+static pid_t *
+pidlist(const char *target, size_t *retlen)
+{
+	pid_t *plist = NULL;
+	size_t plistlen = 0;
+	pid_t pid;
+	DIR *pdir;
+	FILE *fp;
+	struct dirent *d;
+	char path[256];
+	char buf[256];
+	char *tmp;
+
+	pdir = opendir("/proc");
+	if (!pdir)
+		goto out;
+
+	while ((d = readdir(pdir)) != NULL) {
+		pid = (pid_t)atoi(d->d_name);
+		if (!pid)
+			continue;
+
+		snprintf(path, sizeof(path), "/proc/%s/cmdline", d->d_name);
+
+		fp = fopen(path, "r");
+		if (!fp)
+			continue;
+
+		tmp = fgets(buf, sizeof(buf), fp);
+		fclose(fp);
+		if (!tmp)
+			continue;
+
+		tmp = strrchr(buf, '/');
+		if (tmp)
+			tmp++;
+		else
+			tmp = buf;
+
+		if (strcmp(tmp, target))
+			continue;
+
+		plistlen++;
+		plist = realloc(plist, plistlen * sizeof(pid_t));
+		if (!plist) {
+			debug("realloc failed");
+			plistlen = 0;
+			plist = NULL;
+			goto out;
+		}
+
+		plist[plistlen - 1] = pid;
+	}
+
+out:
+	if (pdir)
+		closedir(pdir);
+	*retlen = plistlen;
+	return plist;
+}
+
+static bool
+chvt(int vtnum)
+{
+	int fd;
+	bool rv = false;
+
+	fd = open("/dev/console", O_RDWR);
+	if (fd < 0)
+		goto out;
+
+	if (ioctl(fd, VT_ACTIVATE, vtnum))
+		goto out;
+
+	if (ioctl(fd, VT_WAITACTIVE, vtnum))
+		goto out;
+
+	rv = true;
+out:
+	if (fd >= 0)
+		close(fd);
+	return rv;
+}
+
+static size_t
+killall(pid_t *plist, size_t plistlen, int sig)
+{
+	pid_t pid;
+	int i;
+	size_t signalled = 0;
+
+	for (i = 0; i < plistlen; i++) {
+		pid = plist[i];
+		if (pid == 0)
+			continue;
+
+		debug("Signalling %i\n", (int)pid);
+		if (kill(pid, sig) == 0)
+			signalled++;
+		else
+			plist[i] = 0;
+	}
+
+	return signalled;
+}
+
 static void
 usplash_finish(int fd)
 {
-	int console;
-	char buf[100];
-	ssize_t ret;
-	int tries = 0;
-	bool somedata = false;
+	pid_t *plist;
+	size_t plistlen;
 
+	debug("usplash_finish\n");
 	if (usplashwaiting) {
 		/* This is ugly, but we need to unwedge usplash if a different
 		 * method has been used to provide the passphrase and usplash
-		 * is still waiting for user input
+		 * is still waiting for user input. Sending a newline to
+		 * usplash's console did not seem to provide a reliable
+		 * method and this should only be needed in exceptional
+		 * cases anyway.
 		 */
-		debug("Usplash cleanup fd %i\n", fd);
-		console = open(USPLASH_CONSOLE, O_RDWR);
-		if (console >= 0) {
-			/* Send newline to usplash */
-			ioctl(console, TIOCSTI, "\n");
-			close(console);
+		debug("Unwedging usplash\n");
+		/* Changing the VT will normally terminate usplash */
+		chvt(1);
+		sleep(1);
 
-			/* Flush (partial) passphrase from pipe */
-			while (tries < 10) {
-				ret = read(fd, buf, sizeof(buf));
-
-				if (ret > 0) {
-					somedata = true;
-					continue;
-				}
-
-				if (ret < 0 && errno == EINTR)
-					continue;
-
-				if ((ret <  0 && errno == EAGAIN) ||
-				    (ret == 0 && somedata == false)) {
-					sleep(1);
-					tries++;
-					continue;
-				}
-
-				break;
+		/* Get a list of remaining usplash procs (if any) to kill */
+		plist = pidlist("usplash", &plistlen);
+		if (plistlen > 0) {
+			if (killall(plist, plistlen, SIGTERM) > 0) {
+				sleep(2);
+				killall(plist, plistlen, SIGKILL);
 			}
-			memset(buf, '\0', sizeof(buf));
 		}
 		usplashwaiting = false;
+	} else {
+		usplash_command("TIMEOUT 15");
 	}
 
 	fifo_common_finish(fd, &usplashbuf, &usplashused, &usplashsize);
@@ -201,8 +322,8 @@ usplash_read(int fd, char **buf, size_t *size)
 	debug("In usplash_read\n");
 	if (fifo_common_read(fd, &usplashbuf, &usplashused, &usplashsize)) {
 		while (usplashused > 0 && 
-		       (usplashbuf[usplashused - 1] == '\n') ||
-		       (usplashbuf[usplashused - 1] == '\0')) {
+		       ((usplashbuf[usplashused - 1] == '\n') ||
+		        (usplashbuf[usplashused - 1] == '\0'))) {
 			usplashused--;
 			usplashbuf[usplashused] = '\0';
 			debug("Correcting usplash read length\n");
@@ -219,20 +340,15 @@ usplash_read(int fd, char **buf, size_t *size)
 static int
 usplash_prepare(const char *prompt)
 {
-	int wrfd = -1;
 	int rdfd = -1;
-	ssize_t len;
-	char command[strlen(prompt) + strlen("INPUTQUIET") + 2];
+	char cmd_input[strlen(prompt) + strlen("INPUTQUIET") + 2];
 
-	sprintf(command, "INPUTQUIET %s", prompt);
+	if (!usplash_command("TIMEOUT 0"))
+		return -1;
 
-	wrfd = open(USPLASH_WRITE_FIFO, O_WRONLY | O_NONBLOCK);
-	if (wrfd < 0)
-		goto out;
-
-	len = write(wrfd, command, strlen(command) + 1);
-	if (len < 0)
-		goto out;
+	sprintf(cmd_input, "INPUTQUIET %s", prompt);
+	if (!usplash_command(cmd_input))
+		return -1;
 
 	rdfd = open(USPLASH_READ_FIFO, O_RDONLY | O_NONBLOCK);
 	/* If usplash is enabled, disable console */
@@ -241,9 +357,6 @@ usplash_prepare(const char *prompt)
 		usplashwaiting = true;
 	}
 
-out:
-	if (wrfd >= 0)
-		close(wrfd);
 	return rdfd;
 }
 
@@ -392,14 +505,15 @@ struct method {
 	int (*prepare)(const char *prompt);
 	bool (*read)(int fd, char **buf, size_t *size);
 	void (*finish)(int fd);
+	bool active;
 	bool enabled;
 	int fd;
 };
 
 static struct method methods[] = {
-	{ "usplash", usplash_prepare, usplash_read, usplash_finish, true, -1 },
-	{ "fifo", fifo_prepare, fifo_read, fifo_finish, true, -1 },
-	{ "console", console_prepare, console_read, console_finish, true, -1 }
+	{ "usplash", usplash_prepare, usplash_read, usplash_finish, false, true, -1 },
+	{ "fifo", fifo_prepare, fifo_read, fifo_finish, false, true, -1 },
+	{ "console", console_prepare, console_read, console_finish, false, true, -1 }
 };
 
 static bool
@@ -408,13 +522,18 @@ disable_method(const char *method)
 	int i;
 	bool result = false;
 
+	debug("Disabling method %s\n", method ? method : "ALL");
+
 	for (i = 0; i < ARRAY_SIZE(methods); i++) {
+		/* A NULL method means all methods should be disabled */
 		if (method && strcmp(methods[i].name, method))
 			continue;
 		if (!methods[i].enabled)
 			continue;
+		if (methods[i].active)
+			methods[i].finish(methods[i].fd);
 
-		methods[i].finish(methods[i].fd);
+		methods[i].active = false;
 		methods[i].fd = -1;
 		methods[i].enabled = false;
 		result = true;
@@ -447,7 +566,9 @@ main(int argc, char **argv, char **envp)
 		debug("Enabling method %s\n", methods[i].name);
 		methods[i].fd = methods[i].prepare(argv[1]);
 		if (methods[i].fd < 0)
-			methods[i].enabled = false;
+			methods[i].active = false;
+		else
+			methods[i].active = true;
 	}
 
 	while (!done) {

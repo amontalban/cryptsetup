@@ -1,3 +1,36 @@
+cryptsetup (2:1.0.6-3) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * Fix cryptdisks.functions to actually recognize the noauto option. Thanks
+    to Christian Pernegger <pernegger@gmail.com> (closes: #483882)
+  * Update patches/02_manpage.patch to fix two more typos, thanks to Bruno
+    Barrera Yever <bbyever@gmail.com> (closes: #476624) and to remove a
+    duplicate sentence.
+  * Rephrase "Enter password for $crypttarget" to "Enter password to unlock
+    the disk $cryptsource ($crypttarget)" in initramfs/cryptroot.script.
+  * Bump Standards-Version to 3.8.0:
+    - Add a README.source which references /usr/share/doc/quilt/README.source.
+    - Add support for debian build option parallel=n to debian/rules.
+  * Add a udev rules file to ignore temporary-cryptsetup-* devices, as
+    suggested in bug #467200. Thanks to Sam Morris <sam@robots.org.uk>.
+  * Transform debian/copyright into machine-readable code as proposed in
+    http://wiki.debian.org/Proposals/CopyrightFormat. Update and add several
+    copyright notices.
+  * Change reference to docbook xml v4.2 driver file from an online version
+    to a local one in the manpage files, as the build process should not
+    depend on internet access. Add docbook-xml to build-depends. Thanks to
+    Lucas Nussbaum <lucas@lucas-nussbaum.net>. (closes: #487056)
+
+  [ David Härdeman ]
+  * Hopefully fix askpass to properly handle console and usplash input
+    (closes: #477203)
+  * Clarify crypttab manpage (closes: #487246)
+  * Make regex work if keyfile has extended attributes,
+    https://launchpad.net/bugs/231339 (closes: #488131)
+  * Support comments in options part of crypttab (closes: #488128)
+
+ -- Jonas Meurer <mejo@debian.org>  Mon, 07 Jul 2008 00:30:07 +0200
+
 cryptsetup (2:1.0.6-2) unstable; urgency=low
 
   [ Jonas Meurer ]
