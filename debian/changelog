@@ -1,3 +1,22 @@
+cryptsetup (2:1.0.6-5) unstable; urgency=high
+
+  * Fix watch file to not report -pre and -rc releases as superior.
+  * Remove the global var $SIZE from cryptdisks.functions again but keep the
+    extended value checks.
+  * Remove the udev rules file also in preinst, code taken from example at
+    http://wiki.debian.org/DpkgConffileHandling. Thanks Marco d'Itri.
+    (closes: #493151)
+  * Remove duplicated configuration of --key-file in $PARAMS at do_noluks().
+    (closes: #493848).
+  * Invoke mount_fs() and umount_fs() in cryptdisks_start, add
+    log_action_begin_msg() and log_action_end_msg() to both cryptdisk_start
+    and cryptdisks_stop.
+  * Copy fd 3 code from do_start and do_stop to cryptdisks_start and
+    cryptdisks_stop  to fix "keyscript | cryptsetup". (closes: #493622)
+  * This upload fixes two RC bugs, thus upload with severity=high.
+
+ -- Jonas Meurer <mejo@debian.org>  Wed, 06 Aug 2008 10:19:21 +0200
+
 cryptsetup (2:1.0.6-4) unstable; urgency=medium
 
   [ David Härdeman ]
