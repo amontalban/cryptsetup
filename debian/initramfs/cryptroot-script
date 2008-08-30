@@ -311,8 +311,6 @@ setup_mapping()
 # Begin real processing
 #
 
-. ./scripts/functions
-
 # Do we have any kernel boot arguments?
 found=''
 for opt in $(cat /proc/cmdline); do
