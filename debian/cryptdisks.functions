@@ -32,8 +32,7 @@ esac
 parse_opts () {
 	local opts opt IFS PARAM VALUE
 
-	# bugfix: support comments in lines not starting with an #
-	# https://bugs.launchpad.net/bugs/185380
+	# Strip comments - https://bugs.launchpad.net/bugs/185380
 	opts=$(echo -n $1 | sed 's/ *#.*//')
 	LOUD=""
 	PARAMS=""
@@ -46,6 +45,7 @@ parse_opts () {
 	USELUKS=""
 	TIMEOUT=""
 	KEYSCRIPT=""
+	IGNORE=""
 
 	# Parse the options field, convert to cryptsetup parameters
 	# and construct the command line
@@ -66,11 +66,12 @@ parse_opts () {
 			PARAMS="$PARAMS -c $VALUE"
 			;;
 		size)
-			if [ -z "$VALUE" ]; then
-				log_warning_msg "$dst: no value for size option, skipping"
+			if [ -z "$VALUE" ] || echo "$VALUE" | grep -q "^[[:digit:]]\+$" && [ "$VALUE" -gt 0 ]; then
+				PARAMS="$PARAMS -s $VALUE"
+			else
+				log_warning_msg "$dst: option size used with an incorrect argument, skipping"
 				return 1
 			fi
-			PARAMS="$PARAMS -s $VALUE"
 			;;
 		hash)
 			if [ -z "$VALUE" ]; then
@@ -133,7 +134,6 @@ parse_opts () {
 			else
 				log_warning_msg "$dst: option tries used with an incorrect argument - forced to $TRIES"
 			fi
-			PARAMS="$PARAMS --tries=$TRIES"
 			;;
 		timeout)
 			if [ -z "$VALUE" ]; then
@@ -230,10 +230,12 @@ check_key () {
 	# If the keyscript option is set, the "key" is just an argument to
 	# the keyscript and not necessarily a file
 	if [ -n "$KEYSCRIPT" ]; then
+		INTERACTIVE="yes"
 		return 0
 	fi
 
 	if [ -z "$key" ] || [ "$key" = "none" ]; then
+		key=""
 		INTERACTIVE="yes"
 		return 0
 	fi
@@ -248,8 +250,8 @@ check_key () {
 	OMODE=$(ls -l "$key" | sed 's/[[:space:]].*//;s/^.\{7\}//')
 	GMODE=$(ls -l "$key" | sed 's/[[:space:]].*//;s/^.\{4\}\(.\{3\}\).*/\1/')
 	GROUP=$(ls -l "$key" | sed 's/^.\{11\}[^[:space:]]* [^[:space:]]* \([^[:space:]]*\).*/\1/')
-	# bugfix: make regex work if keyfile has extended attributes, https://launchpad.net/bugs/231339
-	OWNER=$( ls -l "$key" | sed 's/^.\{10\}[+]\?.[^[:space:]]* \([^[:space:]]*\).*/\1/')
+	# regex needs to work if keyfile has xattrs - https://launchpad.net/bugs/231339
+	OWNER=$(ls -l "$key" | sed 's/^.\{10\}[+]\?.[^[:space:]]* \([^[:space:]]*\).*/\1/')
 
 	# LUKS requires a persistent key, /dev/*random is not supported
 	if [ "$USELUKS" = "yes" ] && [ "$key" != "${key%random}" ]; then
@@ -277,8 +279,9 @@ check_key () {
 
 # Setup a luks mapping
 do_luks () {
-	local tried
+	local tried keyscriptarg
 	tried=0
+	keyscriptarg=""
 
 	if ! cryptsetup isLuks "$src" >/dev/null 2>&1; then
 		log_warning_msg "$dst: device '$src' is not a LUKS partition, skipping"
@@ -286,38 +289,48 @@ do_luks () {
 	fi
 
 	if [ -n "$KEYSCRIPT" ]; then
-		PARAMS="$PARAMS --key-file=-"
-		while [ "$tried" -lt "$TRIES" ]; do
-			if "$KEYSCRIPT" "$key" <&1 | cryptsetup $PARAMS luksOpen "$src" "$dst"; then
-				break
-			fi
-			tried=$(( $tried + 1 ))
-		done
-	elif [ "$INTERACTIVE" != "yes" ]; then
-		PARAMS="$PARAMS --key-file=$key"
-		while [ "$tried" -lt "$TRIES" ]; do
-			if cryptsetup $PARAMS luksOpen "$src" "$dst" <&1; then
-				break
-			fi
-			tried=$(( $tried + 1 ))
-		done
+		# keyscript => "key" is just an argument to the keyscript
+		keyscriptarg="$key"
+		key="-"
+	elif [ -z "$key" ]; then
+		# no keyscript, no key => password
+		keyscriptarg="Enter passphrase to unlock the disk $src ($dst): "
+		key="-"
+		KEYSCRIPT="/lib/cryptsetup/askpass"
+	elif [ "$key" != "${key%/dev/*}" ]; then
+		# no keyscript, device key => special treatment
+		keyscriptarg=""
+		key="$key"
+		KEYSCRIPT=""
 	else
-		# stop usplash on user input. LP #62751
-		if [ -x /sbin/usplash_write -a -p /dev/.initramfs/usplash_outfifo ]; then
-			/sbin/usplash_write "QUIT"
-			# saftey sleep !
-			sleep 1
-		fi
-		cryptsetup $PARAMS luksOpen "$src" "$dst" <&1 || tried="$TRIES"
+		# no keyscript, key => file input
+		keyscriptarg="$key"
+		key="-"
+		KEYSCRIPT="cat"
 	fi
 
-	if [ "$tried" -ge "$TRIES" ]; then
-		return 1
-	fi
+	PARAMS="$PARAMS --key-file=$key"
+
+	while [ "$tried" -lt "$TRIES" ]; do
+		if [ -n "$KEYSCRIPT" ]; then
+			if "$KEYSCRIPT" "$keyscriptarg" | cryptsetup $PARAMS luksOpen "$src" "$dst"; then
+				break
+			fi
+		else
+			if cryptsetup $PARAMS luksOpen "$src" "$dst"; then
+				break
+			fi
+		fi
+
+		tried=$(( $tried + 1 ))
+		if [ "$tried" -ge "$TRIES" ]; then
+			return 1
+		fi
+	done
 
 	if [ -n "$CHECK" ] && ! "$CHECK" "/dev/mapper/$dst" $CHECKARGS; then
 		log_warning_msg "$dst: the check for '/dev/mapper/$dst' failed"
-		cryptsetup luksClose $dst
+		cryptsetup luksClose "$dst"
 		return 1
 	fi
 
@@ -326,8 +339,9 @@ do_luks () {
 
 # Setup a regular mapping
 do_noluks () {
-	local pre_out tried
+	local pre_out tried keyscriptarg
 	tried=0
+	keyscriptarg=""
 
 	if [ -z "$PRECHECK" ]; then
 		PRECHECK="/lib/cryptsetup/checks/un_vol_id"
@@ -341,16 +355,28 @@ do_noluks () {
 	fi
 
 	if [ -n "$KEYSCRIPT" ]; then
-		PARAMS="$PARAMS --key-file=-"
-	elif [ "$INTERACTIVE" != "yes" ]; then
-		PARAMS="$PARAMS --key-file=$key"
+		# keyscript => "key" is just an argument to the keyscript
+		keyscriptarg="$key"
+		key="-"
+	elif [ -z "$key" ]; then
+		# no keyscript, no key => password
+		keyscriptarg="Enter passphrase to unlock the disk $src ($dst): "
+		key="-"
+		KEYSCRIPT="/lib/cryptsetup/askpass"
+	else
+		# no keyscript, key => file input
+		keyscriptarg=""
+		key="$key"
+		KEYSCRIPT=""
 	fi
+
+	PARAMS="$PARAMS --key-file=$key"
 
 	while [ "$tried" -lt "$TRIES" ]; do
 		if [ -n "$KEYSCRIPT" ]; then
-			"$KEYSCRIPT" "$key" <&1 | cryptsetup $PARAMS create "$dst" "$src"
+			"$KEYSCRIPT" "$keyscriptarg" | cryptsetup $PARAMS create "$dst" "$src"
 		else
-			cryptsetup $PARAMS create "$dst" "$src" <&1
+			cryptsetup $PARAMS create "$dst" "$src"
 		fi
 
 		if [ -z "$CHECK" ] || "$CHECK" "/dev/mapper/$dst" $CHECKARGS; then
@@ -359,12 +385,12 @@ do_noluks () {
 			log_warning_msg "$dst: the check for '/dev/mapper/$dst' failed - maybe the password is wrong"
 			cryptsetup remove "$dst"
 		fi
-		tried=$(( $tried + 1 ))
-	done
 
-	if [ "$tried" -ge "$TRIES" ]; then
-		return 1
-	fi
+		tried=$(( $tried + 1 ))
+		if [ "$tried" -ge "$TRIES" ]; then
+			return 1
+		fi
+	done
 
 	return 0
 }
@@ -464,12 +490,6 @@ handle_crypttab_line_start () {
 	key=$3
 	opts=$4
 
-	# Ignore noauto devices
-	if [ "$IGNORE" = "yes" ]; then
-		device_msg "$dst" "ignored"
-		continue
-	fi
-
 	# Make sure that all fields are present
 	if [ -z "$dst" ]; then
 		continue
@@ -479,10 +499,27 @@ handle_crypttab_line_start () {
 	fi
 
 	# parse UUID= symlinks
-	if [ ${src#UUID=} != $src ]; then
+	if [ "${src#UUID=}" != "$src" ]; then
 		src="/dev/disk/by-uuid/${src#UUID=}"
-	elif [ ${src#LABEL=} != $src ]; then
+	elif [ "${src#LABEL=}" != "$src" ]; then
 		src="/dev/disk/by-label/${src#LABEL=}"
+	fi
+
+	# Do the preparatory steps
+	if ! parse_opts "$opts"; then
+		device_msg "$dst" "invalid opts"
+		continue
+	elif ! check_key; then
+		device_msg "$dst" "invalid key"
+		continue
+	elif ! lo_setup; then
+		device_msg "$dst" "loopback failed"
+	fi
+
+	# Ignore noauto devices
+	if [ "$IGNORE" = "yes" ]; then
+		device_msg "$dst" "ignored"
+		continue
 	fi
 
 	# Make sure source device exists
@@ -499,18 +536,7 @@ handle_crypttab_line_start () {
 		continue
 	fi
 
-	# All checks passed, do the preparatory steps
-	if ! parse_opts "$opts"; then
-		device_msg "$dst" "invalid opts"
-		continue
-	elif ! check_key; then
-		device_msg "$dst" "invalid key"
-		continue
-	elif ! lo_setup; then
-		device_msg "$dst" "loopback failed"
-	fi
-
-	# Do the real setup
+	# All checks passed, do the real setup
 	log_action_msg "$dst (starting)"
 	result="ok"
 	if [ "$USELUKS" = "yes" ]; then
@@ -588,8 +614,8 @@ do_start () {
 	mount_fs
 
 	egrep -v "^[[:space:]]*(#|$)" "$TABFILE" | while read dst src key opts; do
-		handle_crypttab_line_start "$dst" "$src" "$key" "$opts"
-	done
+		handle_crypttab_line_start "$dst" "$src" "$key" "$opts" <&3
+	done 3<&1
 	umount_fs
 
 	log_action_end_msg 0
@@ -604,8 +630,8 @@ do_stop () {
 	loopmajor=$(grep "[[:space:]]*loop$" /proc/devices | sed 's/^[[:space:]]*//;s/[[:space:]].*//')
 
 	egrep -v "^[[:space:]]*(#|$)" "$TABFILE" | while read dst src key opts; do
-		handle_crypttab_line_stop "$dst" "$src" "$key" "$opts"
-	done
+		handle_crypttab_line_stop "$dst" "$src" "$key" "$opts" <&3
+	done 3<&1
 
 	log_action_end_msg 0
 }

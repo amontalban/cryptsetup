@@ -1,3 +1,111 @@
+cryptsetup (2:1.0.6-6ubuntu1) intrepid; urgency=low
+
+  * merge from debian unstable. Remaining changes:
+    - remove versioned build-depency on libdevmapper-dev, we are using a
+      rather sophisticated loop for making sure the root filesystem appears.
+    - TBD
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 30 Aug 2008 17:16:11 +0200
+
+cryptsetup (2:1.0.6-6) unstable; urgency=high
+
+  * Don't cat keyfile into pipe for do_noluks(). cryptsetup handles
+    --key-file=- different for luks and plain dm-crypt mappings. This time
+    really (closes: #493848). Thus again upload with urgency=high.
+
+ -- Jonas Meurer <mejo@debian.org>  Sat, 09 Aug 2008 13:36:31 +0200
+
+cryptsetup (2:1.0.6-5) unstable; urgency=high
+
+  * Fix watch file to not report -pre and -rc releases as superior.
+  * Remove the global var $SIZE from cryptdisks.functions again but keep the
+    extended value checks.
+  * Remove the udev rules file also in preinst, code taken from example at
+    http://wiki.debian.org/DpkgConffileHandling. Thanks Marco d'Itri.
+    (closes: #493151)
+  * Remove duplicated configuration of --key-file in $PARAMS at do_noluks().
+    (closes: #493848).
+  * Invoke mount_fs() and umount_fs() in cryptdisks_start, add
+    log_action_begin_msg() and log_action_end_msg() to both cryptdisk_start
+    and cryptdisks_stop.
+  * Copy fd 3 code from do_start and do_stop to cryptdisks_start and
+    cryptdisks_stop  to fix "keyscript | cryptsetup". (closes: #493622)
+  * This upload fixes two RC bugs, thus upload with severity=high.
+
+ -- Jonas Meurer <mejo@debian.org>  Wed, 06 Aug 2008 10:19:21 +0200
+
+cryptsetup (2:1.0.6-4) unstable; urgency=medium
+
+  [ David Härdeman ]
+  * Make sure $IGNORE is reset as necessary, patch by Thomas Luzat
+    <thomas@luzat.com> (closes: #490199)
+  * Use askpass in init scripts as well (closes: #489033, #477203)
+
+  [ Jonas Meurer ]
+  * Don't copy_exec libgcc1 in cryptopensc initramfs hook, as it's already
+    copied by copy_exec /usr/sbin/pcscd automaticly. Thanks to Evgeni Golov
+    <sargentd@die-welt.net>. (closes: #490300)
+  * Remove the udev rules file again as the relevant rules are now provided
+    by dmsetup package which cryptsetup depends on.
+  * Add splashy support to askpass, thanks to John Hughes <john@calva.com>
+    for the patch. (closes: #492451) The support is limited to cryptroot
+    though, as splashy freezes for passphrase input dialogs from initscripts.
+    Document that in README.Debian.
+  * Now that askpass is used as keyscript for interactive mode, it's not
+    necessary to set cryptsetup parameter '--tries=$TRIES' and TRIES=1 for
+    interactive mode anymore in cryptdisks.functions.
+  * Implement special treatment for random passphrases now that we use
+    "--key-file=-" for all situations. Only necessary in do_noluks.
+  * Fix the passphrase prompt string in initramfs/cryptroot.script to use
+    $cryptsource instead of $cryptsources.
+  * Major documentation cleanup for lenny:
+    - Rewrite CryptoSwap.HowTo in README.Debian, remove CryptoSwap.HowTo.
+    - Refer to README.initramfs instead of CryptoRoot.HowTo for encrypted root
+      filesystem in README.Debian.
+    - Remove outdated docs CryptoRoot.HowTo, usbcrypto.udev and gen-old-ssl-key
+      as well as the decrypt_old_ssl keyscript.
+    - Remove debian/TODO, didn't have any useful content anyway.
+    - Fix section ''9. The "decrypt_derived" keyscript'': Add swap option to
+      the example line for crypttab and other minor fixes. Thanks to
+      Helmut Grohne <helmut@subdivi.de>. (closes: #491867)
+  * urgency=medium since important (#492451) and security (#477203) bugs get
+    fixed by this upload.
+
+ -- Jonas Meurer <mejo@debian.org>  Mon, 28 Jul 2008 00:21:44 +0200
+
+cryptsetup (2:1.0.6-3) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * Fix cryptdisks.functions to actually recognize the noauto option. Thanks
+    to Christian Pernegger <pernegger@gmail.com> (closes: #483882)
+  * Update patches/02_manpage.patch to fix two more typos, thanks to Bruno
+    Barrera Yever <bbyever@gmail.com> (closes: #476624) and to remove a
+    duplicate sentence.
+  * Rephrase "Enter password for $crypttarget" to "Enter password to unlock
+    the disk $cryptsource ($crypttarget)" in initramfs/cryptroot.script.
+  * Bump Standards-Version to 3.8.0:
+    - Add a README.source which references /usr/share/doc/quilt/README.source.
+    - Add support for debian build option parallel=n to debian/rules.
+  * Add a udev rules file to ignore temporary-cryptsetup-* devices, as
+    suggested in bug #467200. Thanks to Sam Morris <sam@robots.org.uk>.
+  * Transform debian/copyright into machine-readable code as proposed in
+    http://wiki.debian.org/Proposals/CopyrightFormat. Update and add several
+    copyright notices.
+  * Change reference to docbook xml v4.2 driver file from an online version
+    to a local one in the manpage files, as the build process should not
+    depend on internet access. Add docbook-xml to build-depends. Thanks to
+    Lucas Nussbaum <lucas@lucas-nussbaum.net>. (closes: #487056)
+
+  [ David Härdeman ]
+  * Hopefully fix askpass to properly handle console and usplash input
+    (closes: #477203)
+  * Clarify crypttab manpage (closes: #487246)
+  * Make regex work if keyfile has extended attributes,
+    https://launchpad.net/bugs/231339 (closes: #488131)
+  * Support comments in options part of crypttab (closes: #488128)
+
+ -- Jonas Meurer <mejo@debian.org>  Mon, 07 Jul 2008 00:30:07 +0200
+
 cryptsetup (2:1.0.6-2ubuntu7) intrepid; urgency=low
 
   * reintroduce changes from 2:1.0.6-2ubuntu5 that have been accidentally
