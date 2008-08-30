@@ -1,9 +1,10 @@
 cryptsetup (2:1.0.6-6ubuntu1) intrepid; urgency=low
 
-  * merge from debian unstable. Remaining changes:
+  * drop almost all ubuntu specific changes from the cryptsetup package,
+    because they have been merged in debian. Thanks a lot!
+  * merge from debian, remaining changes:
     - remove versioned build-depency on libdevmapper-dev, we are using a
       rather sophisticated loop for making sure the root filesystem appears.
-    - TBD
 
  -- Reinhard Tartler <siretart@tauware.de>  Sat, 30 Aug 2008 17:16:11 +0200
 
