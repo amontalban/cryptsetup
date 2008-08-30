@@ -6,6 +6,7 @@ cryptsetup (2:1.0.6-6ubuntu1) intrepid; urgency=low
     - remove versioned build-depency on libdevmapper-dev, we are using a
       rather sophisticated loop for making sure the root filesystem appears.
   * debian/rules: fix location of ltmain.sh
+  * don't exit usplash anymore in the init script. LP: #110970
 
  -- Reinhard Tartler <siretart@tauware.de>  Sat, 30 Aug 2008 17:52:16 +0200
 
