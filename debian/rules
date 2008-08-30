@@ -44,7 +44,7 @@ configure-stamp: $(QUILT_STAMPFN)
 	find -xtype f ! -name manifest > manifest
 	# mini autogen.sh
 	rm -f ltmain.sh
-	cp /usr/share/libtool/ltmain.sh ltmain.sh
+	cp /usr/share/libtool/config/ltmain.sh ltmain.sh
 	libtoolize --force --copy
 	aclocal-1.9
 	autoheader
