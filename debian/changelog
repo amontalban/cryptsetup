@@ -6,7 +6,7 @@ cryptsetup (2:1.0.6-6ubuntu1) intrepid; urgency=low
     - remove versioned build-depency on libdevmapper-dev, we are using a
       rather sophisticated loop for making sure the root filesystem appears.
   * debian/rules: fix location of ltmain.sh
-  * don't exit usplash anymore in the init script. LP: #110970
+  * don't exit usplash anymore in the init script. LP: #110970, #139363
   * Disable error message 'failed to setup lvm device'. It is harmless, and
     caused by the fact that the udev rules provided by lvm2 are setting up
     the lvm on their own. In debian the scripts here are responsible for this
