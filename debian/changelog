@@ -1,3 +1,12 @@
+cryptsetup (2:1.0.6-6ubuntu2) intrepid; urgency=low
+
+  * Fixes for (LP: #272301)
+  * debian/initramfs/cryptroot-script: must source /scripts/functions to get
+    the log_*_msg() functions
+  * 04_fix_udevsettle_call.patch: fix path to binary for udevsettle
+
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Fri, 19 Sep 2008 18:03:28 -0500
+
 cryptsetup (2:1.0.6-6ubuntu1) intrepid; urgency=low
 
   * drop almost all ubuntu specific changes from the cryptsetup package,
