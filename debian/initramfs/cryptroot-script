@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# source for log_*_msg() functions, see LP: #272301
 . /scripts/functions
 
 #
