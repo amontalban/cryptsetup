@@ -1,3 +1,10 @@
+cryptsetup (2:1.0.6-6ubuntu2.1) intrepid-proposed; urgency=low
+
+  * debian/initramfs/cryptroot-script: do not require that vol_id
+    can parse the encrypted device as valid (LP: #291752).
+
+ -- Kees Cook <kees@ubuntu.com>  Fri, 31 Oct 2008 13:10:06 -0700
+
 cryptsetup (2:1.0.6-6ubuntu2) intrepid; urgency=low
 
   * Fixes for (LP: #272301)
