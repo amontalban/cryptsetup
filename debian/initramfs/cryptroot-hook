@@ -137,11 +137,12 @@ get_lvm_deps() {
 	for dep in $deps; do
 		maj=${dep%,*}
 		min=${dep#*,}
-		depnode=$(dmsetup ls | sed -n "s/\\([^ ]*\\) *($maj, $min)/\\1/p")
+		depnode=$(dmsetup ls | sed -n "s/\\([^ ]*\\) *($maj, $min)/\\1/p" | sed -e "s/[ \t]*$//")
 		if [ -z "$depnode" ]; then
 			continue
 		fi
-		if [ "$(dmsetup table $depnode 2> /dev/null | cut -d' ' -f3)" != "crypt" ]; then
+		if [ "$(dmsetup table "$depnode" 2> /dev/null | cut -d' ' -f3)" != "crypt" ]; then
+			get_lvm_deps "$depnode"
 			continue
 		fi
 		echo "$depnode"
@@ -347,7 +348,7 @@ add_device() {
 		fi
 
 		# Get crypttab root options
-		if ! get_device_opts $node $opts; then
+		if ! get_device_opts "$node" "$opts"; then
 			continue
 		fi
 		echo "$OPTIONS" >> "$DESTDIR/conf/conf.d/cryptroot"

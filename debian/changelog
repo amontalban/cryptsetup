@@ -1,3 +1,64 @@
+cryptsetup (2:1.0.6-7ubuntu1) jaunty; urgency=low
+
+  * Merge from debian unstable, remaining changes:
+    - debian/initramfs/cryptroot-script:
+      - must source /scripts/functions to get the log_*_msg() functions.
+      - wait for encrypted device to show up (LP 164044, 291752).
+      - disable error message 'failed to setup lvm device' (LP 151532).
+    - debian/rules:
+      - fix location of ltmain.sh (Ubuntu-specific until libtool 2.2.x is
+        in Debian unstable).
+      - link dynamically (LP 62751).
+    - add 04_fix_udevsettle_call.patch: fix path to binary for udevsettle.
+  * Revert versioned build-depency on libdevmapper-dev, since Ubuntu's
+    version is higher now.
+
+ -- Kees Cook <kees@ubuntu.com>  Tue, 06 Jan 2009 13:00:16 -0800
+
+cryptsetup (2:1.0.6-7) unstable; urgency=medium
+
+  * Add patches/01_gettext_package.patch: Remove -luks from GETTEXT_PACKAGE
+    in configure.in.
+  * Support keyfiles option in bash completion. Thanks to Stefan Goebel for
+    the patch. (closes: #499936)
+  * Update patches/02_manpage.patch: Fix the documnetation of default cipher
+    for LUKS mappings. (closes: #495832)
+  * Update debian/watch file to reflect the move of project home to
+    code.google.com.
+  * Check for $CRYPTDISKS_ENABLE in cryptdisks initscripts instead of
+    cryptdisks.functions. This way, cryptdisks_start/stop work even with
+    $CRYPTDISKS_ENABLE != "yes". Thanks to Pietro Abate. (closes: #506643)
+  * Add force-start to cryptdisks(-early).init in order to support starting
+    noauto devices manually. Thanks to Niccolo Rigacci. (closes: #505779)
+  * Document how to enable remote device unlocking via dropbear ssh server
+    in the initramfs during boot process. Thanks to Chris <debian@x.ray.net>
+    for the great work. (closes: #465902)
+  * Completely remove support and documentation of the timeout option,
+    document this in NEWS.Debian. (closes: #495509, #474120)
+  * Use exit instead of return in decrypt_ssl keyscript. Thanks to Rene Wagner.
+    (closes: #499704)
+  * Fix initramfs/cryptpassdev-hook to check for passdev instead of mountdev.
+    Thanks to Christoph Anton Mitterer.
+  * cryptdisks.functions:
+    - Search for keyscript in /lib/cryptdisks/scripts. the cryptoroot initramfs
+      script already supports keyscripts without path as argument. Thanks to
+      Christoph Anton Mitterer.
+  * README.initramfs:
+    - Remove the mention of bug #398302 from the section about suspend/resume,
+      as this bug has been fixes for some time now.
+    - Remove step 6 (mkswap) from the section about decrypt_derived, as it was
+      superfluous. Thanks to Helmut Grohe. (closes: #491867)
+  * Fix initramfs/cryptroot-script to use the lvm binary instead of vgchange.
+    Thanks to Marc Haber. (closes: #506536)
+  * Make get_lvm_deps() recursive in initramfs/cryptroot-hook. This is required
+    to detect the dm-crypt device in setups with more than one level of device
+    mapper mappings. For example if LVM is used with snapshots on top of the
+    dm-crypt mapping. Thanks to Christian Jaeger for bugreport and patch, Ben
+    Hutchings and Yves-Alexis Perez for help with debugging. (closes: #507721)
+  * urgency=medium due to several important fixes.
+
+ -- Jonas Meurer <mejo@debian.org>  Wed, 17 Dec 2008 21:25:45 +0100
+
 cryptsetup (2:1.0.6-6ubuntu2.1) intrepid-proposed; urgency=low
 
   * debian/initramfs/cryptroot-script: do not require that vol_id
@@ -1462,3 +1523,4 @@ cryptsetup-luks (0.992-1) unstable; urgency=low
   * "integrated LUKS" support (very messy hack)
 
  -- Michael Gebetsroither <michael.geb@gmx.at>  Thu, 10 Feb 2005 18:16:21 +0100
+
