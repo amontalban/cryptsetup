@@ -344,12 +344,37 @@ static int
 usplash_prepare(const char *prompt)
 {
 	int rdfd = -1;
-	char cmd_input[strlen(prompt) + strlen("INPUTQUIET") + 2];
+	int usplash_cmd_len = strlen("TEXT-URGENT");
+	int cmd_input_max = strlen(prompt) + usplash_cmd_len + 2;
+	char cmd_input[cmd_input_max];
+	char *prompt_ptr = prompt;
+	char *newline = NULL;
 
 	if (!usplash_command("TIMEOUT 0"))
 		return -1;
 
-	sprintf(cmd_input, "INPUTQUIET %s", prompt);
+	/* handle any non-literal embedded newlines in prompt */
+	while ( (newline = strstr(prompt_ptr,"\\n")) != NULL ) {
+		/* Calculate length of string leading up to newline. */
+		int line_len = newline - prompt_ptr;
+		/* Add text-urgent length, space, and NULL. */
+		line_len += usplash_cmd_len + 2;
+
+		/* Even though line_len can never be larger than
+                   cmd_input_max, check it anyway. */
+		if (line_len > cmd_input_max)
+			return -1;
+
+		/* Force trimming of prompt to location of newline. */
+		snprintf(cmd_input, line_len, "TEXT-URGENT %s", prompt_ptr);
+		if (!usplash_command(cmd_input))
+			return -1;
+
+		/* Skip over newline. */
+		prompt_ptr = newline + 2;
+	}
+
+	snprintf(cmd_input, cmd_input_max, "INPUTQUIET %s", prompt_ptr);
 	if (!usplash_command(cmd_input))
 		return -1;
 
