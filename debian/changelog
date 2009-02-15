@@ -1,3 +1,9 @@
+cryptsetup (2:1.0.6-7ubuntu3) UNRELEASED; urgency=low
+
+  * debian/askpass.c: handle newline escape code in console prompt.
+
+ -- Kees Cook <kees@ubuntu.com>  Sun, 15 Feb 2009 08:20:10 -0800
+
 cryptsetup (2:1.0.6-7ubuntu2) jaunty; urgency=low
 
   * debian/askpass.c: handle newline escape code in password prompt.

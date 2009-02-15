@@ -544,6 +544,8 @@ static int
 console_prepare(const char *prompt)
 {
 	struct termios term_new;
+	char *prompt_ptr = prompt;
+	char *newline = NULL;
 
 	if (!isatty(STDIN_FILENO)) {
 		if (access(CONSOLE_PATH, R_OK | W_OK)) {
@@ -574,7 +576,23 @@ console_prepare(const char *prompt)
 		return -1;
 	}
 
-	if (fprintf(stderr, prompt) < 0) {
+	/* handle any non-literal embedded newlines in prompt */
+	while ( (newline = strstr(prompt_ptr,"\\n")) != NULL ) {
+		/* Calculate length of string leading up to newline. */
+		int line_len = newline - prompt_ptr;
+
+		/* Force trimming of prompt to location of newline. */
+		if (fwrite(prompt_ptr, line_len, 1, stderr) < 1 ||
+		    fwrite("\n", 1, 1, stderr) < 1) {
+			debug("Failed to print prompt\n");
+			tcsetattr(STDIN_FILENO, TCSAFLUSH, &term_old);
+			return -1;
+		}
+
+		/* Skip over newline. */
+		prompt_ptr = newline + 2;
+	}
+	if (fputs(prompt_ptr, stderr) < 0) {
 		debug("Failed to print prompt\n");
 		tcsetattr(STDIN_FILENO, TCSAFLUSH, &term_old);
 		return -1;
