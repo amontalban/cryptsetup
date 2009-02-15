@@ -1,8 +1,16 @@
-cryptsetup (2:1.0.6-7ubuntu3) jaunty; urgency=low
+cryptsetup (2:1.0.6-7ubuntu4) UNRELEASED; urgency=low
 
   * debian/askpass.c: also handle newline escape code in console prompt.
 
  -- Kees Cook <kees@ubuntu.com>  Sun, 15 Feb 2009 08:38:31 -0800
+
+cryptsetup (2:1.0.6-7ubuntu3) jaunty; urgency=low
+
+  [ https://launchpad.net/~svenkata ]
+  * debian/checks/un_vol_id: dynamically build the "unknown volume type"
+    string, to allow for encrypted swap, LP: #316607
+
+ -- Dustin Kirkland <kirkland@ubuntu.com>  Thu, 12 Feb 2009 16:57:30 -0600
 
 cryptsetup (2:1.0.6-7ubuntu2) jaunty; urgency=low
 
