@@ -1,4 +1,4 @@
-cryptsetup (2:1.0.6-7ubuntu5) UNRELEASED; urgency=low
+cryptsetup (2:1.0.6-7ubuntu5) jaunty; urgency=low
 
   * debian/initramfs/cryptroot-hook: fix support for UUID and LABEL correlation
     between fstab and crypttab (LP: #287879).
