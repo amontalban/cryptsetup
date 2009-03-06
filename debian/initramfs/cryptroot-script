@@ -202,7 +202,8 @@ setup_mapping()
 	# the following lines below have been taken from
 	# /usr/share/initramfs-tools/scripts/local, as suggested per
 	# https://launchpad.net/bugs/164044
-	if [ ! -e "$cryptsource" ]; then
+	if [ ! -e "$cryptsource" ] || ! udevadm settle --quiet --timeout=0
+	then
 		log_begin_msg "Waiting for encrypted source device..."
 
 		# Default delay is 180s
@@ -216,7 +217,8 @@ setup_mapping()
 		fi
 
 		slumber=$(( ${slumber} * 10 ))
-		while [ ! -e "$cryptsource" ]; do
+		while [ ! -e "$cryptsource" ] || ! udevadm settle --quiet --timeout=0
+		do
 			/bin/sleep 0.1
 			slumber=$(( ${slumber} - 1 ))
 			[ ${slumber} -gt 0 ] || break

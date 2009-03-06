@@ -1,3 +1,11 @@
+cryptsetup (2:1.0.6-7ubuntu6) UNRELEASED; urgency=low
+
+  * debian/initramfs/cryptroot-script: we don't require vol_id to understand
+    the encrypted device, but we should check the device is fully up first
+    before continuing by calling udevadm settle.  LP: #291752.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Fri, 06 Mar 2009 00:25:04 -0800
+
 cryptsetup (2:1.0.6-7ubuntu5) jaunty; urgency=low
 
   * debian/initramfs/cryptroot-hook: fix support for UUID and LABEL correlation
