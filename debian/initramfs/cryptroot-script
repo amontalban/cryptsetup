@@ -202,7 +202,7 @@ setup_mapping()
 	# the following lines below have been taken from
 	# /usr/share/initramfs-tools/scripts/local, as suggested per
 	# https://launchpad.net/bugs/164044
-	if [ ! -e "$cryptsource" ] || ! udevadm settle --quiet --timeout=0
+	if [ ! -e "$cryptsource" ]
 	then
 		log_begin_msg "Waiting for encrypted source device..."
 
@@ -217,7 +217,7 @@ setup_mapping()
 		fi
 
 		slumber=$(( ${slumber} * 10 ))
-		while [ ! -e "$cryptsource" ] || ! udevadm settle --quiet --timeout=0
+		while [ ! -e "$cryptsource" ]
 		do
 			/bin/sleep 0.1
 			slumber=$(( ${slumber} - 1 ))
@@ -233,6 +233,7 @@ setup_mapping()
 			/sbin/usplash_write "TIMEOUT 15" || true
 		fi
 	fi
+	udev_settle
 
 	# We've given up, but we'll let the user fix matters if they can
 	while [ ! -e "${cryptsource}" ]; do
