@@ -1,3 +1,10 @@
+cryptsetup (2:1.0.6-7ubuntu7) UNRELEASED; urgency=low
+
+  * debian/control: Depend on initramfs-tools so system is not potentially
+    rendered unbootable (LP: #358654).
+
+ -- Kees Cook <kees@ubuntu.com>  Thu, 09 Apr 2009 12:29:31 -0700
+
 cryptsetup (2:1.0.6-7ubuntu6) jaunty; urgency=low
 
   * debian/initramfs/cryptroot-script: we don't require vol_id to understand
