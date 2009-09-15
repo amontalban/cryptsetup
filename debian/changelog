@@ -1,3 +1,9 @@
+cryptsetup (2:1.0.6+20090405.svn49-1ubuntu3) UNRELEASED; urgency=low
+
+  * Move the Debian Vcs- fields aside.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 15 Sep 2009 10:09:47 -0700
+
 cryptsetup (2:1.0.6+20090405.svn49-1ubuntu2) karmic; urgency=low
 
   * debian/initramfs/cryptroot-conf: declare that we want usplash included
