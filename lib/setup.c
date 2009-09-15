@@ -198,6 +198,34 @@ out:
 	return ret;
 }
 
+static int wipe_device_header(const char *device, int sectors)
+{
+	char *buffer;
+	int size = sectors * SECTOR_SIZE;
+	int r = -1;
+	int devfd;
+
+	devfd = open(device, O_RDWR | O_DIRECT | O_SYNC);
+	if(devfd == -1) {
+		set_error("Can't wipe header on device %s", device);
+		return -EINVAL;
+	}
+
+	buffer = malloc(size);
+	if (!buffer) {
+		close(devfd);
+		return -ENOMEM;
+	}
+	memset(buffer, 0, size);
+
+	r = write_blockwise(devfd, buffer, size) < size ? -EIO : 0;
+
+	free(buffer);
+	close(devfd);
+
+	return r;
+}
+
 static int parse_into_name_and_mode(const char *nameAndMode, char *name,
 				    char *mode)
 {
@@ -226,6 +254,33 @@ static int parse_into_name_and_mode(const char *nameAndMode, char *name,
 #undef str
 #undef xstr
 }
+
+/* Select free keyslot or verifies that the one specified is empty */
+static int keyslot_from_option(int keySlotOption, struct luks_phdr *hdr, struct crypt_options *options) {
+        if(keySlotOption >= 0) {
+                if(keySlotOption >= LUKS_NUMKEYS) {
+                        logger(options,CRYPT_LOG_ERROR,"slot %d too high, please pick between 0 and %d", keySlotOption, LUKS_NUMKEYS);
+                        return -EINVAL;
+                } else if(hdr->keyblock[keySlotOption].active != LUKS_KEY_DISABLED) {
+                        logger(options,CRYPT_LOG_ERROR,"slot %d full, please pick another one", keySlotOption);
+                        return -EINVAL;
+                } else {
+                        return keySlotOption;
+                }
+        } else {
+                int i;
+                /* Find empty key slot */
+                for(i=0; i<LUKS_NUMKEYS; i++) {
+                        if(hdr->keyblock[i].active == LUKS_KEY_DISABLED) break;
+                }
+                if(i==LUKS_NUMKEYS) {
+                        logger(options,CRYPT_LOG_ERROR,"All slots full");
+                        return -EINVAL;
+                }
+                return i;
+        }
+}
+
 static int __crypt_create_device(int reload, struct setup_backend *backend,
                                  struct crypt_options *options)
 {
@@ -234,7 +289,7 @@ static int __crypt_create_device(int reload, struct setup_backend *backend,
 	};
 	struct device_infos infos;
 	char *key = NULL;
-	int keyLen;
+	unsigned int keyLen;
 	char *processed_key = NULL;
 	int r;
 
@@ -369,7 +424,7 @@ static int __crypt_remove_device(int arg, struct setup_backend *backend,
 		return -EBUSY;
 	}
 
-	return backend->remove(options);
+	return backend->remove(0, options);
 }
 
 static int __crypt_luks_format(int arg, struct setup_backend *backend, struct crypt_options *options)
@@ -381,16 +436,17 @@ static int __crypt_luks_format(int arg, struct setup_backend *backend, struct cr
 	char *password=NULL; 
 	char cipherName[LUKS_CIPHERNAME_L];
 	char cipherMode[LUKS_CIPHERMODE_L];
-	int passwordLen;
+	unsigned int passwordLen;
 	int PBKDF2perSecond;
-	
+        int keyIndex;
+
 	if (!LUKS_device_ready(options->device, O_RDWR | O_EXCL)) {
 		set_error("Can not access device");
 		r = -ENOTBLK; goto out;
 	}
 
 	mk = LUKS_generate_masterkey(options->key_size);
-	if(NULL == mk) return -ENOMEM; 
+	if(NULL == mk) return -ENOMEM; // FIXME This may be misleading, since we don't know what went wrong
 
 #ifdef LUKS_DEBUG
 #define printoffset(entry) logger(options, CRYPT_LOG_ERROR, ("offset of " #entry " = %d\n", (char *)(&header.entry)-(char *)(&header))
@@ -419,8 +475,13 @@ static int __crypt_luks_format(int arg, struct setup_backend *backend, struct cr
 		return r; 
 	}
 
+        keyIndex = keyslot_from_option(options->key_slot, &header, options);
+        if(keyIndex == -EINVAL) {
+                r = -EINVAL; goto out;
+        }
+
 	PBKDF2perSecond = LUKS_benchmarkt_iterations();
-	header.keyblock[0].passwordIterations = at_least_one(PBKDF2perSecond * ((float)options->iteration_time / 1000.0));
+	header.keyblock[keyIndex].passwordIterations = at_least_one(PBKDF2perSecond * ((float)options->iteration_time / 1000.0));
 #ifdef LUKS_DEBUG
 	logger(options->icb->log,CRYPT_LOG_ERROR, "pitr %d\n", header.keyblock[0].passwordIterations);
 #endif
@@ -429,8 +490,12 @@ static int __crypt_luks_format(int arg, struct setup_backend *backend, struct cr
 		r = -EINVAL; goto out;
 	}
 
+	/* Wipe first 8 sectors - fs magic numbers etc. */
+	r = wipe_device_header(options->device, 8);
+	if(r < 0) goto out;
+
 	/* Set key, also writes phdr */
-	r = LUKS_set_key(options->device, options->key_slot==-1?0:(unsigned int)options->key_slot, password, passwordLen, &header, mk, backend);
+	r = LUKS_set_key(options->device, keyIndex, password, passwordLen, &header, mk, backend);
 	if(r < 0) goto out; 
 
 	r = 0;
@@ -444,21 +509,23 @@ static int __crypt_luks_open(int arg, struct setup_backend *backend, struct cryp
 {
 	struct luks_masterkey *mk=NULL;
 	struct luks_phdr hdr;
-	char *password; int passwordLen;
+	char *password;
+	unsigned int passwordLen;
 	struct device_infos infos;
 	struct crypt_options tmp = {
 		.name = options->name,
 	};
 	char *dmCipherSpec;
 	int r, tries = options->tries;
-	
+	int excl = (options->flags & CRYPT_FLAG_NON_EXCLUSIVE_ACCESS) ? 0 : O_EXCL ;
+
 	r = backend->status(0, &tmp, NULL);
 	if (r >= 0) {
 		set_error("Device already exists");
 		return -EEXIST;
 	}
 
-	if (!LUKS_device_ready(options->device, O_RDONLY | O_EXCL)) {
+	if (!LUKS_device_ready(options->device, O_RDONLY | excl)) {
 		set_error("Can not access device");
 		return -ENOTBLK;
 	}
@@ -482,13 +549,14 @@ start:
 	if(!password) {
 		r = -EINVAL; goto out;
 	}
-        
+
         r = LUKS_open_any_key(options->device, password, passwordLen, &hdr, &mk, backend);
-	if(r < 0) {
+	if (r == -EPERM)
 		set_error("No key available with this passphrase.\n");
+	if (r < 0)
 		goto out1;
-	} else
-                logger(options, CRYPT_LOG_NORMAL,"key slot %d unlocked.\n", r);
+
+	logger(options, CRYPT_LOG_NORMAL,"key slot %d unlocked.\n", r);
 
 	
 	options->offset = hdr.payloadOffset;
@@ -530,10 +598,9 @@ static int __crypt_luks_add_key(int arg, struct setup_backend *backend, struct c
 	struct luks_masterkey *mk=NULL;
 	struct luks_phdr hdr;
 	char *password=NULL; unsigned int passwordLen;
-	unsigned int i; unsigned int keyIndex;
+        unsigned int keyIndex;
 	const char *device = options->device;
 	int r;
-	int key_slot = options->key_slot;
 	
 	if (!LUKS_device_ready(options->device, O_RDWR)) {
 		set_error("Can not access device");
@@ -543,26 +610,10 @@ static int __crypt_luks_add_key(int arg, struct setup_backend *backend, struct c
 	r = LUKS_read_phdr(device, &hdr);
 	if(r < 0) return r;
 
-        if(key_slot != -1) {
-                if(key_slot >= LUKS_NUMKEYS) {
-                        set_error("slot %d too high, please pick between 0 and %d", key_slot, LUKS_NUMKEYS);
-                        return -EINVAL;
-                } else if(hdr.keyblock[key_slot].active != LUKS_KEY_DISABLED) {
-                        set_error("slot %d full, please pick another one", key_slot);
-                        return -EINVAL;
-                } else {
-                        keyIndex = key_slot;
-                }
-        } else {
-                /* Find empty key slot */
-                for(i=0; i<LUKS_NUMKEYS; i++) {
-                        if(hdr.keyblock[i].active == LUKS_KEY_DISABLED) break;
-                }
-                if(i==LUKS_NUMKEYS) {
-                        set_error("All slots full");
-                        return -EINVAL;
-                }
-                keyIndex = i;
+
+        keyIndex = keyslot_from_option(options->key_slot, &hdr, options);
+        if(keyIndex == -EINVAL) {
+                r = -EINVAL; goto out;
         }
 
 	get_key("Enter any LUKS passphrase: ",
@@ -653,17 +704,25 @@ static int luks_remove_helper(int arg, struct setup_backend *backend, struct cry
 		if(!password) {
 			r = -EINVAL; goto out;
 		}
-		openedIndex = LUKS_open_any_key(device, password, passwordLen, &hdr, &mk, backend);
+
+                r = LUKS_read_phdr(device, &hdr);
+                if(r < 0) { 
+                        options->icb->log(CRYPT_LOG_ERROR,"Failed to access device.\n");
+                        r = -EIO; goto out;
+                }
+                hdr.keyblock[keyIndex].active = LUKS_KEY_DISABLED;
+
+		openedIndex = LUKS_open_any_key_with_hdr(device, password, passwordLen, &hdr, &mk, backend);
                 /* Clean up */
                 if (openedIndex >= 0) {
                         LUKS_dealloc_masterkey(mk);
                         mk = NULL;
                 }
-		if(openedIndex < 0 || keyIndex == openedIndex) {
+		if(openedIndex < 0) {
                             options->icb->log(CRYPT_LOG_ERROR,"No remaining key available with this passphrase.\n");
 			    r = -EPERM; goto out;
 		} else
-                        logger(options, CRYPT_LOG_NORMAL,"key slot %d verified.\n", keyIndex);
+                        logger(options, CRYPT_LOG_NORMAL,"key slot %d verified.\n", openedIndex);
 	}
 	r = LUKS_del_key(device, keyIndex);
 	if(r < 0) goto out;
@@ -692,7 +751,10 @@ static int crypt_job(int (*job)(int arg, struct setup_backend *backend,
 
 	backend = get_setup_backend(default_backend);
 
-	setup_enter(backend,options->icb->log);
+	if (setup_enter(backend,options->icb->log) < 0) {
+		r = -ENOSYS;
+		goto out;
+	}
 
 	if (!backend) {
 		set_error("No setup backend available");

@@ -40,7 +40,7 @@ struct setup_backend {
 			          const char *key);
 	int		(*status)(int details, struct crypt_options *options,
 			          char **key);
-	int		(*remove)(struct crypt_options *options);
+	int		(*remove)(int force, struct crypt_options *options);
 
 	const char *	(*dir)(void);
 };
@@ -70,6 +70,7 @@ ssize_t read_blockwise(int fd, void *_buf, size_t count);
 ssize_t write_lseek_blockwise(int fd, const char *buf, size_t count, off_t offset);
 
 
-int get_key(char *prompt, char **key, int *passLen, int key_size, const char *key_file, int passphrase_fd, int timeout, int how2verify);
+int get_key(char *prompt, char **key, unsigned int *passLen, int key_size,
+            const char *key_file, int passphrase_fd, int timeout, int how2verify);
 
 #endif /* INTERNAL_H */

@@ -32,7 +32,9 @@ void set_error_va(const char *fmt, va_list va)
 	    error=NULL;
 	}
 
-        vasprintf(&error, fmt, va);
+	if(!fmt) return;
+
+	vasprintf(&error, fmt, va);
 }
 
 void set_error(const char *fmt, ...)
@@ -230,19 +232,19 @@ ssize_t write_lseek_blockwise(int fd, const char *buf, size_t count, off_t offse
 	char frontPadBuf[bsize];
 	int frontHang = offset % bsize;
 	int r;
+	int innerCount = count < bsize ? count : bsize;
 
 	if (bsize < 0)
 		return bsize;
 
 	lseek(fd, offset - frontHang, SEEK_SET);
 	if(offset % bsize) {
-		int innerCount = count<bsize?count:bsize;
-
 		r = read(fd,frontPadBuf,bsize);
 		if(r < 0) return -1;
 
 		memcpy(frontPadBuf+frontHang, buf, innerCount);
 
+		lseek(fd, offset - frontHang, SEEK_SET);
 		r = write(fd,frontPadBuf,bsize);
 		if(r < 0) return -1;
 
@@ -251,7 +253,7 @@ ssize_t write_lseek_blockwise(int fd, const char *buf, size_t count, off_t offse
 	}
 	if(count <= 0) return buf - orig_buf;
 
-	return write_blockwise(fd, buf, count);
+	return write_blockwise(fd, buf, count) + innerCount;
 }
 
 /* Password reading helpers */
@@ -345,7 +347,8 @@ out_err:
  * reading can be retried as for interactive terminals).
  */
 
-int get_key(char *prompt, char **key, int *passLen, int key_size, const char *key_file, int passphrase_fd, int timeout, int how2verify)
+int get_key(char *prompt, char **key, unsigned int *passLen, int key_size,
+            const char *key_file, int passphrase_fd, int timeout, int how2verify)
 {
 	int fd;
 	const int verify = how2verify & CRYPT_FLAG_VERIFY;

@@ -45,6 +45,11 @@ static inline int round_up_modulo(int x, int m) {
 	return div_round_up(x, m) * m;
 }
 
+static struct setup_backend *cleaner_backend=NULL;
+static const char *cleaner_name=NULL;
+static uint64_t cleaner_size = 0;
+static int devfd=-1;
+
 static int setup_mapping(const char *cipher, const char *name, 
 			 const char *device, unsigned int payloadOffset,
 			 const char *key, size_t keyLength, 
@@ -52,7 +57,7 @@ static int setup_mapping(const char *cipher, const char *name,
 			 struct setup_backend *backend,
 			 int mode)
 {
-	struct crypt_options k;
+	struct crypt_options k = {0};
 	struct crypt_options *options = &k;
 	int device_sector_size = sector_size_for_device(device);
 	int r;
@@ -66,6 +71,7 @@ static int setup_mapping(const char *cipher, const char *name,
 		return -EINVAL;
 	}
 	options->size = round_up_modulo(srcLength,device_sector_size)/SECTOR_SIZE;
+	cleaner_size = options->size;
 
 	options->offset = sector;
 	options->cipher = cipher;
@@ -87,24 +93,21 @@ static int setup_mapping(const char *cipher, const char *name,
 	return r;
 }
 
-static int clear_mapping(const char *name, struct setup_backend *backend)
+static int clear_mapping(const char *name, uint64_t size, struct setup_backend *backend)
 {
-	struct crypt_options options;
+	struct crypt_options options = {0};
 	options.name=name;
-	return backend->remove(&options);
+	options.size = size;
+	return backend->remove(1, &options);
 }
-
-/* I miss closures in C! */
-static struct setup_backend *cleaner_backend=NULL;
-static const char *cleaner_name=NULL; 
-static int devfd=0;
 
 static void sigint_handler(int sig)
 {
-        if(devfd)
+        if(devfd >= 0)
                 close(devfd);
+        devfd = -1;
         if(cleaner_backend && cleaner_name) 
-                clear_mapping(cleaner_name, cleaner_backend);
+                clear_mapping(cleaner_name, cleaner_size, cleaner_backend);
         signal(SIGINT, SIG_DFL);
         kill(getpid(), SIGINT);
 }
@@ -160,13 +163,14 @@ static int LUKS_endec_template(char *src, size_t srcLength,
 	r = 0;
  out3:
 	close(devfd);
-	devfd = 0;
+	devfd = -1;
  out2:
-	clear_mapping(name,backend);
+	clear_mapping(cleaner_name, cleaner_size, cleaner_backend);
  out1:
 	signal(SIGINT, SIG_DFL);
 	cleaner_name = NULL;
 	cleaner_backend = NULL;
+	cleaner_size = 0;
 	free(dmCipherSpec);
 	free(fullpath); 
 	free(name); 

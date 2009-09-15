@@ -45,6 +45,7 @@ configure-stamp: $(QUILT_STAMPFN)
 	# mini autogen.sh
 	rm -f ltmain.sh
 	cp /usr/share/libtool/config/ltmain.sh ltmain.sh
+	./setup-gettext
 	libtoolize --force --copy
 	aclocal-1.9
 	autoheader
@@ -64,14 +65,13 @@ build-stamp: configure-stamp
 	dh_testdir
 	sed 's/VERSION/$(DEB_VERSION)/;s/DATE/$(DEB_DATE)/' \
 		debian/doc/variables.xml.in > debian/doc/variables.xml
-	xsltproc --nonet --xinclude -o debian/doc/					\
-		/usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl	\
+	xsltproc --nonet --xinclude -o debian/doc/ \
+		/usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl \
 		debian/doc/manpages.xml
 	pod2man --section=8 --center="Administrative commands" --release="" debian/scripts/luksformat \
 		debian/luksformat.8
 	$(MAKE)
-	# cannot depend on libraries in /usr !
-	# link dynamically, LP #62751
+	# link dynamically, better to depend on libraries in /usr for supportability
 	gcc lib/.libs/*.o src/*.o luks/.libs/*.o -o src/cryptsetup.static \
 		-lpopt -ldevmapper -luuid -lgcrypt -lgpg-error
 	gcc -Wall -pedantic -std=c99 debian/askpass.c -o debian/askpass

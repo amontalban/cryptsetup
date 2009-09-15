@@ -4,3 +4,6 @@ KEYMAP=y
 
 # force busybox on initramfs
 BUSYBOX=y
+
+# declare that we need usplash included in the initramfs, for pretty prompting
+USPLASH=y

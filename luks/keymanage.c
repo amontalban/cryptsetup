@@ -50,6 +50,7 @@ static inline int round_up_modulo(int x, int m) {
 struct luks_masterkey *LUKS_alloc_masterkey(int keylength)
 { 
 	struct luks_masterkey *mk=malloc(sizeof(*mk) + keylength);
+	if(NULL == mk) return NULL;
 	mk->keyLength=keylength;
 	return mk;
 }
@@ -66,7 +67,13 @@ void LUKS_dealloc_masterkey(struct luks_masterkey *mk)
 struct luks_masterkey *LUKS_generate_masterkey(int keylength)
 {
 	struct luks_masterkey *mk=LUKS_alloc_masterkey(keylength);
-	getRandom(mk->key,keylength);
+	if(NULL == mk) return NULL;
+
+	int r = getRandom(mk->key,keylength);
+	if(r < 0) {
+		LUKS_dealloc_masterkey(mk);
+		return NULL;
+	}
 	return mk;
 }
 
@@ -324,7 +331,25 @@ out:
 	return r;
 }
 
+
+/* Tries to open any key from a given LUKS device reading the header on its own */
 int LUKS_open_any_key(const char *device, 
+		      const char *password, 
+		      size_t passwordLen,
+		      struct luks_phdr *hdr, 
+		      struct luks_masterkey **mk,
+		      struct setup_backend *backend)
+{
+	int r;
+
+	r = LUKS_read_phdr(device, hdr);
+	if(r < 0) 
+      		return r;
+        return LUKS_open_any_key_with_hdr(device,password,passwordLen,hdr,mk,backend);
+}
+
+
+int LUKS_open_any_key_with_hdr(const char *device, 
 		      const char *password, 
 		      size_t passwordLen,
 		      struct luks_phdr *hdr, 
@@ -333,10 +358,6 @@ int LUKS_open_any_key(const char *device,
 {
 	unsigned int i;
 	int r;
-
-	r = LUKS_read_phdr(device, hdr);
-	if(r < 0) 
-      		return r;
 
 	*mk=LUKS_alloc_masterkey(hdr->keyBytes);
 	for(i=0; i<LUKS_NUMKEYS; i++) {
