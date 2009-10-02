@@ -1,8 +1,24 @@
-cryptsetup (2:1.0.6+20090405.svn49-1ubuntu3) UNRELEASED; urgency=low
+cryptsetup (2:1.0.6+20090405.svn49-1ubuntu5) UNRELEASED; urgency=low
 
   * Move the Debian Vcs- fields aside.
 
  -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 15 Sep 2009 10:09:47 -0700
+
+cryptsetup (2:1.0.6+20090405.svn49-1ubuntu4) karmic; urgency=low
+
+  * debian/cryptdisks-enable.upstart: Things that often help include
+    not setting stdin/out to /dev/null, so you can actually type the
+    passphrase.  I am an idiot.  LP: #430496. 
+
+ -- Scott James Remnant <scott@ubuntu.com>  Thu, 17 Sep 2009 17:58:01 +0100
+
+cryptsetup (2:1.0.6+20090405.svn49-1ubuntu3) karmic; urgency=low
+
+  * debian/cryptdisks-enable.upstart: add upstart job to enable encrypted
+    disks once we've finished probing for udev devices, so that mountall
+    can use them.  LP: #430496.
+
+ -- Scott James Remnant <scott@ubuntu.com>  Thu, 17 Sep 2009 00:04:00 +0100
 
 cryptsetup (2:1.0.6+20090405.svn49-1ubuntu2) karmic; urgency=low
 

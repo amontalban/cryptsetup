@@ -1,0 +1,24 @@
+# cryptdisks - enable encrypted block devices
+#
+# This is a bit of a kludge, we should do this per-block device in a udev
+# rule.  But this should work for now.
+
+description	"enable encrypted block devices"
+
+start on stopped udevtrigger
+
+task
+console owner
+
+script
+    . /lib/cryptsetup/cryptdisks.functions
+
+    case "$CRYPTDISKS_ENABLE" in
+    [Nn]*)
+        exit 1
+        ;;
+    esac
+
+    INITSTATE="init"
+    do_start
+end script
