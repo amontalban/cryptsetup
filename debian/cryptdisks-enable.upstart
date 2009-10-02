@@ -8,6 +8,7 @@ description	"enable encrypted block devices"
 start on stopped udevtrigger
 
 task
+console owner
 
 script
     . /lib/cryptsetup/cryptdisks.functions
@@ -18,6 +19,6 @@ script
         ;;
     esac
 
-    INITSTATE="sad"
+    INITSTATE="init"
     do_start
 end script

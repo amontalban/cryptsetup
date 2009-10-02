@@ -1,3 +1,11 @@
+cryptsetup (2:1.0.6+20090405.svn49-1ubuntu4) karmic; urgency=low
+
+  * debian/cryptdisks-enable.upstart: Things that often help include
+    not setting stdin/out to /dev/null, so you can actually type the
+    passphrase.  I am an idiot.  LP: #430496. 
+
+ -- Scott James Remnant <scott@ubuntu.com>  Thu, 17 Sep 2009 17:58:01 +0100
+
 cryptsetup (2:1.0.6+20090405.svn49-1ubuntu3) karmic; urgency=low
 
   * debian/cryptdisks-enable.upstart: add upstart job to enable encrypted
