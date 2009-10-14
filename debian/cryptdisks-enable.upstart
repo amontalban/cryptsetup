@@ -8,7 +8,7 @@ description	"enable encrypted block devices"
 start on stopped udevtrigger
 
 task
-console owner
+console output
 
 script
     . /lib/cryptsetup/cryptdisks.functions
