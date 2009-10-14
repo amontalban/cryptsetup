@@ -1,3 +1,10 @@
+cryptsetup (2:1.0.6+20090405.svn49-1ubuntu7) karmic; urgency=low
+
+  * Reupload previous version, siretart had left changes in bzr which
+    weren't documented in the changelog and caused FTBFS.
+
+ -- Scott James Remnant <scott@ubuntu.com>  Wed, 14 Oct 2009 13:57:59 +0100
+
 cryptsetup (2:1.0.6+20090405.svn49-1ubuntu6) karmic; urgency=low
 
   [ Steve Langasek ]
