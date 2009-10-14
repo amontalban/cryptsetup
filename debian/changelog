@@ -1,4 +1,4 @@
-cryptsetup (2:1.0.6+20090405.svn49-1ubuntu6) UNRELEASED; urgency=low
+cryptsetup (2:1.0.6+20090405.svn49-1ubuntu6) karmic; urgency=low
 
   [ Steve Langasek ]
   * Move the Debian Vcs- fields aside.
@@ -8,7 +8,7 @@ cryptsetup (2:1.0.6+20090405.svn49-1ubuntu6) UNRELEASED; urgency=low
     cryptsetup should not need a controlling terminal, just a terminal
     is fine.  May fix LP: #439138.
 
- -- Scott James Remnant <scott@ubuntu.com>  Wed, 14 Oct 2009 04:51:50 +0100
+ -- Scott James Remnant <scott@ubuntu.com>  Wed, 14 Oct 2009 04:52:16 +0100
 
 cryptsetup (2:1.0.6+20090405.svn49-1ubuntu4) karmic; urgency=low
 
