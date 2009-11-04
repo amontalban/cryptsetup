@@ -7,6 +7,8 @@ cryptsetup (2:1.0.6+20090405.svn49-1ubuntu8) UNRELEASED; urgency=low
 
   [ Reinhard Tartler ]
   * Add an apport hook
+  * import the blkid and un_blkid from debian, LP: #446517
+  * also use this script by default (setting in /etc/default/cryptdisks)
 
  -- Scott James Remnant <scott@ubuntu.com>  Wed, 14 Oct 2009 14:00:23 +0100
 
