@@ -1,8 +1,8 @@
-cryptsetup (2:1.0.6+20090405.svn49-1ubuntu8) UNRELEASED; urgency=low
+cryptsetup (2:1.0.6+20090405.svn49-1ubuntu8) lucid; urgency=low
 
   [ Steve Langasek ]
   * Make the 'start' action of the init script a no-op, this should be
-    handled entirely by the upstart job now; ad remove any symlinks from
+    handled entirely by the upstart job now; and remove any symlinks from
     /etc/rcS.d on upgrade.  LP: #473615.
 
   [ Reinhard Tartler ]
@@ -10,7 +10,7 @@ cryptsetup (2:1.0.6+20090405.svn49-1ubuntu8) UNRELEASED; urgency=low
   * import the blkid and un_blkid from debian, LP: #446517
   * also use this script by default (setting in /etc/default/cryptdisks)
 
- -- Scott James Remnant <scott@ubuntu.com>  Wed, 14 Oct 2009 14:00:23 +0100
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 04 Nov 2009 12:06:47 +0000
 
 cryptsetup (2:1.0.6+20090405.svn49-1ubuntu7) karmic; urgency=low
 
