@@ -1,6 +1,9 @@
 cryptsetup (2:1.0.6+20090405.svn49-1ubuntu8) UNRELEASED; urgency=low
 
-  * ...
+  [ Steve Langasek ]
+  * Make the 'start' action of the init script a no-op, this should be
+    handled entirely by the upstart job now; ad remove any symlinks from
+    /etc/rcS.d on upgrade.  LP: #473615.
 
  -- Scott James Remnant <scott@ubuntu.com>  Wed, 14 Oct 2009 14:00:23 +0100
 

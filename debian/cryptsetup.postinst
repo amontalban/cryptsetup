@@ -17,6 +17,11 @@ case "$1" in
 		update-initramfs -u
 	fi
 
+	if dpkg --compare-versions "$2" lt "2:1.0.6+20090405.svn49-1ubuntu8"
+	then
+		rm -f /etc/rcS.d/S26cryptdisks-early /etc/rcS.d/S28cryptdisks
+	fi
+
 	# Do a number of checks on the currently installed crypttab
 	egrep -v "^[[:space:]]*(#|$)" /etc/crypttab | while read dst src key opts; do
 		if [ -z "$dst" ]; then
