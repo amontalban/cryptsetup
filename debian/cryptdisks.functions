@@ -39,6 +39,7 @@ parse_opts () {
 	USELUKS=""
 	KEYSCRIPT=""
 	IGNORE=""
+	CRYPTTAB_OPTIONS=""
 
 	# Parse the options field, convert to cryptsetup parameters
 	# and construct the command line
@@ -130,7 +131,7 @@ parse_opts () {
 			;;
 		swap)
 			MAKESWAP="yes"
-			SWCHECK="/lib/cryptsetup/checks/un_vol_id"
+			SWCHECK="/lib/cryptsetup/checks/un_blkid"
 			SWCHECKARGS="swap"
 			;;
 		tmp)
@@ -173,7 +174,12 @@ parse_opts () {
 			fi
 			;;
 		esac
+
+		CRYPTTAB_OPTIONS="$CRYPTTAB_OPTIONS $PARAM"
+		[ -z "$VALUE" ] && VALUE="yes"
+		eval export CRYPTTAB_OPTION_$PARAM="\"$VALUE\""
 	done
+	export CRYPTTAB_OPTIONS
 
 	return 0
 }
@@ -280,7 +286,7 @@ do_luks () {
 		key="-"
 	elif [ -z "$key" ]; then
 		# no keyscript, no key => password
-		keyscriptarg="Enter passphrase to unlock the disk $src ($dst): "
+		keyscriptarg="Unlocking the disk $src ($dst)\nEnter passphrase: "
 		key="-"
 		KEYSCRIPT="/lib/cryptsetup/askpass"
 	elif [ "$key" != "${key%/dev/*}" ]; then
@@ -330,12 +336,12 @@ do_noluks () {
 	keyscriptarg=""
 
 	if [ -z "$PRECHECK" ]; then
-		PRECHECK="/lib/cryptsetup/checks/un_vol_id"
+		PRECHECK="/lib/cryptsetup/checks/un_blkid"
 	fi
 
 	if ! pre_out=$("$PRECHECK" "$src" 2> /dev/null) && \
 	   [ "$MAKESWAP" != "yes" ] && \
-	   ! /lib/cryptsetup/checks/vol_id "$src" swap >/dev/null; then
+	   ! /lib/cryptsetup/checks/blkid "$src" swap >/dev/null; then
 		log_warning_msg "$dst: the precheck for '$src' failed: $pre_out"
 		return 1
 	fi
@@ -346,7 +352,7 @@ do_noluks () {
 		key="-"
 	elif [ -z "$key" ]; then
 		# no keyscript, no key => password
-		keyscriptarg="Enter passphrase to unlock the disk $src ($dst): "
+		keyscriptarg="Unlocking the disk $cryptsource ($crypttarget)\nEnter passphrase: "
 		key="-"
 		KEYSCRIPT="/lib/cryptsetup/askpass"
 	else
@@ -410,8 +416,8 @@ do_swap () {
 		return 0
 	fi
 
-	if swap_out=$(/lib/cryptsetup/checks/un_vol_id "/dev/mapper/$dst" 2> /dev/null) || \
-	   /lib/cryptsetup/checks/vol_id "/dev/mapper/$dst" swap > /dev/null 2>&1; then
+	if swap_out=$(/lib/cryptsetup/checks/un_blkid "/dev/mapper/$dst" 2> /dev/null) || \
+	   /lib/cryptsetup/checks/blkid "/dev/mapper/$dst" swap > /dev/null 2>&1; then
 		mkswap "/dev/mapper/$dst" > /dev/null 2>&1
 	else
 		log_warning_msg "$dst: the check for '/dev/mapper/$dst' failed. /dev/mapper/$dst contains data: $swap_out"
@@ -478,10 +484,10 @@ handle_crypttab_line_start () {
 
 	# Make sure that all fields are present
 	if [ -z "$dst" ]; then
-		continue
+		return 1
 	elif [ -z "$src" ] || [ -z "$key" ] || [ -z "$opts" ]; then
 		device_msg "$dst" "skipped, missing parameters"
-		continue
+		return 1
 	fi
 
 	# parse UUID= symlinks
@@ -494,36 +500,43 @@ handle_crypttab_line_start () {
 	# Do the preparatory steps
 	if ! parse_opts "$opts"; then
 		device_msg "$dst" "invalid opts"
-		continue
-	elif ! check_key; then
-		device_msg "$dst" "invalid key"
-		continue
-	elif ! lo_setup; then
-		device_msg "$dst" "loopback failed"
+		return 1
 	fi
 
 	# Ignore noauto devices
 	if [ "$IGNORE" = "yes" ] && [ -z "$FORCE_START" ]; then
 		device_msg "$dst" "ignored"
-		continue
+		return 0
 	fi
+
+	if ! check_key; then
+		device_msg "$dst" "invalid key"
+		return 1
+	elif ! lo_setup; then
+		device_msg "$dst" "loopback failed"
+	fi
+
+	# Export crypttab fields as environment variables
+	export CRYPTTAB_NAME="$dst"
+	export CRYPTTAB_SOURCE="$src"
+	export CRYPTTAB_KEY="$key"
 
 	# Make sure source device exists
 	if [ ! -r "$src" ]; then
 		if [ "$LOUD" = "yes" ]; then
 			device_msg "$dst" "skipped, device $src does not exist"
 		fi
-		continue
+		return 1
 	fi
 
 	# Make sure that target device doesn't exist
 	if [ -b "/dev/mapper/$dst" ]; then
 		device_msg "$dst" "running"
-		continue
+		return 0
 	fi
 
 	# All checks passed, do the real setup
-	log_action_msg "$dst (starting)"
+	log_action_msg "$dst (starting).."
 	result="ok"
 	if [ "$USELUKS" = "yes" ]; then
 		do_luks || result="fail"
@@ -535,6 +548,7 @@ handle_crypttab_line_start () {
 	if [ "$result" != "ok" ]; then
 		rm_lo_setup
 		device_msg "$dst" "failed"
+		return 1
 	else
 		do_swap
 		do_tmp
@@ -552,16 +566,16 @@ handle_crypttab_line_stop () {
 
 	if [ ! -b "/dev/mapper/$dst" ]; then
 		device_msg "$dst" "stopped"
-		continue
+		return 0
 	fi
 
 	opencount=$(dmsetup info -c --noheadings -o open "$dst" 2> /dev/null || true)
 	if [ -z "$opencount" ]; then
 		device_msg "$dst" "error"
-		continue
+		return 1
 	elif [ "$opencount" != "0" ]; then
 		device_msg "$dst" "busy"
-		continue
+		return 0
 	fi
 
 	#major=$(dmsetup info -c --noheadings -o major "$dst" 2> /dev/null || true)
@@ -571,9 +585,9 @@ handle_crypttab_line_stop () {
 
 	if [ -z "$src_major" ] || [ -z "$src_minor" ]; then
 		device_msg "$dst" "error"
-		continue
+		return 1
 	fi
-
+	
 	do_close
 
 	# Detach loopback device, if attached
@@ -581,7 +595,7 @@ handle_crypttab_line_stop () {
 		loopdev="/dev/loop${src_minor}"
 		if ! rm_lo_setup; then
 			device_msg "$dst" "detaching loopback failed"
-			continue
+			return 1
 		fi
 	fi
 
@@ -600,7 +614,7 @@ do_start () {
 	mount_fs
 
 	egrep -v "^[[:space:]]*(#|$)" "$TABFILE" | while read dst src key opts; do
-		handle_crypttab_line_start "$dst" "$src" "$key" "$opts" <&3
+		handle_crypttab_line_start "$dst" "$src" "$key" "$opts" <&3 || true
 	done 3<&1
 	umount_fs
 
@@ -616,7 +630,7 @@ do_stop () {
 	loopmajor=$(grep "[[:space:]]*loop$" /proc/devices | sed 's/^[[:space:]]*//;s/[[:space:]].*//')
 
 	egrep -v "^[[:space:]]*(#|$)" "$TABFILE" | while read dst src key opts; do
-		handle_crypttab_line_stop "$dst" "$src" "$key" "$opts" <&3
+		handle_crypttab_line_stop "$dst" "$src" "$key" "$opts" <&3 || true
 	done 3<&1
 
 	log_action_end_msg 0

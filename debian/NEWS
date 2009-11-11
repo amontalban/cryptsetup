@@ -1,3 +1,24 @@
+cryptsetup (2:1.0.7-3) unstable; urgency=low
+
+  The cryptroot initramfs hook script has been changed to include all
+  available crypto kernel modules in case that initramfs-tools is configured
+  with MODULES=most (default). See /etc/initramfs-tools/initramfs.conf for
+  more information.
+  If initramfs-tools is configured with MODULES=dep, the cryptroot hook script
+  still tries to detect required modules, as it did by default in the past.
+
+ -- Jonas Meurer <mejo@debian.org>  Sun, 27 Sep 2009 16:49:20 +0200
+
+cryptsetup (2:1.0.7-2) unstable; urgency=low
+
+  Checkscripts vol_id and un_vol_id have been replaced by blkid and un_blkid.
+  In case that you explicitly set keyscript=vol_id or keyscript=un_vol_id in
+  /etc/crypttab, you will need to update your /etc/crypttab manually.
+  Replacing 'vol_id' with 'blkid' and 'un_vol_id' with 'un_blkid' should work.
+  The new *blkid keyscripts are fully compatible to the old *vol_id scripts.
+
+ -- Jonas Meurer <mejo@debian.org>  Sun, 23 Aug 2009 23:32:49 +0200
+
 cryptsetup (2:1.0.6-8) unstable; urgency=low
 
   Keyscripts inside the initramfs have been moved from /keyscripts to

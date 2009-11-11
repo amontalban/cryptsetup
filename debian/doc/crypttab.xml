@@ -50,7 +50,7 @@
    The third field, <emphasis>key file</emphasis>, describes the file to use
    as a key for decrypting the data of the <emphasis>source device</emphasis>.
    It can also be a device name (e.g.
-   <filename class="devicefile">/dev/random</filename>), note however that
+   <filename class="devicefile">/dev/urandom</filename>), note however that
    LUKS requires a persistent key and therefore does <emphasis>not</emphasis>
    support random data keys.
   </simpara>
@@ -186,7 +186,7 @@
       first argument, and the value of the checkargs option as the second
       argument. Cryptdisks searches for the given program in
       <filename class="directory">/lib/cryptsetup/checks/</filename>.
-      Default is <filename>vol_id</filename>.
+      Default is <filename>blkid</filename>.
      </simpara>
     </listitem>
    </varlistentry>
@@ -250,6 +250,43 @@
       self-contained (i.e. an executable which does not rely on any external
       program which is not present in the initramfs environment).
      </simpara>
+     <para>
+      All fields of the appropriate crypttab entry are available to the keyscript
+      as exported environment variables:
+      <variablelist>
+       <varlistentry>
+        <term>CRYPTTAB_NAME</term>
+        <listitem><para>
+	 The target name
+        </para></listitem>
+       </varlistentry>
+       <varlistentry>
+        <term>CRYPTTAB_SOURCE</term>
+        <listitem><para>
+	 The source device
+        </para></listitem>
+       </varlistentry>
+       <varlistentry>
+        <term>CRYPTTAB_KEY</term>
+        <listitem><para>
+	 The key file
+        </para></listitem>
+       </varlistentry>
+       <varlistentry>
+        <term>CRYPTTAB_OPTIONS</term>
+        <listitem><para>
+	 A list of exported crypttab options
+        </para></listitem>
+       </varlistentry>
+       <varlistentry>
+        <term>CRYPTTAB_OPTION_&lt;option&gt;</term>
+        <listitem><para>
+	 The value of the appropriate crypttab option, with value set to 'yes'
+         in case the option is merely a flag.
+        </para></listitem>
+       </varlistentry>
+      </variablelist>
+     </para>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -259,27 +296,41 @@
   <title>CHECKSCRIPTS</title>
   <variablelist>
    <varlistentry>
-    <term><emphasis>vol_id</emphasis></term>
+    <term><emphasis>blkid</emphasis></term>
     <listitem>
      <simpara>Checks for any known filesystem. Supports a filesystem type as
-      argument via&lt;checkargs&gt;:no checkargs - succeeds if any valid
-      filesystem is found on the device."none" - succeeds if no valid
-      filesystem is found on the device."ext3" [or any other filesystem type
-      like xfs, swap, crypto_LUKS, whatever] - succeedsif an ext3 [or another
-      given] filesystem type is found on the device.
+      argument via &lt;checkargs&gt;:
      </simpara>
+     <itemizedlist>
+      <listitem><para>
+       no checkargs - succeeds if any valid filesystem is found on the device.
+      </para></listitem>
+      <listitem><para>
+       "none" - succeeds if no valid filesystem is found on the device.
+      </para></listitem>
+      <listitem><para>
+       "ext3" [or another filesystem type like xfs, swap, crypto_LUKS, ...] -
+       succeeds if ext3 filesystem is found on the device.
+      </para></listitem>
+     </itemizedlist>
     </listitem>
    </varlistentry>
 
    <varlistentry>
-    <term><emphasis>un_vol_id</emphasis></term>
+    <term><emphasis>un_blkid</emphasis></term>
     <listitem>
      <simpara>Checks for no known filesystem. Supports a filesystem type as
-      argument via&lt;checkargs&gt;:no checkargs - succeeds if no valid
-      filesystem is found on the device."ext3" [or any other filesystem type
-      like xfs, swap, crypto_LUKS, whatever] - succeedsif no ext3 [or another
-      given] filesystem type is found on the device.
+      argument via &lt;checkargs&gt;:
      </simpara>
+     <itemizedlist>
+      <listitem><para>
+       no checkargs - succeeds if no valid filesystem is found on the device.
+      </para></listitem>
+      <listitem><para>
+       "ext3" [or another filesystem type like xfs, swap, crypto_LUKS, ...] -
+       succeeds if no ext3 filesystem is found on the device.
+      </para></listitem>
+     </itemizedlist>
     </listitem>
    </varlistentry>
 
@@ -304,7 +355,7 @@
   <para>
    <screen>
 # Encrypted swap device
-cswap /dev/sda6 /dev/random swap
+cswap /dev/sda6 /dev/urandom swap
     
 # Encrypted luks disk with interactive password
 cdisk0 /dev/hda1 none luks

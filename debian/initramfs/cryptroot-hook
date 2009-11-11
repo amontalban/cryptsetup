@@ -81,6 +81,16 @@ get_resume_devices() {
 			continue
 		fi
 
+		# Detect devices required by decrypt_derived
+		derived="$(grep "^${device#/dev/mapper/}.*decrypt_derived" /etc/crypttab 2>/dev/null | awk '{print $3}')"
+		if [ -n "$derived" ]; then
+			if grep -q "^$derived" /etc/crypttab; then
+				candidates="$candidates /dev/mapper/$derived"
+			else
+				echo "cryptsetup: WARNING: decrypt_derived device $derived not found in crypttab" >&2
+			fi
+		fi
+
 		# Weed out duplicates
 		dupe=0
 		for opt in $devices; do
@@ -229,6 +239,9 @@ get_device_opts() {
 			tries=*)
 				OPTIONS="$OPTIONS,$opt"
 				;;
+			rootdev)
+				OPTIONS="$OPTIONS,$opt"
+				;;
 			luks)
 				LUKS_FOUND=1
 				;;
@@ -293,9 +306,18 @@ canonical_device() {
 		dev="/dev/disk/by-uuid/$altdev"
 	fi
 
-	original=$dev
+	original="$dev"
 	if [ -h "$dev" ]; then
 		dev=$(readlink -e "$dev")
+	fi
+
+	if [ "x${dev%/dev/dm-*}" = "x" ]; then
+		# try to detect corresponding symlink in /dev/mapper/
+		for dmdev in /dev/mapper/*; do
+			if [ "$(readlink -e "$dmdev")" = "$dev" ]; then
+				dev="$dmdev"
+			fi
+		done
 	fi
 
 	altdev="${dev#/dev/mapper/}"
@@ -320,6 +342,15 @@ add_device() {
 
 	if [ -z "$nodes" ]; then
 		return 0
+	fi
+
+	# Flag root device
+	if [ "$nodes" = "$rootdev" ]; then
+		if [ -z "$opts" ]; then
+			opts="rootdev"
+		else
+			opts="$opts,rootdev"
+		fi
 	fi
 
 	# Check that it is a node under /dev/mapper/
@@ -348,7 +379,7 @@ add_device() {
 		if [ $i -eq $count ]; then
 			if [ -z "$opts" ]; then
 				opts="$lastopts"
-			else
+			elif [ -n "$lastopts" ]; then
 				opts="$opts,$lastopts"
 			fi
 		fi
@@ -465,16 +496,22 @@ for dev in $rootdev $resumedevs; do
 		echo "cryptsetup: FAILURE: could not determine configuration for $dev" >&2
 		continue
 	fi
-
 	setup="yes"
-	for mod in $modules; do
-		add_crypto_modules $mod
-	done
+
+	if [ "$MODULES" = "most" ]; then
+		archcrypto="$(find "$MODULESDIR/kernel/arch" -type d -name "crypto")"
+		copy_modules_dir "${archcrypto##*${MODULESDIR}/}"
+		copy_modules_dir "kernel/crypto"
+	else
+		for mod in $modules; do
+			add_crypto_modules $mod
+		done
+	fi
 done
 
 # With large initramfs, we always add a basic subset of modules
 if [ "$MODULES" != "dep" ]; then
-	for mod in aes sha256 cbc; do
+	for mod in aes cbc chainiv cryptomgr krng sha256 xts; do
 		add_crypto_modules $mod
 	done
 fi

@@ -361,7 +361,7 @@ usplash_prepare(const char *prompt)
 		line_len += usplash_cmd_len + 2;
 
 		/* Even though line_len can never be larger than
-                   cmd_input_max, check it anyway. */
+		    cmd_input_max, check it anyway. */
 		if (line_len > cmd_input_max)
 			return -1;
 

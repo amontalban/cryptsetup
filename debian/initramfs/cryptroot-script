@@ -68,6 +68,8 @@ parse_options()
 	cryptkeyscript=""
 	cryptkey="" # This is only used as an argument to an eventual keyscript
 	crypttries=3
+	cryptrootdev=""
+	CRYPTTAB_OPTIONS=""
 
 	local IFS=" ,"
 	for x in $cryptopts; do
@@ -83,6 +85,7 @@ parse_options()
 			;;
 		target=*)
 			crypttarget=${x#target=}
+			export CRYPTTAB_NAME="$crypttarget"
 			;;
 		source=*)
 			cryptsource=${x#source=}
@@ -91,6 +94,7 @@ parse_options()
 			elif [ ${cryptsource#LABEL=} != $cryptsource ]; then
 				cryptsource="/dev/disk/by-label/${cryptsource#LABEL=}"
 			fi
+			export CRYPTTAB_SOURCE="$cryptsource"
 			;;
 		lvm=*)
 			cryptlvm=${x#lvm=}
@@ -102,6 +106,7 @@ parse_options()
 			if [ "${x#key=}" != "none" ]; then
 				cryptkey=${x#key=}
 			fi
+			export CRYPTTAB_KEY="$cryptkey"
 			;;
 		tries=*)
 			crypttries="${x#tries=}"
@@ -111,8 +116,20 @@ parse_options()
 				;;
 			esac
 			;;
+		rootdev)
+			cryptrootdev="yes"
+			;;
 		esac
+		PARAM="${x%=*}"
+		if [ "$PARAM" = "$x" ]; then
+			VALUE="yes"
+		else
+			VALUE="${x#*=}"
+		fi
+		CRYPTTAB_OPTIONS="$CRYPTTAB_OPTIONS $PARAM"
+		eval export CRYPTTAB_OPTION_$PARAM="\"$VALUE\""
 	done
+	export CRYPTTAB_OPTIONS
 
 	if [ -z "$cryptsource" ]; then
 		message "cryptsetup: source parameter missing"
@@ -127,12 +144,17 @@ activate_vg()
 	vg="${1#/dev/mapper/}"
 
 	# Sanity checks
-	if [ ! -x /sbin/lvm ] || [ "$vg" = "$1" ]; then
+	if [ ! -x /sbin/lvm ]; then
+		message "cryptsetup: lvm is not available"
+		return 1
+ 	elif [ "$vg" = "$1" ]; then
+		message "cryptsetup: lvm device name ($vg) does not begin with /dev/mapper/"
 		return 1
 	fi
 
 	# Make sure that the device contains at least one dash
 	if [ "${vg%%-*}" = "$vg" ]; then
+		message "cryptsetup: lvm device name ($vg) does not contain a dash"
 		return 1
 	fi
 
@@ -202,8 +224,7 @@ setup_mapping()
 	# the following lines below have been taken from
 	# /usr/share/initramfs-tools/scripts/local, as suggested per
 	# https://launchpad.net/bugs/164044
-	if [ ! -e "$cryptsource" ]
-	then
+	if [ ! -e "$cryptsource" ]; then
 		log_begin_msg "Waiting for encrypted source device..."
 
 		# Default delay is 180s
@@ -217,8 +238,7 @@ setup_mapping()
 		fi
 
 		slumber=$(( ${slumber} * 10 ))
-		while [ ! -e "$cryptsource" ]
-		do
+		while [ ! -e "$cryptsource" ]; do
 			/bin/sleep 0.1
 			slumber=$(( ${slumber} - 1 ))
 			[ ${slumber} -gt 0 ] || break
@@ -232,7 +252,7 @@ setup_mapping()
 		if [ -x /sbin/usplash_write ]; then
 			/sbin/usplash_write "TIMEOUT 15" || true
 		fi
-	fi
+ 	fi
 	udev_settle
 
 	# We've given up, but we'll let the user fix matters if they can
@@ -257,7 +277,7 @@ setup_mapping()
 		count=$(( $count + 1 ))
 
 		if [ $count -gt 1 ]; then
-			sleep 3
+			/bin/sleep 3
 		fi
 
 		if [ $crypttries -gt 0 ] && [ $count -gt $crypttries ]; then
@@ -297,11 +317,16 @@ setup_mapping()
 			fi
 
 			NEWROOT="/dev/mapper/$cryptlvm"
+			if [ "$cryptrootdev" = "yes" ]; then
+				# required for lilo to find the root device
+				echo "ROOT=$NEWROOT" >> /conf/param.conf
+			fi
 			eval $(fstype < "$NEWROOT")
 		fi
 
 		if [ -z "$FSTYPE" ] || [ "$FSTYPE" = "unknown" ]; then
 			message "cryptsetup: unknown fstype, bad password or options?"
+			udev_settle
 			$cryptremove
 			continue
 		fi
