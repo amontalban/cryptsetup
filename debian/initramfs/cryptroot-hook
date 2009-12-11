@@ -500,7 +500,9 @@ for dev in $rootdev $resumedevs; do
 
 	if [ "$MODULES" = "most" ]; then
 		archcrypto="$(find "$MODULESDIR/kernel/arch" -type d -name "crypto")"
-		copy_modules_dir "${archcrypto##*${MODULESDIR}/}"
+		if ! test -z "$archcrypto"; then
+			copy_modules_dir "${archcrypto##*${MODULESDIR}/}"
+		fi
 		copy_modules_dir "kernel/crypto"
 	else
 		for mod in $modules; do
