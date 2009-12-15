@@ -20,6 +20,8 @@ cryptsetup (2:1.1.0~rc2-1ubuntu4) UNRELEASED; urgency=low
     decrypted volume isn't a 'bootwait' mount point (since gdm kills
     plymouth), but it does eliminate the race between udev and cryptsetup.
     LP: #454898.
+  * debian/cryptdisks-enable.upstart: check that the package is installed
+    and exit gracefully if it's not.  LP: #435814
 
  -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 14 Dec 2009 15:59:02 -0800
 

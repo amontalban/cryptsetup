@@ -9,6 +9,8 @@ task
 console output
 
 script
+    [ -r /lib/cryptsetup/cryptdisks.functions ] || { stop; exit 0; }
+
     . /lib/cryptsetup/cryptdisks.functions
 
     case "$CRYPTDISKS_ENABLE" in
