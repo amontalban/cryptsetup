@@ -30,7 +30,9 @@ esac
 #
 message()
 {
-	if [ -p /dev/.initramfs/usplash_outfifo ] && [ -x /sbin/usplash_write ]; then
+	if [ -x /bin/plymouth ]; then
+		plymouth message --text="$@"
+	elif [ -p /dev/.initramfs/usplash_outfifo ] && [ -x /sbin/usplash_write ]; then
 		usplash_write "TEXT-URGENT $@"
 	else
 		echo "$@" >&2
@@ -286,8 +288,13 @@ setup_mapping()
 		fi
 
 		if [ -z "$cryptkeyscript" ]; then
-			cryptkeyscript="/lib/cryptsetup/askpass"
 			cryptkey="Unlocking the disk $cryptsource ($crypttarget)\nEnter passphrase: "
+			if [ -x /bin/plymouth ]; then
+				cryptkeyscript="plymouth ask-for-password --prompt\"$cryptkey\""
+				cryptkey=""
+			else
+				cryptkeyscript="/lib/cryptsetup/askpass"
+			fi
 		fi
 
 
