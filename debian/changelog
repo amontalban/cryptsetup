@@ -4,6 +4,16 @@ cryptsetup (2:1.1.0~rc2-1ubuntu3) UNRELEASED; urgency=low
     initramfs, use this directly, bypassing the cryptsetup askpass script;
     but keep support for these other frontends around on a transitional
     basis.
+  * debian/cryptdisks.functions:
+    - change interaction to use plymouth directly if present, and if not, to
+      fall back to /lib/cryptsetup/askpass as before
+    - wrap the call to /lib/cryptsetup/askpass with watershed, to make sure
+      we only ever have one of these running at a time; otherwise multiple
+      invocations could steal each other's input and/or write over each
+      other's output
+    - new function, crypttab_start_one_disk, to look for the named source
+      device in /etc/crypttab (by device name, UUID, or label) and start it
+      if configured to do so
 
  -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 14 Dec 2009 15:59:02 -0800
 

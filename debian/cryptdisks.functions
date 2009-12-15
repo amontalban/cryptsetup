@@ -288,7 +288,12 @@ do_luks () {
 		# no keyscript, no key => password
 		keyscriptarg="Unlocking the disk $src ($dst)\nEnter passphrase: "
 		key="-"
-		KEYSCRIPT="/lib/cryptsetup/askpass"
+		if [ -x /bin/plymouth ] && plymouth --ping; then
+			KEYSCRIPT="plymouth ask-for-password --prompt=\"$keyscriptarg\""
+			keyscriptarg=""
+		else
+			KEYSCRIPT="watershed /lib/cryptsetup/askpass"
+		fi
 	elif [ "$key" != "${key%/dev/*}" ]; then
 		# no keyscript, device key => special treatment
 		keyscriptarg=""
@@ -305,7 +310,7 @@ do_luks () {
 
 	while [ "$tried" -lt "$TRIES" ]; do
 		if [ -n "$KEYSCRIPT" ]; then
-			if "$KEYSCRIPT" "$keyscriptarg" | cryptsetup $PARAMS luksOpen "$src" "$dst"; then
+			if $KEYSCRIPT "$keyscriptarg" | cryptsetup $PARAMS luksOpen "$src" "$dst"; then
 				break
 			fi
 		else
@@ -354,7 +359,12 @@ do_noluks () {
 		# no keyscript, no key => password
 		keyscriptarg="Unlocking the disk $cryptsource ($crypttarget)\nEnter passphrase: "
 		key="-"
-		KEYSCRIPT="/lib/cryptsetup/askpass"
+		if [ -x /bin/plymouth ] && plymouth --ping; then
+			KEYSCRIPT="plymouth ask-for-password --prompt=\"$keyscriptarg\""
+			keyscriptarg=""
+		else
+			KEYSCRIPT="watershed /lib/cryptsetup/askpass"
+		fi
 	else
 		# no keyscript, key => file input
 		keyscriptarg=""
@@ -366,7 +376,7 @@ do_noluks () {
 
 	while [ "$tried" -lt "$TRIES" ]; do
 		if [ -n "$KEYSCRIPT" ]; then
-			"$KEYSCRIPT" "$keyscriptarg" | cryptsetup $PARAMS create "$dst" "$src"
+			$KEYSCRIPT "$keyscriptarg" | cryptsetup $PARAMS create "$dst" "$src"
 		else
 			cryptsetup $PARAMS create "$dst" "$src"
 		fi
@@ -602,6 +612,29 @@ handle_crypttab_line_stop () {
 	device_msg "$dst" "stopping"
 
 	return 0
+}
+
+crypttab_start_one_disk () {
+	local dst src key opts result
+	local ret=0
+
+	egrep -v "^[[:space:]]*(#|$)" "$TABFILE" | while read dst src key opts; do
+		if [ "xUUID=$ID_FS_UUID" = "x$src" ]; then
+			src="/dev/disk/by-uuid/${src#UUID=}"
+		elif [ "xLABEL=$ID_FS_LABEL_ENC" = "x$src" ]; then
+			src="/dev/disk/by-label/${src#LABEL=}"
+		elif [ "x$1" != "x$src" ]; then
+			continue
+		fi
+		modprobe -qb dm-mod || true
+		modprobe -qb dm-crypt || true
+		dmsetup mknodes > /dev/null 2>&1 || true
+		# FIXME: no locking
+		mount_fs
+		handle_crypttab_line_start "$dst" "$src" "$key" "$opts" || ret=$?
+		umount_fs
+	done
+	return $ret
 }
 
 do_start () {
