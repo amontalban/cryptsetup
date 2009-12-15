@@ -292,7 +292,7 @@ do_luks () {
 			KEYSCRIPT="plymouth ask-for-password --prompt=\"$keyscriptarg\""
 			keyscriptarg=""
 		else
-			KEYSCRIPT="watershed /lib/cryptsetup/askpass"
+			KEYSCRIPT="/lib/udev/watershed /lib/cryptsetup/askpass"
 		fi
 	elif [ "$key" != "${key%/dev/*}" ]; then
 		# no keyscript, device key => special treatment
@@ -363,7 +363,7 @@ do_noluks () {
 			KEYSCRIPT="plymouth ask-for-password --prompt=\"$keyscriptarg\""
 			keyscriptarg=""
 		else
-			KEYSCRIPT="watershed /lib/cryptsetup/askpass"
+			KEYSCRIPT="/lib/udev/watershed /lib/cryptsetup/askpass"
 		fi
 	else
 		# no keyscript, key => file input
