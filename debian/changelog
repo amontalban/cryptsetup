@@ -14,6 +14,11 @@ cryptsetup (2:1.1.0~rc2-1ubuntu3) UNRELEASED; urgency=low
     - new function, crypttab_start_one_disk, to look for the named source
       device in /etc/crypttab (by device name, UUID, or label) and start it
       if configured to do so
+  * debian/cryptdisks-enable.upstart: run the upstart job once for each block
+    device, using the new crypttab_start_one_disk function, triggered by udev;
+    this doesn't eliminate the possibility of a race with gdm when the
+    decrypted volume isn't a 'bootwait' mount point (since gdm kills
+    plymouth), but it does eliminate the race between udev and cryptsetup.
 
  -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 14 Dec 2009 15:59:02 -0800
 
