@@ -23,6 +23,10 @@ cryptsetup (2:1.1.0~rc2-1ubuntu4) UNRELEASED; urgency=low
     LP: #454898.
   * debian/cryptdisks-enable.upstart: check that the package is installed
     and exit gracefully if it's not.  LP: #435814
+  * debian/cryptdisk.functions: initially create the device under a temporary
+    name and rename it only at the end using 'dmsetup rename', to ensure that
+    upstart/mountall doesn't see our device before it's ready to go.
+    LP: #475936.
 
   [ Colin Watson ]
   * Add ext4 support to passdev.
