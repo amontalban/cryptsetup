@@ -19,6 +19,7 @@ cryptsetup (2:1.1.0~rc2-1ubuntu3) UNRELEASED; urgency=low
     this doesn't eliminate the possibility of a race with gdm when the
     decrypted volume isn't a 'bootwait' mount point (since gdm kills
     plymouth), but it does eliminate the race between udev and cryptsetup.
+    LP: #454898.
 
  -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 14 Dec 2009 15:59:02 -0800
 
