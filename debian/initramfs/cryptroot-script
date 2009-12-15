@@ -290,7 +290,7 @@ setup_mapping()
 		if [ -z "$cryptkeyscript" ]; then
 			cryptkey="Unlocking the disk $cryptsource ($crypttarget)\nEnter passphrase: "
 			if [ -x /bin/plymouth ]; then
-				cryptkeyscript="plymouth ask-for-password --prompt\"$cryptkey\""
+				cryptkeyscript="plymouth ask-for-password --prompt=\"$cryptkey\""
 				cryptkey=""
 			else
 				cryptkeyscript="/lib/cryptsetup/askpass"
