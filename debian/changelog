@@ -1,4 +1,4 @@
-cryptsetup (2:1.1.0~rc2-1ubuntu4) UNRELEASED; urgency=low
+cryptsetup (2:1.1.0~rc2-1ubuntu4) lucid; urgency=low
 
   [ Steve Langasek ]
   * debian/initramfs/cryptroot-script: if plymouth is present in the
@@ -31,7 +31,7 @@ cryptsetup (2:1.1.0~rc2-1ubuntu4) UNRELEASED; urgency=low
   [ Colin Watson ]
   * Add ext4 support to passdev.
 
- -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 14 Dec 2009 15:59:02 -0800
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 15 Dec 2009 18:05:45 -0800
 
 cryptsetup (2:1.1.0~rc2-1ubuntu3) lucid; urgency=low
 
