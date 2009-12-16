@@ -7,7 +7,7 @@
 # Should-Stop:       udev
 # X-Start-Before:    mdadm-raid lvm2
 # X-Interactive:     true
-# Default-Start:     S
+# Default-Start:     
 # Default-Stop:      0 6
 # Short-Description: Setup early encrypted block devices.
 # Description:
