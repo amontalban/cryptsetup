@@ -157,6 +157,7 @@ binary-arch: build install
 	dh_installinit -a --no-start --name=cryptdisks-early --update-rcd-params="start 59 0 6 ."
 	dh_installinit -a --no-start --name=cryptdisks --update-rcd-params="start 48 0 6 ."
 	dh_installinit -a --no-start --name=cryptdisks-enable --upstart-only
+	dh_installinit -a --no-start --name=cryptdisks-udev --upstart-only
 	dh_installman -a debian/doc/crypttab.5 debian/doc/cryptdisks_start.8 debian/doc/cryptdisks_stop.8 debian/luksformat.8
 	# Copy relevant parts to cryptsetup-udeb package
 	cp -a $(CURDIR)/debian/cryptsetup/etc $(CURDIR)/debian/cryptsetup-udeb/

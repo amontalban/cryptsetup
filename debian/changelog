@@ -1,3 +1,14 @@
+cryptsetup (2:1.1.0~rc2-1ubuntu5) UNRELEASED; urgency=low
+
+  * Rename the upstart job introduced in the previous upload to
+    cryptdisks-udev and restore the previous version of the job as
+    cryptdisks-enable, to run at the end of udev coldplugging as before;
+    this isn't entirely race-free, but should nevertheless give us the
+    two passes needed to cover devices that are decrypted using keys stored
+    on other encrypted disks.  LP: #443980.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 16 Dec 2009 05:04:54 +0000
+
 cryptsetup (2:1.1.0~rc2-1ubuntu4) lucid; urgency=low
 
   [ Steve Langasek ]
