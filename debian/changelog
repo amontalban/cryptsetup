@@ -1,4 +1,4 @@
-cryptsetup (2:1.1.0~rc2-1ubuntu6) UNRELEASED; urgency=low
+cryptsetup (2:1.1.0~rc2-1ubuntu6) lucid; urgency=low
 
   [ Steve Langasek ]
   * Fix the LSB header in the init scripts, now that we don't install to
@@ -11,7 +11,7 @@ cryptsetup (2:1.1.0~rc2-1ubuntu6) UNRELEASED; urgency=low
     - prereqs(): Do not assume we are running within initramfs, and calculate
       relative path correctly.
 
- -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 16 Dec 2009 07:32:14 +0000
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Fri, 18 Dec 2009 17:07:07 +0100
 
 cryptsetup (2:1.1.0~rc2-1ubuntu5) lucid; urgency=low
 
