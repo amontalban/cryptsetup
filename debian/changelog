@@ -1,7 +1,15 @@
 cryptsetup (2:1.1.0~rc2-1ubuntu6) UNRELEASED; urgency=low
 
+  [ Steve Langasek ]
   * Fix the LSB header in the init scripts, now that we don't install to
     rcS.d.
+
+  [ Martin Pitt ]
+  * debian/initramfs/cryptroot-script: Fix this to work with current
+    initramfs-tools:
+    - Source /scripts/functions after checking for prerequisites.
+    - prereqs(): Do not assume we are running within initramfs, and calculate
+      relative path correctly.
 
  -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 16 Dec 2009 07:32:14 +0000
 
