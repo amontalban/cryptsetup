@@ -1,3 +1,9 @@
+cryptsetup (2:1.1.0~rc2-1ubuntu7) UNRELEASED; urgency=low
+
+  * Depend on watershed.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 22 Dec 2009 01:36:20 +0000
+
 cryptsetup (2:1.1.0~rc2-1ubuntu6) lucid; urgency=low
 
   [ Steve Langasek ]
