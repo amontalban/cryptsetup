@@ -447,7 +447,7 @@ do_tmp () {
 
 	mkfs -t $TMPFS -q "/dev/mapper/${dst}_unformatted" > /dev/null 2>&1 || return 1
 	mkdir -p "/var/run/cryptsetup/$dst"
-	mount -t $TMPFS "/dev/mapper/${dst}_unformatted" /var/run/cryptsetup/$dst" || return 1
+	mount -t $TMPFS "/dev/mapper/${dst}_unformatted" "/var/run/cryptsetup/$dst" || return 1
 	chmod 1777 "/var/run/cryptsetup/$dst"
 	umount "/var/run/cryptsetup/$dst"
 	return 0
