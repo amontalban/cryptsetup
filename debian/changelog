@@ -1,11 +1,11 @@
-cryptsetup (2:1.1.0~rc2-1ubuntu8) UNRELEASED; urgency=low
+cryptsetup (2:1.1.0~rc2-1ubuntu8) lucid; urgency=low
 
   * cryptdisks.functions: do_tmp should mount under /var/run/cryptsetup for
     changing the permissions of the filesystem root, not directly on /tmp,
     since mounting on /tmp a) is racy, b) confuses mountall something fierce.
     LP: #475936.
 
- -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 22 Dec 2009 20:14:56 +0000
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 22 Dec 2009 20:24:28 +0000
 
 cryptsetup (2:1.1.0~rc2-1ubuntu7) lucid; urgency=low
 
