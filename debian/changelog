@@ -1,3 +1,10 @@
+cryptsetup (2:1.1.0~rc2-1ubuntu9) UNRELEASED; urgency=low
+
+  * Set FRAMEBUFFER=y in the hook config as well, to pull plymouth into the
+    initramfs.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Fri, 15 Jan 2010 15:38:04 -0800
+
 cryptsetup (2:1.1.0~rc2-1ubuntu8) lucid; urgency=low
 
   * cryptdisks.functions: do_tmp should mount under /var/run/cryptsetup for
