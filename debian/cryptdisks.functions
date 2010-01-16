@@ -289,8 +289,8 @@ do_luks () {
 		keyscriptarg="Unlocking the disk $src ($dst)\nEnter passphrase: "
 		key="-"
 		if [ -x /bin/plymouth ] && plymouth --ping; then
-			KEYSCRIPT="plymouth ask-for-password --prompt=\"$keyscriptarg\""
-			keyscriptarg=""
+			KEYSCRIPT="plymouth ask-for-password --prompt"
+			keyscriptarg=$(echo -e "$keyscriptarg")
 		else
 			KEYSCRIPT="/lib/udev/watershed /lib/cryptsetup/askpass"
 		fi
@@ -360,8 +360,8 @@ do_noluks () {
 		keyscriptarg="Unlocking the disk $cryptsource ($crypttarget)\nEnter passphrase: "
 		key="-"
 		if [ -x /bin/plymouth ] && plymouth --ping; then
-			KEYSCRIPT="plymouth ask-for-password --prompt=\"$keyscriptarg\""
-			keyscriptarg=""
+			KEYSCRIPT="plymouth ask-for-password --prompt"
+			keyscriptarg=$(echo -e "$keyscriptarg")
 		else
 			KEYSCRIPT="/lib/udev/watershed /lib/cryptsetup/askpass"
 		fi

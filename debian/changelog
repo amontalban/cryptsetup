@@ -2,6 +2,9 @@ cryptsetup (2:1.1.0~rc2-1ubuntu9) UNRELEASED; urgency=low
 
   * Set FRAMEBUFFER=y in the hook config as well, to pull plymouth into the
     initramfs.
+  * cryptdisks.functions, debian/initramfs/cryptroot-script: fix the
+    invocation of plymouth, so that we actually get proper passphrase prompts
+    (once bug #496765 is fixed).
 
  -- Steve Langasek <steve.langasek@ubuntu.com>  Fri, 15 Jan 2010 15:38:04 -0800
 
