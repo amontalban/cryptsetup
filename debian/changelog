@@ -1,4 +1,4 @@
-cryptsetup (2:1.1.0~rc2-1ubuntu9) UNRELEASED; urgency=low
+cryptsetup (2:1.1.0~rc2-1ubuntu9) lucid; urgency=low
 
   * Set FRAMEBUFFER=y in the hook config as well, to pull plymouth into the
     initramfs.
@@ -6,7 +6,7 @@ cryptsetup (2:1.1.0~rc2-1ubuntu9) UNRELEASED; urgency=low
     invocation of plymouth, so that we actually get proper passphrase prompts
     (once bug #496765 is fixed).
 
- -- Steve Langasek <steve.langasek@ubuntu.com>  Fri, 15 Jan 2010 15:38:04 -0800
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Sat, 16 Jan 2010 02:32:41 -0800
 
 cryptsetup (2:1.1.0~rc2-1ubuntu8) lucid; urgency=low
 
