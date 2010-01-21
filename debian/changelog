@@ -1,6 +1,10 @@
 cryptsetup (2:1.1.0~rc2-1ubuntu10) UNRELEASED; urgency=low
 
   * cryptdisks.functions: replace 'echo -e' bashism with 'printf'.
+  * cryptdisks.functions: when called by cryptdisks-enable, check that we
+    don't already have a corresponding cryptdisks-udev job running (probably
+    waiting for a passphrase); if there is, wait until it's finished before
+    continuing.
 
  -- Steve Langasek <steve.langasek@ubuntu.com>  Thu, 21 Jan 2010 03:39:40 -0800
 
