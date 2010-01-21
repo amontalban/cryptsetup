@@ -1,3 +1,9 @@
+cryptsetup (2:1.1.0~rc2-1ubuntu10) UNRELEASED; urgency=low
+
+  * cryptdisks.functions: replace 'echo -e' bashism with 'printf'.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Thu, 21 Jan 2010 03:39:40 -0800
+
 cryptsetup (2:1.1.0~rc2-1ubuntu9) lucid; urgency=low
 
   * Set FRAMEBUFFER=y in the hook config as well, to pull plymouth into the

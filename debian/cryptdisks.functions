@@ -290,7 +290,7 @@ do_luks () {
 		key="-"
 		if [ -x /bin/plymouth ] && plymouth --ping; then
 			KEYSCRIPT="plymouth ask-for-password --prompt"
-			keyscriptarg=$(echo -e "$keyscriptarg")
+			keyscriptarg=$(printf "$keyscriptarg")
 		else
 			KEYSCRIPT="/lib/udev/watershed /lib/cryptsetup/askpass"
 		fi
@@ -361,7 +361,7 @@ do_noluks () {
 		key="-"
 		if [ -x /bin/plymouth ] && plymouth --ping; then
 			KEYSCRIPT="plymouth ask-for-password --prompt"
-			keyscriptarg=$(echo -e "$keyscriptarg")
+			keyscriptarg=$(printf "$keyscriptarg")
 		else
 			KEYSCRIPT="/lib/udev/watershed /lib/cryptsetup/askpass"
 		fi
