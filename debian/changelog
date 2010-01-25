@@ -1,3 +1,9 @@
+cryptsetup (2:1.1.0~rc2-1ubuntu11) UNRELEASED; urgency=low
+
+  * Set FRAMEBUFFER=y in the file that we actually ship.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Sun, 24 Jan 2010 22:05:17 -0800
+
 cryptsetup (2:1.1.0~rc2-1ubuntu10) lucid; urgency=low
 
   * cryptdisks.functions: replace 'echo -e' bashism with 'printf'.
