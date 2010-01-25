@@ -1,6 +1,8 @@
 cryptsetup (2:1.1.0~rc2-1ubuntu11) UNRELEASED; urgency=low
 
   * Set FRAMEBUFFER=y in the file that we actually ship.
+  * debian/cryptsetup.postrm: call update-initramfs on package removal.
+    LP: #468228.
 
  -- Steve Langasek <steve.langasek@ubuntu.com>  Sun, 24 Jan 2010 22:05:17 -0800
 
