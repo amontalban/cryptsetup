@@ -1,3 +1,11 @@
+cryptsetup (2:1.1.0~rc2-1ubuntu12) UNRELEASED; urgency=low
+
+  * debian/initramfs/cryptroot-hook: Properly anchor our regexps when
+    grepping /etc/crypttab so that we don't incorrectly match device names
+    that are substrings of one another.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 03 Feb 2010 00:08:00 +0000
+
 cryptsetup (2:1.1.0~rc2-1ubuntu11) lucid; urgency=low
 
   * Set FRAMEBUFFER=y in the file that we actually ship.
