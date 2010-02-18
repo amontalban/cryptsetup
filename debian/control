@@ -13,7 +13,7 @@ Vcs-Bzr: https://code.launchpad.net/~ubuntu-core-dev/cryptsetup/ubuntu
 
 Package: cryptsetup
 Architecture: any
-Depends: ${shlibs:Depends}, dmsetup, initramfs-tools (>= 0.91) | linux-initramfs-tool, watershed
+Depends: ${shlibs:Depends}, dmsetup, initramfs-tools (>= 0.91) | linux-initramfs-tool, plymouth
 Suggests: udev, dosfstools
 Conflicts: cryptsetup-luks (<= 1.0.1-8), hashalot (<= 0.3-1)
 Replaces: cryptsetup-luks (<= 1.0.1-8)

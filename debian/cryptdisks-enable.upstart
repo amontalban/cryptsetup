@@ -18,7 +18,6 @@ description	"enable remaining boot-time encrypted block devices"
 start on stopped udevtrigger
 
 task
-console output
 
 script
     [ -r /lib/cryptsetup/cryptdisks.functions ] || { stop; exit 0; }

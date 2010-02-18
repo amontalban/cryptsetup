@@ -6,7 +6,6 @@ start on block-device-added ID_FS_USAGE=crypto
 instance $DEVNAME
 
 task
-console output
 
 script
     [ -r /lib/cryptsetup/cryptdisks.functions ] || { stop; exit 0; }
