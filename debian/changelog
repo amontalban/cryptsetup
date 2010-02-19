@@ -1,4 +1,4 @@
-cryptsetup (2:1.1.0~rc2-1ubuntu12) UNRELEASED; urgency=low
+cryptsetup (2:1.1.0~rc2-1ubuntu12) lucid; urgency=low
 
   * debian/initramfs/cryptroot-hook: Properly anchor our regexps when
     grepping /etc/crypttab so that we don't incorrectly match device names
@@ -7,7 +7,7 @@ cryptsetup (2:1.1.0~rc2-1ubuntu12) UNRELEASED; urgency=low
     'console output' and add a hard dependency on plymouth instead of
     watershed, to avoid spitting extra messages to the console.
 
- -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 03 Feb 2010 00:08:00 +0000
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Thu, 18 Feb 2010 06:19:19 -0800
 
 cryptsetup (2:1.1.0~rc2-1ubuntu11) lucid; urgency=low
 
