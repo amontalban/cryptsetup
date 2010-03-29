@@ -1,3 +1,10 @@
+cryptsetup (2:1.1.0~rc2-1ubuntu13) UNRELEASED; urgency=low
+
+  * debian/initramfs/cryptroot-script: Don't leak /conf/conf.d/cryptroot
+    file descriptor to subprocesses.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Mon, 29 Mar 2010 22:10:05 +0100
+
 cryptsetup (2:1.1.0~rc2-1ubuntu12) lucid; urgency=low
 
   * debian/initramfs/cryptroot-hook: Properly anchor our regexps when

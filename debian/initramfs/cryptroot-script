@@ -367,7 +367,7 @@ fi
 # Do we have any settings from the /conf/conf.d/cryptroot file?
 if [ -r /conf/conf.d/cryptroot ]; then
 	while read mapping <&3; do
-		setup_mapping "$mapping"
+		setup_mapping "$mapping" 3<&-
 	done 3< /conf/conf.d/cryptroot
 fi
 
