@@ -1,3 +1,11 @@
+cryptsetup (2:1.1.0~rc2-1ubuntu14) maverick; urgency=low
+
+  [ David Stansby ]
+  * Fix grammar error in debian/initramfs/cryptroot-script
+    ("setup" -> "set up") (LP: #578896)
+
+ -- James Westby <james.westby@ubuntu.com>  Mon, 17 May 2010 13:33:40 +0100
+
 cryptsetup (2:1.1.0~rc2-1ubuntu13) lucid; urgency=low
 
   * debian/initramfs/cryptroot-script: Don't leak /conf/conf.d/cryptroot
