@@ -371,8 +371,8 @@ static int interactive_pass(const char *prompt, char *pass, size_t maxlen,
 	tcsetattr(infd, TCSAFLUSH, &orig);
 
 out_err:
-	if (!failed)
-		(void)write(outfd, "\n", 1);
+	if (!failed && write(outfd, "\n", 1));
+
 	if (infd != STDIN_FILENO)
 		close(infd);
 	return failed;
@@ -380,7 +380,7 @@ out_err:
 
 /*
  * Password reading behaviour matrix of get_key
- * 
+ * FIXME: rewrite this from scratch.
  *                    p   v   n   h
  * -----------------+---+---+---+---
  * interactive      | Y | Y | Y | Inf
@@ -396,34 +396,27 @@ void get_key(char *prompt, char **key, unsigned int *passLen, int key_size,
             const char *key_file, int timeout, int how2verify,
 	    struct crypt_device *cd)
 {
-	int fd;
+	int fd = -1;
 	const int verify = how2verify & CRYPT_FLAG_VERIFY;
 	const int verify_if_possible = how2verify & CRYPT_FLAG_VERIFY_IF_POSSIBLE;
 	char *pass = NULL;
-	int newline_stop;
 	int read_horizon;
 	int regular_file = 0;
+	int read_stdin;
+	int r;
+	struct stat st;
 
-	if(key_file && !strcmp(key_file, "-")) {
-		/* Allow binary reading from stdin */
-		fd = STDIN_FILENO;
-		newline_stop = 0;
-		read_horizon = 0;
-	} else if (key_file) {
-		fd = open(key_file, O_RDONLY);
-		if (fd < 0) {
-			log_err(cd, "Failed to open key file %s.\n", key_file);
-			goto out_err;
-		}
-		newline_stop = 0;
+	/* Passphrase read from stdin? */
+	read_stdin = (!key_file || !strcmp(key_file, "-")) ? 1 : 0;
 
-		/* This can either be 0 (LUKS) or the actually number
-		 * of key bytes (default or passed by -s) */
-		read_horizon = key_size;
-	} else {
-		fd = STDIN_FILENO;
-		newline_stop = 1;
-		read_horizon = 0;   /* Infinite, if read from terminal or fd */
+	/* read_horizon applies only for real keyfile, not stdin or terminal */
+	read_horizon = (key_file && !read_stdin) ? key_size : 0 /* until EOF */;
+
+	/* Setup file descriptior */
+	fd = read_stdin ? STDIN_FILENO : open(key_file, O_RDONLY);
+	if (fd < 0) {
+		log_err(cd, _("Failed to open key file %s.\n"), key_file ?: "-");
+		goto out_err;
 	}
 
 	/* Interactive case */
@@ -432,14 +425,14 @@ void get_key(char *prompt, char **key, unsigned int *passLen, int key_size,
 
 		pass = safe_alloc(MAX_TTY_PASSWORD_LEN);
 		if (!pass || (i = interactive_pass(prompt, pass, MAX_TTY_PASSWORD_LEN, timeout))) {
-			log_err(cd, "Error reading passphrase from terminal.\n");
+			log_err(cd, _("Error reading passphrase from terminal.\n"));
 			goto out_err;
 		}
 		if (verify || verify_if_possible) {
 			char pass_verify[MAX_TTY_PASSWORD_LEN];
-			i = interactive_pass("Verify passphrase: ", pass_verify, sizeof(pass_verify), timeout);
+			i = interactive_pass(_("Verify passphrase: "), pass_verify, sizeof(pass_verify), timeout);
 			if (i || strcmp(pass, pass_verify) != 0) {
-				log_err(cd, "Passphrases do not match.\n");
+				log_err(cd, _("Passphrases do not match.\n"));
 				goto out_err;
 			}
 			memset(pass_verify, 0, sizeof(pass_verify));
@@ -454,7 +447,7 @@ void get_key(char *prompt, char **key, unsigned int *passLen, int key_size,
 		int buflen, i;
 
 		if(verify) {
-			log_err(cd, "Can't do passphrase verification on non-tty inputs.\n");
+			log_err(cd, _("Can't do passphrase verification on non-tty inputs.\n"));
 			goto out_err;
 		}
 		/* The following for control loop does an exhausting
@@ -463,16 +456,15 @@ void get_key(char *prompt, char **key, unsigned int *passLen, int key_size,
 		 * should warn the user, if it's a non-regular file,
 		 * such as /dev/random, because in this case, the loop
 		 * will read forever.
-		 */ 
-		if(key_file && strcmp(key_file, "-") && read_horizon == 0) {
-			struct stat st;
+		 */
+		if(!read_stdin && read_horizon == 0) {
 			if(stat(key_file, &st) < 0) {
-				log_err(cd, "Failed to stat key file %s.\n", key_file);
+				log_err(cd, _("Failed to stat key file %s.\n"), key_file);
 				goto out_err;
 			}
 			if(!S_ISREG(st.st_mode))
-				log_std(cd, "Warning: exhausting read requested, but key file %s"
-					" is not a regular file, function might never return.\n",
+				log_std(cd, _("Warning: exhausting read requested, but key file %s"
+					" is not a regular file, function might never return.\n"),
 					key_file);
 			else
 				regular_file = 1;
@@ -483,15 +475,21 @@ void get_key(char *prompt, char **key, unsigned int *passLen, int key_size,
 				buflen += 128;
 				pass = safe_realloc(pass, buflen);
 				if (!pass) {
-					log_err(cd, "Out of memory while reading passphrase.\n");
+					log_err(cd, _("Out of memory while reading passphrase.\n"));
 					goto out_err;
 				}
 			}
-			if(read(fd, pass + i, 1) != 1 || (newline_stop && pass[i] == '\n'))
+
+			r = read(fd, pass + i, 1);
+			if (r < 0) {
+				log_err(cd, _("Error reading passphrase.\n"));
+				goto out_err;
+			}
+
+			/* Stop on newline only if not requested read from keyfile */
+			if(r == 0 || (!key_file && pass[i] == '\n'))
 				break;
 		}
-		if(key_file)
-			close(fd);
 		/* Fail if piped input dies reading nothing */
 		if(!i && !regular_file) {
 			log_dbg("Error reading passphrase.");
@@ -501,9 +499,13 @@ void get_key(char *prompt, char **key, unsigned int *passLen, int key_size,
 		*key = pass;
 		*passLen = i;
 	}
+	if(fd != STDIN_FILENO)
+		close(fd);
 	return;
 
 out_err:
+	if(fd >= 0 && fd != STDIN_FILENO)
+		close(fd);
 	if(pass)
 		safe_free(pass);
 	*key = NULL;
@@ -642,7 +644,7 @@ static int _priority;
 static int _memlock_count = 0;
 
 // return 1 if memory is locked
-int memlock_inc(struct crypt_device *ctx)
+int crypt_memlock_inc(struct crypt_device *ctx)
 {
 	if (!_memlock_count++) {
 		log_dbg("Locking memory.");
@@ -662,7 +664,7 @@ int memlock_inc(struct crypt_device *ctx)
 	return _memlock_count ? 1 : 0;
 }
 
-int memlock_dec(struct crypt_device *ctx)
+int crypt_memlock_dec(struct crypt_device *ctx)
 {
 	if (_memlock_count && (!--_memlock_count)) {
 		log_dbg("Unlocking memory.");
@@ -672,4 +674,58 @@ int memlock_dec(struct crypt_device *ctx)
 			log_err(ctx, _("setpriority %u failed: %s"), _priority, strerror(errno));
 	}
 	return _memlock_count ? 1 : 0;
+}
+
+/* DEVICE TOPOLOGY */
+
+/* block device topology ioctls, introduced in 2.6.32 */
+#ifndef BLKIOMIN
+#define BLKIOMIN    _IO(0x12,120)
+#define BLKIOOPT    _IO(0x12,121)
+#define BLKALIGNOFF _IO(0x12,122)
+#endif
+
+void get_topology_alignment(const char *device,
+			    unsigned long *required_alignment, /* bytes */
+			    unsigned long *alignment_offset,   /* bytes */
+			    unsigned long default_alignment)
+{
+	unsigned int dev_alignment_offset = 0;
+	unsigned long min_io_size = 0, opt_io_size = 0;
+	int fd;
+
+	*required_alignment = default_alignment;
+	*alignment_offset = 0;
+
+	fd = open(device, O_RDONLY);
+	if (fd == -1)
+		return;
+
+	/* minimum io size */
+	if (ioctl(fd, BLKIOMIN, &min_io_size) == -1) {
+		log_dbg("Topology info for %s not supported, using default offset %lu bytes.",
+			device, default_alignment);
+		goto out;
+	}
+
+	/* optimal io size */
+	if (ioctl(fd, BLKIOOPT, &opt_io_size) == -1)
+		opt_io_size = min_io_size;
+
+	/* alignment offset, bogus -1 means misaligned/unknown */
+	if (ioctl(fd, BLKALIGNOFF, &dev_alignment_offset) == -1 || (int)dev_alignment_offset < 0)
+		dev_alignment_offset = 0;
+
+	if (*required_alignment < min_io_size)
+		*required_alignment = min_io_size;
+
+	if (*required_alignment < opt_io_size)
+		*required_alignment = opt_io_size;
+
+	*alignment_offset = (unsigned long)dev_alignment_offset;
+
+	log_dbg("Topology: IO (%lu/%lu), offset = %lu; Required alignment is %lu bytes.",
+		min_io_size, opt_io_size, *alignment_offset, *required_alignment);
+out:
+	(void)close(fd);
 }

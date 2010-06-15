@@ -23,6 +23,7 @@ case "$1" in
 	fi
 
 	# Do a number of checks on the currently installed crypttab
+	
 	egrep -v "^[[:space:]]*(#|$)" /etc/crypttab | while read dst src key opts; do
 		if [ -z "$dst" ]; then
 			continue
@@ -31,18 +32,32 @@ case "$1" in
 			echo "WARNING: $dst in /etc/crypttab is missing some arguments, see man cryptab(5)." >&2
 			continue
 		else
-			# Some options are deprecated
-			while [ -n "$opts" ]; do
-				opt=$(echo $opts | sed "s/,.*//")
-				opts=${opts##$opt}
-				opts=${opts##,}
-
-				if [ "$opt" = "ssl" ]; then
-					echo "WARNING: $dst in /etc/crypttab uses the deprecated ssl option, see man crypttab(5)." >&2
-				elif [ "$opt" = "gpg" ]; then
+			# Strip comments - https://bugs.launchpad.net/bugs/185380
+			opts=$(echo -n $opts | sed 's/ *#.*//')
+			plainopts="0"
+			IFS=','
+			for opt in $opts; do
+				PARAM=$(echo "$opt" | sed 's/=.*//')
+				case "$PARAM" in
+				# Some options are deprecated
+				gpg)
 					echo "WARNING: $dst in /etc/crypttab uses the deprecated gpg option, see man crypttab(5)." >&2
-				fi
+					;;
+				ssl)
+					echo "WARNING: $dst in /etc/crypttab uses the deprecated ssl option, see man crypttab(5)." >&2
+					;;
+				luks)
+					plainopts="3"
+					;;
+				cipher|hash|size)
+					plainopts="$(($plainopts+1))"
+					;;
+				esac
 			done
+			if [ "$plainopts" -lt "3" ]; then
+				echo "WARNING: you need to set all of cipher, hash and size for the plain dm-crypt mapping $dst in /etc/crypttab." >&2
+			fi
+			unset IFS
 		fi
 
 	done

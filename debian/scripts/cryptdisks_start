@@ -24,6 +24,11 @@ fi
 
 LOUD="yes"
 
+if [ -x "/usr/bin/id" ] && [ "$(/usr/bin/id -u)"  != "0" ]; then
+	log_warning_msg "$0 needs root privileges"
+	exit 1
+fi
+
 log_action_begin_msg "Starting crypto disk"
 mount_fs
 

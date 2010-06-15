@@ -3,6 +3,30 @@
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
+/* cipher for LUKS1 */
+#undef DEFAULT_LUKS1_CIPHER
+
+/* hash function for LUKS1 header */
+#undef DEFAULT_LUKS1_HASH
+
+/* key length in bits for LUKS1 */
+#undef DEFAULT_LUKS1_KEYBITS
+
+/* cipher mode for LUKS1 */
+#undef DEFAULT_LUKS1_MODE
+
+/* cipher for plain mode */
+#undef DEFAULT_PLAIN_CIPHER
+
+/* password hashing function for plain mode */
+#undef DEFAULT_PLAIN_HASH
+
+/* key length in bits for plain mode */
+#undef DEFAULT_PLAIN_KEYBITS
+
+/* cipher mode for plain mode */
+#undef DEFAULT_PLAIN_MODE
+
 /* Define to 1 if translation of program messages to the user's native
    language is requested. */
 #undef ENABLE_NLS
@@ -29,13 +53,16 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
+/* Define to 1 if you have the `dm_task_set_cookie' function. */
+#undef HAVE_DM_TASK_SET_COOKIE
+
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
 
 /* Define if the GNU gettext() function is already present or preinstalled. */
 #undef HAVE_GETTEXT
 
-/* Define if you have the iconv() function and it works. */
+/* Define if you have the iconv() function. */
 #undef HAVE_ICONV
 
 /* Define to 1 if you have the <inttypes.h> header file. */
@@ -71,9 +98,6 @@
 /* Define to 1 if you have the `posix_memalign' function. */
 #undef HAVE_POSIX_MEMALIGN
 
-/* Define to 1 if you have the `setlocale,' function. */
-#undef HAVE_SETLOCALE_
-
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -86,7 +110,7 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if `struct stat' is a member of `st_rdev'. */
+/* Define to 1 if `st_rdev' is a member of `struct stat'. */
 #undef HAVE_STRUCT_STAT_ST_RDEV
 
 /* Define to 1 if your `struct stat' has `st_rdev'. Deprecated, use
@@ -171,6 +195,9 @@
 # undef __EXTENSIONS__
 #endif
 
+
+/* Try to use udev synchronisation? */
+#undef USE_UDEV
 
 /* Version number of package */
 #undef VERSION

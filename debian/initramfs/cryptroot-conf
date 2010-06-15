@@ -10,4 +10,3 @@ USPLASH=y
 
 # and for systems using plymouth instead, use the new option
 FRAMEBUFFER=y
-

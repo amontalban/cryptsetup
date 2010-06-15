@@ -1,5 +1,6 @@
 #!/bin/sh
 
+
 #
 # Standard initramfs preamble
 #
@@ -175,7 +176,11 @@ activate_evms()
 	dev="${1#/dev/evms/}"
 
 	# Sanity checks
-	if [ ! -x /sbin/evms_activate ] || [ "$dev" = "$1" ]; then
+	if [ ! -x /sbin/evms_activate ]; then
+		message "cryptsetup: evms_activate is not available"
+		return 1
+	elif [ "$dev" = "$1" ]; then
+		message "cryptsetup: evms device name ($vg) does not begin with /dev/evms/"
 		return 1
 	fi
 

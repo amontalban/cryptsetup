@@ -1,3 +1,77 @@
+2010-05-30  Milan Broz  <mbroz@redhat.com>
+	* Version 1.1.2.
+
+2010-05-27  Milan Broz  <mbroz@redhat.com>
+	* Fix luksFormat/luksOpen reading passphrase from stdin and "-" keyfile.
+	* Support --key-file/-d option for luksFormat.
+	* Fix description of --key-file and add --verbose and --debug options to man page.
+	* Add verbose log level and move unlocking message there.
+	* Remove device even if underlying device disappeared.
+	* Fix (deprecated) reload device command to accept new device argument.
+
+2010-05-23  Milan Broz  <mbroz@redhat.com>
+	* Fix luksClose operation for stacked DM devices.
+	* Version 1.1.1.
+
+2010-05-03  Milan Broz  <mbroz@redhat.com>
+	* Fix automatic dm-crypt module loading.
+	* Escape hyphens in man page.
+	* Version 1.1.1-rc2.
+
+2010-04-30  Milan Broz  <mbroz@redhat.com>
+	* Try to use pkgconfig for device mapper library.
+	* Detect old dm-crypt module and disable LUKS suspend/resume.
+	* Fix apitest to work on older systems.
+	* Allow no hash specification in plain device constructor.
+	* Fix luksOpen reading of passphrase on stdin (if "-" keyfile specified).
+	* Fix isLuks to initialise crypto backend (blkid instead is suggested anyway).
+	* Version 1.1.1-rc1.
+
+2010-04-12  Milan Broz  <mbroz@redhat.com>
+	* Fix package config to use proper package version.
+	* Avoid class C++ keyword in library header.
+	* Detect and use devmapper udev support if available (disable by --disable-udev).
+
+2010-04-06  Milan Broz  <mbroz@redhat.com>
+	* Prefer some device paths in status display.
+	* Support device topology detectionfor data alignment.
+
+2010-02-25  Milan Broz  <mbroz@redhat.com>
+	* Do not verify unlocking passphrase in luksAddKey command.
+	* Properly initialise crypto backend in header backup/restore commands.
+
+2010-01-17  Milan Broz  <mbroz@redhat.com>
+	* If gcrypt compiled with capabilities, document workaround for cryptsetup (see lib/gcrypt.c).
+	* Version 1.1.0.
+
+2010-01-10  Milan Broz  <mbroz@redhat.com>
+	* Fix initialisation of gcrypt duting luksFormat.
+	* Convert hash name to lower case in header (fix sha1 backward comatible header)
+	* Check for minimum required gcrypt version.
+
+2009-12-30  Milan Broz  <mbroz@redhat.com>
+	* Fix key slot iteration count calculation (small -i value was the same as default).
+	* The slot and key digest iteration minimun is now 1000.
+	* The key digest iteration # is calculated from iteration time (approx 1/8 of that).
+	* Version 1.1.0-rc4.
+
+2009-12-11  Milan Broz  <mbroz@redhat.com>
+	* Fix error handling during reading passhrase.
+
+2009-12-01  Milan Broz  <mbroz@redhat.com>
+	* Allow changes of default compiled-in cipher parameters through configure.
+	* Switch default key size for LUKS to 256bits.
+	* Switch default plain mode to aes-cbc-essiv:sha256 (default is backward incompatible!).
+
+2009-11-14  Milan Broz  <mbroz@redhat.com>
+	* Add CRYPT_ prefix to enum defined in libcryptsetup.h.
+	* Fix status call to fail when running as non-root user.
+	* Check in configure if selinux libraries are required in static version.
+	* Add temporary debug code to find processes locking internal device.
+	* Simplify build system, use autopoint and clean gettext processing.
+	* Use proper NLS macros and detection (so the message translation works again).
+	* Version 1.1.0-rc3.
+
 2009-09-30  Milan Broz  <mbroz@redhat.com>
 	* Fix exported symbols and versions in libcryptsetup.
 	* Do not use internal lib functions in cryptsetup.

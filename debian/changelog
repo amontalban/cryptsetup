@@ -1,3 +1,183 @@
+cryptsetup (2:1.1.2-1ubuntu1) maverick; urgency=low
+
+  * Merge from Debian unstable (LP: #594365).  Remaining changes:
+    - debian/control:
+      + Bump initramfs-tools Suggests to Depends: so system is not
+        potentially rendered unbootable.
+      + Depend on plymouth.   
+    - Add debian/cryptdisks-{enable,udev}.upstart.
+    - debian/cryptdisks.functions:
+      + new function, crypttab_start_one_disk, to look for the named source
+        device in /etc/crypttab (by device name, UUID, or label) and start it
+        if configured to do so
+      + wrap the call to /lib/cryptsetup/askpass with watershed, to make sure
+        we only ever have one of these running at a time; otherwise multiple
+        invocations could steal each other's input and/or write over each
+        other's output
+      + initially create the device under a temporary name and rename it only
+        at the end using 'dmsetup rename', to ensure that upstart/mountall
+        doesn't see our device before it's ready to go.
+      + do_tmp should mount under /var/run/cryptsetup for changing the
+        permissions of the filesystem root, not directly on /tmp, since
+        mounting on /tmp a) is racy, b) confuses mountall something fierce.
+      + when called by cryptdisks-enable, check that we don't already have a
+        corresponding cryptdisks-udev job running (probably waiting for a
+        passphrase); if there is, wait until it's finished before continuing.
+    - debian/cryptdisks{,-early}.init: Make the 'start' action of the init
+      script a no-op, this should be handled entirely by the upstart job;
+      and fix the LSB header to not declare this should be started in
+      runlevel 'S'
+    - debian/cryptsetup.postinst: Remove any symlinks from /etc/rcS.d on
+      upgrade. 
+    - debian/rules: Do not install start symlinks for init scripts, and
+      install debian/cryptdisks-{enable,udev}.upstart scripts.
+    - Add debian/cryptsetup.apport: Apport package hook. Install in
+      debian/rules and create dir in debian/cryptsetup.dirs.
+    - debian/rules: link dynamically against libgcrypt and libgpg-error.
+    - debian/cryptsetup.postrm: call update-initramfs on package removal.
+  * Dropped changes, merged/superseded in Debian:
+    - Add ext4 support to passdev.
+    - cryptroot-hook: don't call copy_modules_dir with empty arguments when
+      archcrypto isn't found
+    - Set USPLASH=y and FRAMEBUFFER=y in the hook config to pull plymouth into
+      the initramfs.
+    - change interaction to use plymouth directly if present, and if not, to
+      fall back to /lib/cryptsetup/askpass as before
+    - cryptdisks.functions: replace 'echo -e' bashism with 'printf'.
+    - debian/initramfs/cryptroot-script: if plymouth is present in the
+      initramfs, use this directly, bypassing the cryptsetup askpass script
+    - debian/initramfs/cryptroot-hook: Properly anchor our regexps when
+      grepping /etc/crypttab so that we don't incorrectly match device names
+      that are substrings of one another.
+    - debian/initramfs/cryptroot-script: Don't leak /conf/conf.d/cryptroot
+      file descriptor to subprocesses.
+    - Fix grammar error in debian/initramfs/cryptroot-script
+      ("setup" -> "set up")
+    - debian/initramfs/cryptroot-script: Fix this to work with current
+      initramfs-tools:
+      + Source /scripts/functions after checking for prerequisites.
+      + prereqs(): Do not assume we are running within initramfs, and
+        calculate relative path correctly.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 14 Jun 2010 21:47:28 -0700
+
+cryptsetup (2:1.1.2-1) unstable; urgency=low
+
+  * new upstream release, changes include:
+    - Fix luksFormat/luksOpen reading passphrase from stdin and "-" keyfile.
+      (closes: #583397)
+    - Add verbose log level and move unlocking message there.
+    - Remove device even if underlying device disappeared (remove, luksClose).
+      (closes: #554600, #574126)
+    - Fix (deprecated) reload device command to accept new device argument.
+  * merged from ubuntu:
+    - if plymouth is present in the initramfs, use this directly, bypassing
+      the cryptsetup askpass script
+    - start usplash in initramfs, since we need it for fancy passphrase input
+    - Set FRAMEBUFFER=y in cryptroot-conf, to pull plymouth into the initramfs
+    - debian/initramfs/cryptroot-hook: Properly anchor our regexps when 
+      grepping /etc/crypttab so that we don't incorrectly match device names
+      that are substrings of one another.
+    - debian/initramfs/cryptroot-script: Don't leak /conf/conf.d/cryptroot
+      file descriptor to subprocesses.
+  * sync list of supported filesystems in passdev.c and cryptpassdev-hook
+  * fix debian/watch file to work with updated code.google.com download page
+  * stop building and shipping static libs (closes: #583387, #583471)
+  * improve documentation on (pre)checks in manpage. (closes: #583568, #583567)
+  * remove xfs and ext2 check scripts documentation from crypttab manpage,
+    blkid script can be used. thanks Christoph Anton Mitterer (closes: #583570)
+
+ -- Jonas Meurer <mejo@debian.org>  Tue, 01 Jun 2010 15:37:50 +0200
+
+cryptsetup (2:1.1.1-1) unstable; urgency=low
+
+  * new upstream release, changes include:
+    - detects and uses device-mapper udev support if available
+    - fix luksOpen reading of passphrase on stdin if "-" keyfile specified
+    - fix isLuks to initialise crypto backend (closes: #578979)
+    - fix luksClose operation for stacked DM devices
+  * remove all patches, they have all been merged upstream
+  * redirect output of copy_exec in add_device() from initramfs cryptroot
+    hook to stderr. fixes verbose run of mkinitramfs. (closes: #574163)
+  * acknowledge NMU. thanks to maximilian attems. (closes: #576488)
+  * change default for random key from /dev/random to /dev/urandom in
+    README.Debian, extend explanation. (closes: #579932)
+  * add comment to crypttab manpage about how to disable (pre)checks.
+    (closes: #574948)
+  * fix cryptdisks.functions to print cryptsource and crypttarget again at
+    the passphrase prompt. (closes: #578428)
+  * reorder build-depends, add pkg-config, change automake1.9 to automake
+  * add new lintian overrides
+  * switch to new dpkg source format "3.0 (quilt)", use upstream bzip tarball
+  * add ${misc:Depends} to depends for libcryptsetup-dev
+  * remove UID checks from initscripts, as these aren't meant to be invoked by
+    users anyway, and the UID checks introduced dependency on /usr filesystem.
+  * use grep -s for /etc/fstab in initramfs/cryptroot-hook. (closes: #580756)
+  * note that fs modules fore passdev devices need to be added to initramfs
+    in README.initramfs (closes: #580898)
+  * merged from ubuntu:
+    - Fix grammar error in debian/initramfs/cryptroot-script (closes: #581973)
+  * add busybox to suggests, thanks to martin michlmayr. (closes: #582914)
+
+ -- Jonas Meurer <mejo@debian.org>  Wed, 26 May 2010 23:38:01 +0200
+
+cryptsetup (2:1.1.0-2.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+
+  [ Martin Pitt ]
+   * debian/initramfs/cryptroot-script: (closes: #576488)
+     - Source /scripts/functions after checking for prerequisites.
+     - prereqs(): Do not assume we are running within initramfs, and calculate
+       relative path correctly.
+
+ -- maximilian attems <maks@debian.org>  Thu, 08 Apr 2010 01:37:17 +0200
+
+cryptsetup (2:1.1.0-2) unstable; urgency=low
+
+  * fix version in NEWS.Debian: 2:1.1.0~rc2-1 instead of 2:1.0.7-3.
+  * remove 'NOT RELEASED YET' from 2:1.1.0-1 changelog
+  * capitalize names in changelog
+  * mention the old default plain mode in changelog and NEWS, add a note that
+    debian-installer setups can ignore the warning, and warn for plain dm-crypt
+    mappings in crypttab that don't have set cipher, hash and size.
+    (closes: #573103, #573261)
+
+ -- Jonas Meurer <mejo@debian.org>  Tue, 16 Mar 2010 13:44:50 +0100
+
+cryptsetup (2:1.1.0-1) unstable; urgency=low
+
+  * new upstream stable release (1.1.0), notable changes since rc2:
+    - default key size for LUKS changed from 128 to 256 bits
+    - default plain mode changed from aes-cbc-plain to aes-cbc-essiv:sha256
+    - key slot and key diggest iteration minimum set to 1000
+    - convert hash name to lower case in header
+  * update patch 02_manpage
+  * add more supported filesystems to passdev.c, isofs->iso9660. thanks to
+    Christoph Anton Mitterer. (closes: #557405)
+  * update to standards-version 3.8.4, no changes needed
+  * accept spaces in $opts at postinst script. (closes: #559184)
+  * set extended $PATH in cryptdisks.functions. thanks to Christoph Anton
+    Mitterer. (closes: #557329)
+  * fix huge initramfs for archs which don't have kernel/arch directory.
+    thanks to martin michlmayr for bugreport and patch. (closes: #559510)
+  * support commandline options to mkfs in luksformat. thanks to Eduard
+    Bloch for bugreport and patch. (closes: #563975)
+  * extend error messages for evms setup in cryptroot-script
+  * add 03_luksAddKey.patch, to not verify unlocking passphrase in luksAddKey
+    command. (closes: #570418)
+  * add 04_crypto_init.patch, to properly initialise crypto backend in header
+    backup/restore commands.
+  * change build-dependency on cvs to new autopoint package (closes: #572463)
+  * rename decrypt_gpg keyscript to decrypt_gnupg, improve it based on ideas
+    by Christoph Anton Mitterer, mention the keyscript rename in NEWS.Debian.
+    Also, provide a initramfs cryptgnupg hook script. Thanks to Christoph
+    Anton Mitterer for bugreport and ideas. (closes: #560034)
+  * check for root privileges with '/usr/bin/id -u' in init scripts and
+    cryptdisks_{start|stop}. (closes: #563162)
+
+ -- Jonas Meurer <mejo@debian.org>  Mon, 08 Mar 2010 14:15:35 +0100
+
 cryptsetup (2:1.1.0~rc2-1ubuntu14) maverick; urgency=low
 
   [ David Stansby ]

@@ -3,7 +3,7 @@
 #    . /lib/cryptsetup/cryptdisks.functions
 # and should not be executed directly.
 
-PATH="/sbin:/bin"
+PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 TABFILE="/etc/crypttab"
 CRYPTDISKS_ENABLE="Yes"
 
@@ -357,7 +357,7 @@ do_noluks () {
 		key="-"
 	elif [ -z "$key" ]; then
 		# no keyscript, no key => password
-		keyscriptarg="Unlocking the disk $cryptsource ($crypttarget)\nEnter passphrase: "
+		keyscriptarg="Unlocking the disk $src ($dst)\nEnter passphrase: "
 		key="-"
 		if [ -x /bin/plymouth ] && plymouth --ping; then
 			KEYSCRIPT="plymouth ask-for-password --prompt"

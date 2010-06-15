@@ -23,7 +23,7 @@ get_root_device() {
 		return 1
 	fi
 
-	grep '^[^#]' /etc/fstab | \
+	grep -s '^[^#]' /etc/fstab | \
 	while read device mount type options dump pass; do
 		if [ "$mount" = "/" ]; then
 			echo "$device"
@@ -397,9 +397,9 @@ add_device() {
 			fi
 
 			if [ -e "/lib/cryptsetup/scripts/$KEYSCRIPT" ]; then
-				copy_exec "/lib/cryptsetup/scripts/$KEYSCRIPT" /lib/cryptsetup/scripts
+				copy_exec "/lib/cryptsetup/scripts/$KEYSCRIPT" /lib/cryptsetup/scripts >&2
 			elif [ -e "$KEYSCRIPT" ]; then
-				copy_exec "$KEYSCRIPT" /lib/cryptsetup/scripts
+				copy_exec "$KEYSCRIPT" /lib/cryptsetup/scripts >&2
 			else
 				echo "cryptsetup: WARNING: failed to find keyscript $KEYSCRIPT" >&2
 				continue
@@ -442,12 +442,14 @@ add_crypto_modules() {
 	#
 	#   d) /lib/modules/$VERSION/kernel/drivers/crypto/$specific-$mod.ko
 
-	for file in $(find "$MODULESDIR/kernel/arch/" -name "$mod-*.ko"); do
-		altmod="${file##*/}"
-		altmod="${altmod%.ko}"
-		manual_add_modules "$altmod"
-		found="yes"
-	done
+	if [ -e "$MODULESDIR/kernel/arch/" ]; then
+		for file in $(find "$MODULESDIR/kernel/arch/" -name "$mod-*.ko"); do
+			altmod="${file##*/}"
+			altmod="${altmod%.ko}"
+			manual_add_modules "$altmod"
+			found="yes"
+		done
+	fi
 
 	for file in $(find "$MODULESDIR/kernel/crypto/" -name "${mod}_generic.ko"); do
 		altmod="${file##*/}"
@@ -499,9 +501,11 @@ for dev in $rootdev $resumedevs; do
 	setup="yes"
 
 	if [ "$MODULES" = "most" ]; then
-		archcrypto="$(find "$MODULESDIR/kernel/arch" -type d -name "crypto")"
-		if [ -n "$archcrypto" ]; then
-			copy_modules_dir "${archcrypto##*${MODULESDIR}/}"
+		if [ -e "$MODULESDIR/kernel/arch" ]; then
+			archcrypto="$(find "$MODULESDIR/kernel/arch" -type d -name "crypto")"
+			if [ -n "$archcrypto" ]; then
+				copy_modules_dir "${archcrypto##*${MODULESDIR}/}"
+			fi
 		fi
 		copy_modules_dir "kernel/crypto"
 	else
