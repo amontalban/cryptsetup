@@ -1,4 +1,4 @@
-cryptsetup (2:1.1.2-1ubuntu1.1) UNRELEASEDmaverick-proposed; urgency=low
+cryptsetup (2:1.1.2-1ubuntu1.1) maverick-proposed; urgency=low
 
   * debian/initramfs/cryptroot-hook: add clearer warning, when line is not
     found in /etc/crypttab (LP: #332950)
