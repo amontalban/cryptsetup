@@ -1,3 +1,10 @@
+cryptsetup (2:1.1.2-1ubuntu2) maverick; urgency=low
+
+  * debian/initramfs/cryptroot-hook: add clearer warning, when line is not
+    found in /etc/crypttab (LP: #332950)
+
+ -- Daniel Hahler <ubuntu@thequod.de>  Tue, 12 Oct 2010 17:18:10 +0300
+
 cryptsetup (2:1.1.2-1ubuntu1) maverick; urgency=low
 
   * Merge from Debian unstable (LP: #594365).  Remaining changes:
