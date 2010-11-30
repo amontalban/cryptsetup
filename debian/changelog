@@ -1,9 +1,142 @@
-cryptsetup (2:1.1.2-1ubuntu1.1) maverick-proposed; urgency=low
+cryptsetup (2:1.1.3-4ubuntu1) natty; urgency=low
 
-  * debian/initramfs/cryptroot-hook: add clearer warning, when line is not
-    found in /etc/crypttab (LP: #332950)
+  * Merge from debian unstable (LP: #682177), remaining changes:
+    - debian/control:
+      + Bump initramfs-tools Suggests to Depends: so system is not
+        potentially rendered unbootable.
+      + Depend on plymouth.
+    - Add debian/cryptdisks-{enable,udev}.upstart.
+    - debian/cryptdisks.functions:
+      + new function, crypttab_start_one_disk, to look for the named source
+        device in /etc/crypttab (by device name, UUID, or label) and start it
+        if configured to do so
+      + wrap the call to /lib/cryptsetup/askpass with watershed, to make sure
+        we only ever have one of these running at a time; otherwise multiple
+        invocations could steal each other's input and/or write over each
+        other's output
+      + when called by cryptdisks-enable, check that we don't already have a
+        corresponding cryptdisks-udev job running (probably waiting for a
+        passphrase); if there is, wait until it's finished before continuing.
+    - debian/cryptdisks{,-early}.init: Make the 'start' action of the init
+      script a no-op, this should be handled entirely by the upstart job;
+      and fix the LSB header to not declare this should be started in
+      runlevel 'S'
+    - debian/cryptsetup.postinst: Remove any symlinks from /etc/rcS.d on
+      upgrade.
+    - debian/rules: 
+      + Do not install start symlinks for init scripts, and
+        install debian/cryptdisks-{enable,udev}.upstart scripts.
+      + link dynamically against libgcrypt and libgpg-error.
+    - Add debian/cryptsetup.apport: Apport package hook. Install in
+      debian/rules and create dir in debian/cryptsetup.dirs.
+    - debian/cryptsetup.postrm: call update-initramfs on package removal.
 
- -- Daniel Hahler <ubuntu@thequod.de>  Tue, 12 Oct 2010 17:18:10 +0300
+ -- Lorenzo De Liso <blackz@ubuntu.com>  Sat, 27 Nov 2010 17:37:43 +0100
+
+cryptsetup (2:1.1.3-4) unstable; urgency=high
+
+  * bump standards-version to 3.9.1, no changes required
+  * add patches/01_manpage_units: mention units (512b sectors) for -o option
+    in man page. (closes: #584174)
+  * move cryptdisks_st* scripts from /usr/sbin to /sbin, add symlinks for
+    compatibility reasons. thanks to Mario 'BitKoenig' Holbe. (closes: #589800)
+  * add decrypt_keyctl keyscript and initramfs hook from Michael Gebetsroither,
+    which supports to cache a passphrase for later use. (closes: #563961)
+  * invoke /sbin/lvm with full path in cryptroot initramfs script. thanks to
+    Bernd Zeimetz. (closes: #597648)
+  * print out a warning at initramfs cryptroot hook in case that detection of
+    canonical device failed. (closes: #594092)
+  * add manpage fixes, thanks to Stephen Gildea for patch. (closes: #598237)
+  * fix depreciated ext2 wrapper checkscript to succeed for ext2, ext3, ext4
+    and ext4dev filesystems. (closes: #595331)
+  * again remove duplicates from debian/NEWS.
+  * truncate trailing spaces for some variables at initramfs cryptroot hook.
+  * remove volume group -guessing magic from initramfs scripts and hooks,
+    instead activate all available lvm volume groups. thanks to Christoph
+    Anton Mitterer for the suggestion. (closes: #554506, #591626)
+  * remove /etc/bash_completion.d from debian/cryptsetup.dirs
+  * set urgency=high as this upload fixes two release-critical bugs.
+
+ -- Jonas Meurer <mejo@debian.org>  Thu, 04 Nov 2010 20:36:45 +0100
+
+cryptsetup (2:1.1.3-3) unstable; urgency=low
+
+  * fix usage of new variable $DEFAULT_LOUD, and some cosmetical changes.
+    thanks to Mario 'BitKoenig' Holbe. (closes: #589029)
+
+ -- Jonas Meurer <mejo@debian.org>  Thu, 22 Jul 2010 12:56:01 +0200
+
+cryptsetup (2:1.1.3-2) unstable; urgency=low
+
+  * introduce new $INITSTATE 'manual' for cryptdisks_st* scripts. that way,
+    noauto devices are processed again by cryptdisks_st* scripts.
+    (closes: #588697, #588698, #589153, #589798)
+  * introduce new variable $DEFAULT_LOUD. now the 'loud' option in crypttab
+    affects only the device in question. thanks to Mario 'BitKoenig' Holbe.
+  * introduce new crypttab option 'quiet' which overwrites and unsets the
+    'loud' option. thanks to Mario 'BitKoenig' Holbe. (closes: #589029)
+
+ -- Jonas Meurer <mejo@debian.org>  Wed, 21 Jul 2010 10:42:49 +0200
+
+cryptsetup (2:1.1.3-1) unstable; urgency=low
+
+  * new upstream release:
+    - fix device alignment ioctl calls parameters for archs like ppc64.
+    - fix activate_by_* API calls to handle NULL device name as documented
+    - fix udev support for old libdevmapper with not compatible definition 
+  * fix rm_lo_setup() in cryptdisks.functions for failed device setup. thanks
+    to Roger Pettersson. (closes: #581712)
+  * add X-Stop-After headers to cryptdisks(-early) initscripts. this fixes
+    shutdown process for system without encrypted rootfs at least. thanks to
+    Alfredo Finelli. (closes: #575652)
+  * more merges from ubuntu, thanks to and Steve Langasek (closes: #575024):
+    - debian/cryptdisk.functions: initially create the device under a temporary
+      name and rename it only at the end using 'dmsetup rename', to ensure that
+      upstart/mountall doesn't see our device before it's ready to go.
+      LP: #475936.
+    - cryptdisks.functions: do_tmp should mount under /var/run/cryptsetup for
+      changing the permissions of the filesystem root, not directly on /tmp,
+      since mounting on /tmp a) is racy, b) confuses mountall something fierce.
+      LP: #475936.
+  * fix manpage checkscripts documentation. clarify that both cryptdisks and
+    cryptroot invoke checkscripts. thanks Christoph Anton Mitterer.
+  * remove quotes from $KEYSCRIPT invokation, thanks Alexandre Rossi.
+    (closes: #585099)
+  * fix support for commandline options to mkfs in luksformat. thanks to Eduard
+    Bloch again for bugreport and patch. (closes: #585787)
+  * remove duplicates from debian/NEWS, thanks Steve Langasek (closes: 586019)
+  * improve documentation on environment variables in cryptdisks.default and
+    crypttab manpage. thanks Christoph Anton Mitterer. (closes: #585664)
+  * several improvements to (pre)check scripts, inspired by scripts from
+    Christoph Anton Mitterer (closes: #585418, #585496)
+    - checkscripts exit with error 1 if executables aren't available.
+    - ext2, swap and xfs scripts are depreciated and invoke blkid script.
+    - drop filtering of minix filesystem in blkid, util-linux 2.17.2 in debian
+    - remove *vol_id check scripts, vol_id isn't available in debian any longer
+    - don't use sed in *blkid check scripts any longer
+  * fix initramfs/cryptroot-hook to canonicalize $device in get_resume_devices
+    function. this should really weed out all duplicates. (closes: #586122),
+    and catch all udev/device-mapper symlink setups as well (closes: #554506)
+  * bash-completion file now in pck bash-completion (closes: #586299, #586162)
+  * add a paragraph about the boot order of init scripts to README.Debian,
+    describing the current catch-22 situation. (closes: #576646)
+  * initscripts and cryptdisks_st* no longer silently quit in case that include
+    file /lib/cryptsetup/cryptdisks.functions is missing. (closes: #587220)
+  * fix cryptdisks-early LSB headers to restore legacy boot sequence order.
+    mdadm-raid was started before cryptdisks-early. (closes: #587224)
+  * cryptdisks initscript now raises a warning for failed started devices, and
+    cryptdisks-early initscript raises a warning for failed stopped devices.
+    this makes the initscript actions far more transparent to users. same holds
+    for cryptdisks_st*. thanks to Christoph Anton Mitterer. (closes: #587222)
+  * remove lintian overrides init.d-script-should-depend-on-virtual-facility
+    as lintian lintian 2.4.2 has fixed #580082.
+  * bump standards-version to 3.9.0, remove version information from replaces/
+    provides/conflicts against cryptsetup-luks, change conflicts against
+    hashalot (<= 0.3-1) to breaks hashalot (<< 0.3-1) and add replaces.
+  * fix loads of typos, thanks to Christoph Anton Mitterer. (closes: #588068)
+  * update copyright years and list Milan Broz in debian/copyright
+
+ -- Jonas Meurer <mejo@debian.org>  Sat, 10 Jul 2010 14:32:40 +0200
 
 cryptsetup (2:1.1.2-1ubuntu1) maverick; urgency=low
 

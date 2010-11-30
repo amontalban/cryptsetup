@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cryptsetup 1.1.0-rc4\n"
 "Report-Msgid-Bugs-To: dm-crypt@saout.de\n"
-"POT-Creation-Date: 2010-05-30 19:42+0200\n"
+"POT-Creation-Date: 2010-07-03 15:49+0200\n"
 "PO-Revision-Date: 2010-01-05 22:17+0100\n"
 "Last-Translator: Roland Illig <roland.illig@gmx.de>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -16,12 +16,12 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lib/libdevmapper.c:118
+#: lib/libdevmapper.c:120
 msgid "Cannot initialize device-mapper. Is dm_mod kernel module loaded?\n"
 msgstr ""
 "Kann die Gerätezuordnung nicht laden. Ist das Kernelmodul dm_mod geladen?\n"
 
-#: lib/libdevmapper.c:406
+#: lib/libdevmapper.c:408
 #, c-format
 msgid "DM-UUID for device %s was truncated.\n"
 msgstr "DM-UUID für Gerät %s wurde abgeschnitten.\n"
@@ -40,7 +40,7 @@ msgstr "Fehler beim Verarbeiten des Schlüssels.\n"
 msgid "All key slots full.\n"
 msgstr "Alle Schlüsselfächer voll.\n"
 
-#: lib/setup.c:177 lib/setup.c:306 lib/setup.c:760
+#: lib/setup.c:177 lib/setup.c:306 lib/setup.c:763
 #, c-format
 msgid "Key slot %d is invalid, please select between 0 and %d.\n"
 msgstr ""
@@ -96,138 +96,138 @@ msgstr ""
 "Dies ist das letzte Schlüsselfach. Wenn Sie das auch noch löschen, wird das "
 "Gerät unbrauchbar."
 
-#: lib/setup.c:366 lib/setup.c:1674 lib/setup.c:1727 lib/setup.c:1784
+#: lib/setup.c:369 lib/setup.c:1674 lib/setup.c:1727 lib/setup.c:1785
 #, c-format
 msgid "Device %s already exists.\n"
 msgstr "Das Gerät %s existiert bereits.\n"
 
-#: lib/setup.c:371
+#: lib/setup.c:374
 #, c-format
 msgid "Invalid key size %d.\n"
 msgstr "Ungültige Schlüsselgröße %d.\n"
 
-#: lib/setup.c:473 lib/setup.c:1679
+#: lib/setup.c:476 lib/setup.c:1679
 #, c-format
 msgid "Enter passphrase for %s: "
 msgstr "Geben Sie den Passsatz für %s ein: "
 
-#: lib/setup.c:602 lib/setup.c:1388 lib/setup.c:1735
+#: lib/setup.c:605 lib/setup.c:1391 lib/setup.c:1735
 msgid "Enter passphrase: "
 msgstr "Passsatz eingeben: "
 
-#: lib/setup.c:645 lib/setup.c:1027 lib/setup.c:1826
+#: lib/setup.c:648 lib/setup.c:1030 lib/setup.c:1827
 #, c-format
 msgid "Device %s is not active.\n"
 msgstr "Gerät %s ist nicht aktiv.\n"
 
-#: lib/setup.c:752
+#: lib/setup.c:755
 msgid "No known cipher specification pattern detected.\n"
 msgstr "Kein bekanntes Verschlüsselungsmuster entdeckt.\n"
 
-#: lib/setup.c:766
+#: lib/setup.c:769
 msgid "Enter LUKS passphrase: "
 msgstr "LUKS-Passsatz eingeben: "
 
-#: lib/setup.c:907 lib/setup.c:1140 lib/setup.c:1194 lib/setup.c:1219
-#: lib/setup.c:1238
+#: lib/setup.c:910 lib/setup.c:1143 lib/setup.c:1197 lib/setup.c:1222
+#: lib/setup.c:1241
 msgid "Cannot initialize crypto backend.\n"
 msgstr "Kann das Krypto-Backend nicht initialisieren.\n"
 
-#: lib/setup.c:1036
+#: lib/setup.c:1039
 #, c-format
 msgid "Underlying device for crypt device %s disappeared.\n"
 msgstr ""
 
-#: lib/setup.c:1053
+#: lib/setup.c:1056
 msgid "Invalid plain crypt parameters.\n"
 msgstr "Ungültige Parameter für Plain-Verschlüsselung.\n"
 
-#: lib/setup.c:1058
+#: lib/setup.c:1061
 msgid "Invalid key size.\n"
 msgstr "Ungültige Schlüsselgröße.\n"
 
-#: lib/setup.c:1091
+#: lib/setup.c:1094
 msgid "Can't format LUKS without device.\n"
 msgstr "Ohne Gerät kann LUKS nicht formatiert werden.\n"
 
-#: lib/setup.c:1113
+#: lib/setup.c:1116
 #, c-format
 msgid "Can't wipe header on device %s.\n"
 msgstr "Kann den Kopfbereich auf Gerät %s nicht auslöschen.\n"
 
-#: lib/setup.c:1161
+#: lib/setup.c:1164
 #, c-format
 msgid "Unknown crypt device type %s requested.\n"
 msgstr "Unbekannte Art des Verschlüsselungsgeräts %s verlangt.\n"
 
-#: lib/setup.c:1280
+#: lib/setup.c:1283
 #, c-format
 msgid "Volume %s is not active.\n"
 msgstr "Laufwerk %s ist nicht aktiv.\n"
 
-#: lib/setup.c:1293
+#: lib/setup.c:1296
 #, c-format
 msgid "Volume %s is already suspended.\n"
 msgstr "Laufwerk %s ist bereits abgeschaltet.\n"
 
-#: lib/setup.c:1321 lib/setup.c:1370 lib/setup.c:1429 lib/setup.c:1507
-#: lib/setup.c:1579 lib/setup.c:1624 lib/setup.c:1718 lib/setup.c:1775
-#: lib/setup.c:1896 lib/setup.c:1979 lib/setup.c:2079
+#: lib/setup.c:1324 lib/setup.c:1373 lib/setup.c:1432 lib/setup.c:1510
+#: lib/setup.c:1582 lib/setup.c:1627 lib/setup.c:1718 lib/setup.c:1776
+#: lib/setup.c:1897 lib/setup.c:1980 lib/setup.c:2080
 msgid "This operation is supported only for LUKS device.\n"
 msgstr "Diese Operation wird nur für LUKS-Geräte unterstützt.\n"
 
-#: lib/setup.c:1332 lib/setup.c:1381
+#: lib/setup.c:1335 lib/setup.c:1384
 #, c-format
 msgid "Volume %s is not suspended.\n"
 msgstr "Laufwerk %s ist nicht abgeschaltet.\n"
 
-#: lib/setup.c:1443 lib/setup.c:1521
+#: lib/setup.c:1446 lib/setup.c:1524
 msgid "Cannot add key slot, all slots disabled and no volume key provided.\n"
 msgstr ""
 "Kann kein Schlüsselfach hinzufügen, alle Fächer sind deaktiviert und kein "
 "Laufwerksschlüssel angegeben.\n"
 
-#: lib/setup.c:1452 lib/setup.c:1527 lib/setup.c:1530
+#: lib/setup.c:1455 lib/setup.c:1530 lib/setup.c:1533
 msgid "Enter any passphrase: "
 msgstr "Geben Sie irgendeinen Passsatz ein: "
 
-#: lib/setup.c:1471 lib/setup.c:1545 lib/setup.c:1549 lib/setup.c:1602
+#: lib/setup.c:1474 lib/setup.c:1548 lib/setup.c:1552 lib/setup.c:1605
 msgid "Enter new passphrase for key slot: "
 msgstr "Geben Sie den neuen Passsatz für das Schlüsselfach ein: "
 
-#: lib/setup.c:1593 lib/setup.c:1795 lib/setup.c:1907
+#: lib/setup.c:1596 lib/setup.c:1796 lib/setup.c:1908
 msgid "Volume key does not match the volume.\n"
 msgstr "Der Laufwerksschlüssel passt nicht zum Laufwerk.\n"
 
-#: lib/setup.c:1630
+#: lib/setup.c:1633
 #, c-format
 msgid "Key slot %d is invalid.\n"
 msgstr "Schlüsselfach %d ist ungültig.\n"
 
-#: lib/setup.c:1635
+#: lib/setup.c:1638
 #, c-format
 msgid "Key slot %d is not used.\n"
 msgstr "Schlüsselfach %d ist unbenutzt.\n"
 
-#: lib/setup.c:1822
+#: lib/setup.c:1823
 #, c-format
 msgid "Device %s is busy.\n"
 msgstr "Gerät %s ist beschäftigt.\n"
 
-#: lib/setup.c:1830
+#: lib/setup.c:1831
 #, c-format
 msgid "Invalid device %s.\n"
 msgstr "Ungültiges Gerät %s.\n"
 
-#: lib/setup.c:1854
+#: lib/setup.c:1855
 msgid "Volume key buffer too small.\n"
 msgstr "Laufwerks-Schlüsselpuffer zu klein.\n"
 
-#: lib/setup.c:1862
+#: lib/setup.c:1863
 msgid "Cannot retrieve volume key for plain device.\n"
 msgstr "Kann Laufwerksschlüssel für Plain-Gerät nicht ermitteln.\n"
 
-#: lib/setup.c:1884
+#: lib/setup.c:1885
 #, c-format
 msgid "This operation is not supported for %s crypt device.\n"
 msgstr "Diese Operation wird für Kryptogerät %s nicht unterstützt.\n"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cryptsetup 1.1.0-rc4\n"
 "Report-Msgid-Bugs-To: dm-crypt@saout.de\n"
-"POT-Creation-Date: 2010-05-30 19:42+0200\n"
+"POT-Creation-Date: 2010-07-03 15:49+0200\n"
 "PO-Revision-Date: 2010-01-27 07:30+0700\n"
 "Last-Translator: Arif E. Nugroho <arif_endro@yahoo.com>\n"
 "Language-Team: Indonesian <translation-team-id@lists.sourceforge.net>\n"
@@ -16,13 +16,13 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lib/libdevmapper.c:118
+#: lib/libdevmapper.c:120
 msgid "Cannot initialize device-mapper. Is dm_mod kernel module loaded?\n"
 msgstr ""
 "Tidak dapat menginisialisasi pemeta-perangkat. Apakah kernel modul dm_mod "
 "telah dimuat?\n"
 
-#: lib/libdevmapper.c:406
+#: lib/libdevmapper.c:408
 #, c-format
 msgid "DM-UUID for device %s was truncated.\n"
 msgstr "DM-UUID untuk perangkat %s telah terpotong.\n"
@@ -41,7 +41,7 @@ msgstr "Terjadi kesalahan dalam pengolahan kunci.\n"
 msgid "All key slots full.\n"
 msgstr "Semua slot kunci telah penuh.\n"
 
-#: lib/setup.c:177 lib/setup.c:306 lib/setup.c:760
+#: lib/setup.c:177 lib/setup.c:306 lib/setup.c:763
 #, c-format
 msgid "Key slot %d is invalid, please select between 0 and %d.\n"
 msgstr "Slot kunci %d tidak valid, mohon pilih diantara 0 dan %d.\n"
@@ -96,138 +96,138 @@ msgstr ""
 "Ini adalah slot kunci terakhir. Perangkat mungkin akan menjadi tidak stabil "
 "setelah menghapus kunci ini."
 
-#: lib/setup.c:366 lib/setup.c:1674 lib/setup.c:1727 lib/setup.c:1784
+#: lib/setup.c:369 lib/setup.c:1674 lib/setup.c:1727 lib/setup.c:1785
 #, c-format
 msgid "Device %s already exists.\n"
 msgstr "Perangkat %s telah ada.\n"
 
-#: lib/setup.c:371
+#: lib/setup.c:374
 #, c-format
 msgid "Invalid key size %d.\n"
 msgstr "Besar kunci %d tidak valid.\n"
 
-#: lib/setup.c:473 lib/setup.c:1679
+#: lib/setup.c:476 lib/setup.c:1679
 #, c-format
 msgid "Enter passphrase for %s: "
 msgstr "Masukan kata sandi untuk %s: "
 
-#: lib/setup.c:602 lib/setup.c:1388 lib/setup.c:1735
+#: lib/setup.c:605 lib/setup.c:1391 lib/setup.c:1735
 msgid "Enter passphrase: "
 msgstr "Masukan kata sandi: "
 
-#: lib/setup.c:645 lib/setup.c:1027 lib/setup.c:1826
+#: lib/setup.c:648 lib/setup.c:1030 lib/setup.c:1827
 #, c-format
 msgid "Device %s is not active.\n"
 msgstr "Perangkat %s tidak aktif.\n"
 
-#: lib/setup.c:752
+#: lib/setup.c:755
 msgid "No known cipher specification pattern detected.\n"
 msgstr "Tidak ada pola spesifikasi cipher yang dikenal terdeteksi.\n"
 
-#: lib/setup.c:766
+#: lib/setup.c:769
 msgid "Enter LUKS passphrase: "
 msgstr "Masukan kata sandi LUKS: "
 
-#: lib/setup.c:907 lib/setup.c:1140 lib/setup.c:1194 lib/setup.c:1219
-#: lib/setup.c:1238
+#: lib/setup.c:910 lib/setup.c:1143 lib/setup.c:1197 lib/setup.c:1222
+#: lib/setup.c:1241
 msgid "Cannot initialize crypto backend.\n"
 msgstr "Tidak dapat menginisialisasi backend crypto.\n"
 
-#: lib/setup.c:1036
+#: lib/setup.c:1039
 #, c-format
 msgid "Underlying device for crypt device %s disappeared.\n"
 msgstr ""
 
-#: lib/setup.c:1053
+#: lib/setup.c:1056
 msgid "Invalid plain crypt parameters.\n"
 msgstr "Parameter crypt tidak valid.\n"
 
-#: lib/setup.c:1058
+#: lib/setup.c:1061
 msgid "Invalid key size.\n"
 msgstr "Ukuran kunci tidak valid.\n"
 
-#: lib/setup.c:1091
+#: lib/setup.c:1094
 msgid "Can't format LUKS without device.\n"
 msgstr "Tidak dapat memformat LUKS tanpat perangkat.\n"
 
-#: lib/setup.c:1113
+#: lib/setup.c:1116
 #, c-format
 msgid "Can't wipe header on device %s.\n"
 msgstr "Tidak dapat menghapus kepala di perangkat %s.\n"
 
-#: lib/setup.c:1161
+#: lib/setup.c:1164
 #, c-format
 msgid "Unknown crypt device type %s requested.\n"
 msgstr "Tipe perangkat sandi %s yang diminta tidak diketahui.\n"
 
-#: lib/setup.c:1280
+#: lib/setup.c:1283
 #, c-format
 msgid "Volume %s is not active.\n"
 msgstr "Volume %s tidak aktif.\n"
 
-#: lib/setup.c:1293
+#: lib/setup.c:1296
 #, c-format
 msgid "Volume %s is already suspended.\n"
 msgstr "Volume %s telah disuspend.\n"
 
-#: lib/setup.c:1321 lib/setup.c:1370 lib/setup.c:1429 lib/setup.c:1507
-#: lib/setup.c:1579 lib/setup.c:1624 lib/setup.c:1718 lib/setup.c:1775
-#: lib/setup.c:1896 lib/setup.c:1979 lib/setup.c:2079
+#: lib/setup.c:1324 lib/setup.c:1373 lib/setup.c:1432 lib/setup.c:1510
+#: lib/setup.c:1582 lib/setup.c:1627 lib/setup.c:1718 lib/setup.c:1776
+#: lib/setup.c:1897 lib/setup.c:1980 lib/setup.c:2080
 msgid "This operation is supported only for LUKS device.\n"
 msgstr "Operasi ini hanya didukunga untuk perangkat LUKS.\n"
 
-#: lib/setup.c:1332 lib/setup.c:1381
+#: lib/setup.c:1335 lib/setup.c:1384
 #, c-format
 msgid "Volume %s is not suspended.\n"
 msgstr "Volume %s tidak disuspend.\n"
 
-#: lib/setup.c:1443 lib/setup.c:1521
+#: lib/setup.c:1446 lib/setup.c:1524
 msgid "Cannot add key slot, all slots disabled and no volume key provided.\n"
 msgstr ""
 "Tidak dapat menambahkan slot kunci, seluruh slot tidak aktif dan tidak ada "
 "volume kunci yang disediakan.\n"
 
-#: lib/setup.c:1452 lib/setup.c:1527 lib/setup.c:1530
+#: lib/setup.c:1455 lib/setup.c:1530 lib/setup.c:1533
 msgid "Enter any passphrase: "
 msgstr "Masukan kata sandi: "
 
-#: lib/setup.c:1471 lib/setup.c:1545 lib/setup.c:1549 lib/setup.c:1602
+#: lib/setup.c:1474 lib/setup.c:1548 lib/setup.c:1552 lib/setup.c:1605
 msgid "Enter new passphrase for key slot: "
 msgstr "Masukan kasa sandi baru untuk slot kunci: "
 
-#: lib/setup.c:1593 lib/setup.c:1795 lib/setup.c:1907
+#: lib/setup.c:1596 lib/setup.c:1796 lib/setup.c:1908
 msgid "Volume key does not match the volume.\n"
 msgstr "Kunci volume tidak cocok dengan volume.\n"
 
-#: lib/setup.c:1630
+#: lib/setup.c:1633
 #, c-format
 msgid "Key slot %d is invalid.\n"
 msgstr "Slot kunci %d tidak valid.\n"
 
-#: lib/setup.c:1635
+#: lib/setup.c:1638
 #, c-format
 msgid "Key slot %d is not used.\n"
 msgstr "Slot kunci %d tidak digunakan.\n"
 
-#: lib/setup.c:1822
+#: lib/setup.c:1823
 #, c-format
 msgid "Device %s is busy.\n"
 msgstr "Perangkat %s sibuk.\n"
 
-#: lib/setup.c:1830
+#: lib/setup.c:1831
 #, c-format
 msgid "Invalid device %s.\n"
 msgstr "Perangkat %s tidak valid.\n"
 
-#: lib/setup.c:1854
+#: lib/setup.c:1855
 msgid "Volume key buffer too small.\n"
 msgstr "Penyangga kunci volume terlalu kecil.\n"
 
-#: lib/setup.c:1862
+#: lib/setup.c:1863
 msgid "Cannot retrieve volume key for plain device.\n"
 msgstr "Tidak dapat mendapatkan kunci volume untuk perangkat.\n"
 
-#: lib/setup.c:1884
+#: lib/setup.c:1885
 #, c-format
 msgid "This operation is not supported for %s crypt device.\n"
 msgstr "Operasi ini tidak didukung untuk perangkat crypt %s.\n"

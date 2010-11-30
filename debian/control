@@ -1,11 +1,11 @@
 Source: cryptsetup
 Section: admin
 Priority: optional
-Maintainer: Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 XSBC-Original-Maintainer: Debian Cryptsetup Team <pkg-cryptsetup-devel@lists.alioth.debian.org>
 Uploaders: Jonas Meurer <mejo@debian.org>
 Build-Depends: libgcrypt11-dev, libdevmapper-dev (>= 2:1.02.24-4), libpopt-dev, uuid-dev, libselinux1-dev, libsepol1-dev, libtool (>= 2.2), autoconf, automake, pkg-config, autopoint, gettext, debhelper (>= 6.0.7~), xsltproc, docbook-xml, docbook-xsl (>= 1.74.3+dfsg)
-Standards-Version: 3.8.4
+Standards-Version: 3.9.1
 Homepage: http://code.google.com/p/cryptsetup/
 X-Debian-Vcs-Browser: http://svn.debian.org/wsvn/pkg-cryptsetup/cryptsetup/trunk
 X-Debian-Vcs-Svn: svn://svn.debian.org/svn/pkg-cryptsetup/cryptsetup/trunk
@@ -15,8 +15,10 @@ Package: cryptsetup
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, dmsetup, initramfs-tools (>= 0.91) | linux-initramfs-tool, plymouth
 Suggests: udev, busybox, dosfstools
-Conflicts: cryptsetup-luks (<= 1.0.1-8), hashalot (<= 0.3-1)
-Replaces: cryptsetup-luks (<= 1.0.1-8)
+Provides: cryptsetup-luks
+Conflicts: cryptsetup-luks
+Replaces: cryptsetup-luks, hashalot (<< 0.3-2)
+Breaks: hashalot (<< 0.3-2)
 Description: configures encrypted block devices
  Cryptsetup provides a command-line interface for configuring encrypted
  devices. This is done using the Linux kernel device mapper target

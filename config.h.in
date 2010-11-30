@@ -46,15 +46,16 @@
    */
 #undef HAVE_DCGETTEXT
 
+/* Define to 1 if you have the declaration of
+   `DM_UDEV_DISABLE_DISK_RULES_FLAG', and to 0 if you don't. */
+#undef HAVE_DECL_DM_UDEV_DISABLE_DISK_RULES_FLAG
+
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
 #undef HAVE_DIRENT_H
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
-
-/* Define to 1 if you have the `dm_task_set_cookie' function. */
-#undef HAVE_DM_TASK_SET_COOKIE
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H

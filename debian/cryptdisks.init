@@ -6,6 +6,7 @@
 # Should-Start:      udev mdadm-raid lvm2
 # Should-Stop:       udev mdadm-raid lvm2
 # X-Start-Before:    checkfs
+# X-Stop-After:      umountfs
 # X-Interactive:     true
 # Default-Start:     
 # Default-Stop:      0 6
@@ -15,14 +16,10 @@
 
 set -e 
 
-if [ -r /lib/cryptsetup/cryptdisks.functions ]; then
-	. /lib/cryptsetup/cryptdisks.functions
-else
-	exit 0
-fi
+. /lib/cryptsetup/cryptdisks.functions
 
 INITSTATE="remaining"
-LOUD="yes"
+DEFAULT_LOUD="yes"
 
 case "$CRYPTDISKS_ENABLE" in
 [Nn]*)

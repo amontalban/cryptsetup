@@ -16,13 +16,10 @@ if [ $# -lt 1 ]; then
 	exit 1
 fi
 
-if [ -r /lib/cryptsetup/cryptdisks.functions ]; then
-	. /lib/cryptsetup/cryptdisks.functions
-else
-	exit 0
-fi
+. /lib/cryptsetup/cryptdisks.functions
 
-LOUD="yes"
+INITSTATE="manual"
+DEFAULT_LOUD="yes"
 
 if [ -x "/usr/bin/id" ] && [ "$(/usr/bin/id -u)"  != "0" ]; then
 	log_warning_msg "$0 needs root privileges"

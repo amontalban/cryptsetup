@@ -21,8 +21,6 @@ fi
 
 MOUNT="$CRYPTDISKS_MOUNT"
 
-LOUD=""
-
 # Parses the option field from the crypttab file
 parse_opts () {
 	local opts opt IFS PARAM VALUE
@@ -40,6 +38,7 @@ parse_opts () {
 	KEYSCRIPT=""
 	IGNORE=""
 	CRYPTTAB_OPTIONS=""
+	LOUD="$DEFAULT_LOUD"
 
 	# Parse the options field, convert to cryptsetup parameters
 	# and construct the command line
@@ -150,12 +149,15 @@ parse_opts () {
 			fi
 			;;
 		noauto)
-			if [ -n "$INITSTATE" ]; then
+			if [ "$INITSTATE" != "manual" ]; then
 				IGNORE="yes"
 			fi
 			;;
 		loud)
 			LOUD="yes"
+			;;
+		quiet)
+			LOUD=""
 			;;
 		keyscript)
 			if [ -n "$KEYSCRIPT" ]; then
@@ -208,6 +210,10 @@ lo_setup () {
 }
 
 rm_lo_setup () {
+	if [ "x${src%/dev/loop[0-9]}" = "x" ]; then
+		src="$(losetup $src | sed -e 's/^.*(\(.*\))$/\1/g' || true)"
+	fi
+
 	if [ ! -f "$src" ]; then
 		return 0
 	fi
@@ -422,8 +428,7 @@ umount_fs () {
 do_swap () {
 	local swap_out
 
-	if [ "$MAKESWAP" != "yes" ] || [ ! -b "/dev/mapper/${dst}_unformatted" ]
-	then
+	if [ "$MAKESWAP" != "yes" ] || [ ! -b "/dev/mapper/${dst}_unformatted" ]; then
 		return 0
 	fi
 
@@ -543,13 +548,13 @@ handle_crypttab_line_start () {
 	if [ ! -r "$src" ]; then
 		if [ "$LOUD" = "yes" ]; then
 			device_msg "$dst" "skipped, device $src does not exist"
+			return 1
 		fi
-		return 1
+		return 0
 	fi
 
 	# Make sure that target device doesn't exist
-	if [ -b "/dev/mapper/${dst}_unformatted" ] || [ -b "/dev/mapper/$dst" ]
-	then
+	if [ -b "/dev/mapper/${dst}_unformatted" ] || [ -b "/dev/mapper/$dst" ]; then
 		device_msg "$dst" "running"
 		return 0
 	fi
@@ -595,6 +600,9 @@ handle_crypttab_line_stop () {
 		return 1
 	elif [ "$opencount" != "0" ]; then
 		device_msg "$dst" "busy"
+		if [ "$INITSTATE" = "early" ] || [ "$INITSTATE" = "manual" ]; then
+			return 1
+		fi
 		return 0
 	fi
 
@@ -608,7 +616,7 @@ handle_crypttab_line_stop () {
 		return 1
 	fi
 	
-	do_close
+	do_close || return $?
 
 	# Detach loopback device, if attached
 	if [ "$src_major" = "7" ]; then
@@ -673,7 +681,7 @@ do_start () {
 		do
 			sleep 1
 		done
-		handle_crypttab_line_start "$dst" "$src" "$key" "$opts" <&3 || true
+		handle_crypttab_line_start "$dst" "$src" "$key" "$opts" <&3 || log_action_end_msg $?
 	done 3<&1
 	umount_fs
 
@@ -689,7 +697,7 @@ do_stop () {
 	loopmajor=$(grep "[[:space:]]*loop$" /proc/devices | sed 's/^[[:space:]]*//;s/[[:space:]].*//')
 
 	egrep -v "^[[:space:]]*(#|$)" "$TABFILE" | while read dst src key opts; do
-		handle_crypttab_line_stop "$dst" "$src" "$key" "$opts" <&3 || true
+		handle_crypttab_line_stop "$dst" "$src" "$key" "$opts" <&3 || log_action_end_msg $?
 	done 3<&1
 
 	log_action_end_msg 0
