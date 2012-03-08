@@ -1,6 +1,6 @@
 # cryptdisks - enable encrypted block devices
 
-description	"enable encrypted block devices"
+description    "enable encrypted block devices"
 
 start on block-device-added ID_FS_USAGE=crypto
 instance $DEVNAME

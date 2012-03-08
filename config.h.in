@@ -3,6 +3,15 @@
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
+/* maximum keyfile size (in kilobytes) */
+#undef DEFAULT_KEYFILE_SIZE_MAXKB
+
+/* cipher for loop-AES mode */
+#undef DEFAULT_LOOPAES_CIPHER
+
+/* key length in bits for loop-AES mode */
+#undef DEFAULT_LOOPAES_KEYBITS
+
 /* cipher for LUKS1 */
 #undef DEFAULT_LUKS1_CIPHER
 
@@ -15,6 +24,9 @@
 /* cipher mode for LUKS1 */
 #undef DEFAULT_LUKS1_MODE
 
+/* maximum keyfile size (in kilobytes) */
+#undef DEFAULT_PASSPHRASE_SIZE_MAX
+
 /* cipher for plain mode */
 #undef DEFAULT_PLAIN_CIPHER
 
@@ -26,6 +38,9 @@
 
 /* cipher mode for plain mode */
 #undef DEFAULT_PLAIN_MODE
+
+/* default RNG type for key generator */
+#undef DEFAULT_RNG
 
 /* Define to 1 if translation of program messages to the user's native
    language is requested. */
@@ -45,6 +60,10 @@
 /* Define if the GNU dcgettext() function is already present or preinstalled.
    */
 #undef HAVE_DCGETTEXT
+
+/* Define to 1 if you have the declaration of `dm_task_secure_data', and to 0
+   if you don't. */
+#undef HAVE_DECL_DM_TASK_SECURE_DATA
 
 /* Define to 1 if you have the declaration of
    `DM_UDEV_DISABLE_DISK_RULES_FLAG', and to 0 if you don't. */
@@ -72,6 +91,12 @@
 /* Define to 1 if you have the `devmapper' library (-ldevmapper). */
 #undef HAVE_LIBDEVMAPPER
 
+/* Define to 1 if you have the `gcrypt' library (-lgcrypt). */
+#undef HAVE_LIBGCRYPT
+
+/* Define to 1 if you have the `nettle' library (-lnettle). */
+#undef HAVE_LIBNETTLE
+
 /* Define to 1 if you have the `popt' library (-lpopt). */
 #undef HAVE_LIBPOPT
 
@@ -84,6 +109,9 @@
 /* Define to 1 if you have the `uuid' library (-luuid). */
 #undef HAVE_LIBUUID
 
+/* Define to 1 if you have the <linux/if_alg.h> header file. */
+#undef HAVE_LINUX_IF_ALG_H
+
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
 
@@ -95,6 +123,9 @@
 
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 #undef HAVE_NDIR_H
+
+/* Define to 1 if you have the <nettle/sha.h> header file. */
+#undef HAVE_NETTLE_SHA_H
 
 /* Define to 1 if you have the `posix_memalign' function. */
 #undef HAVE_POSIX_MEMALIGN
@@ -110,13 +141,6 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
-
-/* Define to 1 if `st_rdev' is a member of `struct stat'. */
-#undef HAVE_STRUCT_STAT_ST_RDEV
-
-/* Define to 1 if your `struct stat' has `st_rdev'. Deprecated, use
-   `HAVE_STRUCT_STAT_ST_RDEV' instead. */
-#undef HAVE_ST_RDEV
 
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
    */

@@ -1,14 +1,13 @@
-#!/bin/sh
+#! /bin/sh
 
 set -e
 
 case "$1" in
-	remove)
-		if which update-initramfs >/dev/null 2>&1
-		then
-			update-initramfs -u
-		fi
-		;;
+    remove)
+	if [ -x /usr/sbin/update-initramfs ]; then
+		update-initramfs -u
+	fi
+    ;;
 esac
 
 #DEBHELPER#

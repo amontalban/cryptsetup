@@ -20,13 +20,11 @@ else
   confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
 endif
 
-CFLAGS = -Wall -g
+# Export dpkg build flags
+DEB_CFLAGS_MAINT_APPEND = -Wall
+DPKG_EXPORT_BUILDFLAGS  = 1
+-include /usr/share/dpkg/buildflags.mk
 
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0
-else
-	CFLAGS += -O2
-endif
 ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
@@ -40,19 +38,23 @@ configure-stamp:
 	dh_testdir
 	find -xtype f ! -name manifest > manifest
 	autoreconf --force --install
-	CFLAGS="$(CFLAGS)" ./configure $(confflags) \
+	./configure $(confflags)  \
 		--prefix=/usr \
+		--libdir=/lib \
 		--sbindir=/sbin \
 		--mandir=/usr/share/man \
 		--enable-shared
-		#--enable-static
 	find -xtype f > manifest.new
 	diff manifest manifest.new | grep '>' | cut -b3- > config.mess
 	touch $@
 
-build: build-stamp
 build-stamp: configure-stamp
+	touch $@
+
+
+build-indep: build-stamp
 	dh_testdir
+	# generate manpages
 	sed 's/VERSION/$(DEB_VERSION)/;s/DATE/$(DEB_DATE)/' \
 		debian/doc/variables.xml.in > debian/doc/variables.xml
 	xsltproc --nonet --xinclude -o debian/doc/ \
@@ -60,27 +62,18 @@ build-stamp: configure-stamp
 		debian/doc/manpages.xml
 	pod2man --section=8 --center="Administrative commands" --release="" debian/scripts/luksformat \
 		debian/luksformat.8
+	# generate gettext po files (for luksformat)
+	$(MAKE) -C debian/scripts/po all luksformat.pot
+
+build-arch: build-stamp
+	dh_testdir
+	# build upstream cryptsetup
 	$(MAKE)
-	# link dynamically, better to depend on libraries in /usr for supportability
-	gcc lib/.libs/*.o src/*.o luks/.libs/*.o -o src/cryptsetup.static \
-		-lpopt -ldevmapper -luuid -lgcrypt -lgpg-error
+	# build askpass and passdev keyscripts
 	gcc -Wall -pedantic -std=c99 debian/askpass.c -o debian/askpass
 	gcc -Wall -pedantic -std=c99 debian/passdev.c -o debian/scripts/passdev
-	touch $@
 
-clean:
-	dh_testdir
-	dh_testroot
-	if test -f Makefile; then $(MAKE) clean; fi
-	if test -f config.mess; then rm -f `cat config.mess`; fi
-	rm -f debian/luksformat.8
-	rm -f debian/doc/*.[0-9] debian/doc/variables.xml
-	rm -f debian/scripts/passdev
-	rm -f debian/askpass
-	rm -f config.mess
-	rm -rf autom4te.cache 
-	rm -f src/cryptsetup.static
-	dh_clean configure-stamp build-stamp install-stamp
+build: build-indep build-arch
 
 install: install-stamp
 install-stamp: build-stamp
@@ -88,27 +81,29 @@ install-stamp: build-stamp
 	dh_testroot
 	dh_clean
 	dh_installdirs
-	mkdir -p $(CURDIR)/debian/cryptsetup-udeb/
+	mkdir -p $(CURDIR)/debian/cryptsetup-udeb
+	mkdir -p $(CURDIR)/debian/libcryptsetup4-udeb
 	$(MAKE) DESTDIR=$(CURDIR)/debian/cryptsetup install
-	cp src/cryptsetup.static $(CURDIR)/debian/cryptsetup/sbin/cryptsetup
 
 	# Copy library files to library packages
-	#cp -a $(CURDIR)/debian/cryptsetup/usr/lib/libcryptsetup.la \
+	cp -a $(CURDIR)/debian/cryptsetup/lib/libcryptsetup.so.* \
+		$(CURDIR)/debian/libcryptsetup4/lib/
+	#cp -a $(CURDIR)/debian/cryptsetup/lib/libcryptsetup.la \
 	#	$(CURDIR)/debian/libcryptsetup-dev/usr/lib/
-	#cp -a $(CURDIR)/debian/cryptsetup/usr/lib/libcryptsetup.a \
+	#cp -a $(CURDIR)/debian/cryptsetup/lib/libcryptsetup.a \
 	#	$(CURDIR)/debian/libcryptsetup-dev/usr/lib/
-	cp -a $(CURDIR)/debian/cryptsetup/usr/lib/libcryptsetup.so \
-		$(CURDIR)/debian/libcryptsetup-dev/usr/lib/
-	cp -a $(CURDIR)/debian/cryptsetup/usr/lib/pkgconfig/libcryptsetup.pc \
+	cp -a $(CURDIR)/debian/cryptsetup/lib/pkgconfig/libcryptsetup.pc \
 		$(CURDIR)/debian/libcryptsetup-dev/usr/lib/pkgconfig/
 	cp -a $(CURDIR)/debian/cryptsetup/usr/include/libcryptsetup.h \
 		$(CURDIR)/debian/libcryptsetup-dev/usr/include/
-	cp -a $(CURDIR)/debian/cryptsetup/usr/lib/libcryptsetup.so.1* \
-		$(CURDIR)/debian/libcryptsetup1/usr/lib/
+	#cp -a $(CURDIR)/debian/cryptsetup/lib/libcryptsetup.so \
+	#	$(CURDIR)/debian/libcryptsetup-dev/usr/lib/
+	dh_link -plibcryptsetup-dev lib/$$(basename $$(readlink debian/cryptsetup/lib/libcryptsetup.so)) usr/lib/libcryptsetup.so
 
 	# Remove libraries from cryptsetup package, they're shiped in seperate library packags
+	rm -rf $(CURDIR)/debian/cryptsetup/lib/libcryptsetup*
+	rm -rf $(CURDIR)/debian/cryptsetup/lib/pkgconfig
 	rm -rf $(CURDIR)/debian/cryptsetup/usr/include
-	rm -rf $(CURDIR)/debian/cryptsetup/usr/lib
 
 	install -m 0644 debian/cryptdisks.functions $(CURDIR)/debian/cryptsetup/lib/cryptsetup/
 	install -m 0755 debian/checks/* $(CURDIR)/debian/cryptsetup/lib/cryptsetup/checks/
@@ -120,28 +115,34 @@ install-stamp: build-stamp
 	install -m 0755 debian/scripts/decrypt_* $(CURDIR)/debian/cryptsetup/lib/cryptsetup/scripts/
 	install -m 0755 debian/scripts/passdev $(CURDIR)/debian/cryptsetup/lib/cryptsetup/scripts/
 	install -m 0755 debian/askpass $(CURDIR)/debian/cryptsetup/lib/cryptsetup/
-	install -m 0644 debian/cryptsetup.apport $(CURDIR)/debian/cryptsetup/usr/share/apport/package-hooks/cryptsetup.py
 	install -m 0755 debian/initramfs/cryptgnupg-hook \
 		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/hooks/cryptgnupg
-	install -m 0755 debian/initramfs/cryptpassdev-hook \
-		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/hooks/cryptpassdev
+	install -m 0755 debian/initramfs/cryptkeyctl-hook \
+		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/hooks/cryptkeyctl
+	install -m 0755 debian/initramfs/cryptopenct-hook \
+		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/hooks/cryptopenct
 	install -m 0755 debian/initramfs/cryptopensc-hook \
 		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/hooks/cryptopensc
 	install -m 0755 debian/initramfs/cryptopensc-script-local-bottom \
 		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/scripts/local-bottom/cryptopensc
 	install -m 0755 debian/initramfs/cryptopensc-script-local-top \
 		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/scripts/local-top/cryptopensc
-	install -m 0755 debian/initramfs/cryptopenct-hook \
-		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/hooks/cryptopenct
+	install -m 0755 debian/initramfs/cryptpassdev-hook \
+		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/hooks/cryptpassdev
+	install -m 0644 debian/initramfs/cryptroot-conf \
+		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/conf-hooks.d/cryptsetup
 	install -m 0755 debian/initramfs/cryptroot-hook \
 		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/hooks/cryptroot
 	install -m 0755 debian/initramfs/cryptroot-script \
 		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/scripts/local-top/cryptroot
-	install -m 0644 debian/initramfs/cryptroot-conf \
-		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/conf-hooks.d/cryptsetup
-
 	install -m 0755 debian/cryptsetup.reportbug-script \
 		$(CURDIR)/debian/cryptsetup/usr/share/bug/cryptsetup
+ifeq ($(shell dpkg-vendor --is Ubuntu && echo yes),yes)
+	mkdir -p $(CURDIR)/debian/cryptsetup/usr/share/apport/package-hooks
+	install -m 0644 debian/cryptsetup.apport \
+		$(CURDIR)/debian/cryptsetup/usr/share/apport/package-hooks/cryptsetup.py
+endif
+	$(MAKE) -C debian/scripts/po DESTDIR=$(CURDIR)/debian/cryptsetup install
 	touch $@
 
 binary-indep: build install
@@ -150,6 +151,7 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir
 	dh_testroot
+	dh_installdebconf -a
 	dh_installchangelogs -a ChangeLog
 	dh_installdocs -a
 	dh_installexamples -a debian/scripts/gen-ssl-key
@@ -161,13 +163,15 @@ binary-arch: build install
 	# Copy relevant parts to cryptsetup-udeb package
 	cp -a $(CURDIR)/debian/cryptsetup/etc $(CURDIR)/debian/cryptsetup-udeb/
 	cp -a $(CURDIR)/debian/cryptsetup/lib $(CURDIR)/debian/cryptsetup-udeb/
-	mkdir $(CURDIR)/debian/cryptsetup-udeb/sbin/
+	mkdir $(CURDIR)/debian/cryptsetup-udeb/sbin
 	cp -a $(CURDIR)/debian/cryptsetup/sbin/cryptsetup $(CURDIR)/debian/cryptsetup-udeb/sbin/
+	# Copy relevant parts to libcryptsetup4-udeb package
+	cp -a $(CURDIR)/debian/libcryptsetup4/lib $(CURDIR)/debian/libcryptsetup4-udeb/
 	dh_lintian -a
 	dh_compress -a
 	dh_fixperms -a
 	dh_strip -a
-	dh_makeshlibs -a
+	dh_makeshlibs -a -V --add-udeb=libcryptsetup4-udeb
 	dh_shlibdeps -a
 	dh_gencontrol -a
 	dh_installdeb -a
@@ -175,4 +179,24 @@ binary-arch: build install
 	dh_builddeb -a
 
 binary: binary-indep binary-arch
-.PHONY: configure build clean install binary-indep binary-arch binary
+
+clean:
+	dh_testdir
+	dh_testroot
+	# clean up the source directory
+	if test -f Makefile; then $(MAKE) distclean; fi
+	rm -f autom4te.cache
+	rm -f manifest manifest.new
+	rm -f debian/doc/*.[0-9] debian/doc/variables.xml
+	rm -f debian/luksformat.8
+	$(MAKE) -C debian/scripts/po update clean
+	rm -f debian/scripts/passdev
+	rm -f debian/askpass
+	# clean up leftovers which where forgotten
+	if test -f config.mess; then rm -f `cat config.mess`; fi
+	rm -f config.mess
+	dh_clean configure-stamp build-stamp install-stamp
+	# update debconf po files
+	debconf-updatepo
+
+.PHONY: configure build-indep build-arch build install binary-indep binary-arch binary clean

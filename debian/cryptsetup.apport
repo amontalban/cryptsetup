@@ -6,6 +6,6 @@
 from apport.hookutils import *
 
 def add_info(report):
-        attach_file(report, '/etc/fstab', 'fstab')
-        attach_file_if_exists(report, '/etc/crypttab', 'crypttab')
+	attach_file(report, '/etc/fstab', 'fstab')
+	attach_file_if_exists(report, '/etc/crypttab', 'crypttab')
 

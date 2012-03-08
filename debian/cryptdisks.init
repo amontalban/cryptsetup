@@ -8,7 +8,7 @@
 # X-Start-Before:    checkfs
 # X-Stop-After:      umountfs
 # X-Interactive:     true
-# Default-Start:     
+# Default-Start:
 # Default-Stop:      0 6
 # Short-Description: Setup remaining encrypted block devices.
 # Description:
@@ -16,7 +16,11 @@
 
 set -e 
 
-. /lib/cryptsetup/cryptdisks.functions
+if [ -r /lib/cryptsetup/cryptdisks.functions ]; then
+	. /lib/cryptsetup/cryptdisks.functions
+else
+	exit 0
+fi
 
 INITSTATE="remaining"
 DEFAULT_LOUD="yes"

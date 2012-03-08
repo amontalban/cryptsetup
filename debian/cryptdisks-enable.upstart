@@ -13,7 +13,7 @@
 # This job currently still does not guarantee a race-free startup; instances
 # of cryptdisks-udev may be started in parallel with this job.
 
-description	"enable remaining boot-time encrypted block devices"
+description    "enable remaining boot-time encrypted block devices"
 
 start on stopped udevtrigger
 

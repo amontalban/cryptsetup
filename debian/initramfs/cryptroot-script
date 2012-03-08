@@ -1,5 +1,7 @@
 #!/bin/sh
 
+PREREQ="cryptroot-prepare"
+
 #
 # Standard initramfs preamble
 #
@@ -31,8 +33,6 @@ message()
 {
 	if [ -x /bin/plymouth ] && plymouth --ping; then
 		plymouth message --text="$@"
-	elif [ -p /dev/.initramfs/usplash_outfifo ] && [ -x /sbin/usplash_write ]; then
-		usplash_write "TEXT-URGENT $@"
 	else
 		echo "$@" >&2
 	fi
@@ -70,6 +70,7 @@ parse_options()
 	cryptkey="" # This is only used as an argument to an eventual keyscript
 	crypttries=3
 	cryptrootdev=""
+	cryptdiscard=""
 	CRYPTTAB_OPTIONS=""
 
 	local IFS=" ,"
@@ -120,6 +121,9 @@ parse_options()
 		rootdev)
 			cryptrootdev="yes"
 			;;
+		discard)
+			cryptdiscard="yes"
+			;;
 		esac
 		PARAM="${x%=*}"
 		if [ "$PARAM" = "$x" ]; then
@@ -149,7 +153,7 @@ activate_vg()
 
 	# Detect and activate available volume groups
 	/sbin/lvm vgscan
-	/sbin/lvm vgchange -ay
+	/sbin/lvm vgchange -a y --sysinit
 	return $?
 }
 
@@ -184,7 +188,7 @@ setup_mapping()
 
 	parse_options "$opts" || return 1
 
-	if [ -n "$cryptkeyscript" ] && [ ! -x "$cryptkeyscript" ]; then
+	if [ -n "$cryptkeyscript" ] && ! type "$cryptkeyscript" >/dev/null; then
 		message "cryptsetup: error - script \"$cryptkeyscript\" missing"
 		return 1
 	fi
@@ -218,9 +222,6 @@ setup_mapping()
 		else
 			slumber=${ROOTDELAY}
 		fi
-		if [ -x /sbin/usplash_write ]; then
-			/sbin/usplash_write "TIMEOUT ${slumber}" || true
-		fi
 
 		slumber=$(( ${slumber} * 10 ))
 		while [ ! -e "$cryptsource" ]; do
@@ -234,9 +235,6 @@ setup_mapping()
 		else
 			log_end_msg 1 || true
 		fi
-		if [ -x /sbin/usplash_write ]; then
-			/sbin/usplash_write "TIMEOUT 15" || true
-		fi
  	fi
 	udev_settle
 
@@ -248,10 +246,14 @@ setup_mapping()
 	done
 
 	# Prepare commands
+	cryptcreate="/sbin/cryptsetup -T 1"
+	if [ "$cryptdiscard" = "yes" ]; then
+		cryptcreate="$cryptcreate --allow-discards"
+	fi
 	if /sbin/cryptsetup isLuks $cryptsource > /dev/null 2>&1; then
-		cryptcreate="/sbin/cryptsetup -T 1 luksOpen $cryptsource $crypttarget"
+		cryptcreate="$cryptcreate luksOpen $cryptsource $crypttarget"
 	else
-		cryptcreate="/sbin/cryptsetup -T 1 -c $cryptcipher -s $cryptsize -h $crypthash create $crypttarget $cryptsource"
+		cryptcreate="$cryptcreate -c $cryptcipher -s $cryptsize -h $crypthash create $crypttarget $cryptsource"
 	fi
 	cryptremove="/sbin/cryptsetup remove $crypttarget"
 	NEWROOT="/dev/mapper/$crypttarget"
@@ -265,19 +267,12 @@ setup_mapping()
 			/bin/sleep 3
 		fi
 
-		if [ $crypttries -gt 0 ] && [ $count -gt $crypttries ]; then
-			message "cryptsetup: maximum number of tries exceeded for $crypttarget"
-			return 1
-		fi
-
 		if [ -z "$cryptkeyscript" ]; then
+			cryptkey="Unlocking the disk $cryptsource ($crypttarget)\nEnter passphrase: "
 			if [ -x /bin/plymouth ] && plymouth --ping; then
-				echo "Unlocking the disk $cryptsource ($crypttarget)"
-				cryptkey="Enter passphrase: "
 				cryptkeyscript="plymouth ask-for-password --prompt"
-				cryptkey=$(echo -e "$cryptkey")
+				cryptkey=$(printf "$cryptkey")
 			else
-				cryptkey="Unlocking the disk $cryptsource ($crypttarget)\nEnter passphrase: "
 				cryptkeyscript="/lib/cryptsetup/askpass"
 			fi
 		fi
@@ -326,6 +321,11 @@ setup_mapping()
 		message "cryptsetup: $crypttarget set up successfully"
 		break
 	done
+
+	if [ $crypttries -gt 0 ] && [ $count -gt $crypttries ]; then
+		message "cryptsetup: maximum number of tries exceeded for $crypttarget"
+		return 1
+	fi
 
 	udev_settle
 	return 0
