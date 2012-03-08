@@ -1,4 +1,4 @@
-cryptsetup (2:1.4.1-2ubuntu1) UNRELEASED; urgency=low
+cryptsetup (2:1.4.1-2ubuntu1) precise; urgency=low
 
   [ Jean-Louis Dupond ]
   * Merge from debian unstable (LP: #776264), remaining changes:
@@ -28,7 +28,7 @@ cryptsetup (2:1.4.1-2ubuntu1) UNRELEASED; urgency=low
     name for the source device that is not the kernel's preferred name for
     it (as is the case for LVs).
 
- -- Jean-Louis Dupond <jean-louis@dupond.be>  Wed, 07 Mar 2012 14:31:05 +0100
+ -- Jean-Louis Dupond <jean-louis@dupond.be>  Thu, 08 Mar 2012 07:32:40 +0100
 
 cryptsetup (2:1.4.1-2) unstable; urgency=low
 
