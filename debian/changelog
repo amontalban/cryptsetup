@@ -1,5 +1,6 @@
 cryptsetup (2:1.4.1-2ubuntu1) UNRELEASED; urgency=low
 
+  [ Jean-Louis Dupond ]
   * Merge from debian unstable (LP: #776264), remaining changes:
     - debian/cryptdisks.functions: Suppress "Starting init crypto disks" message
       in "init" phase, to avoid writing over fsck progress text.
@@ -21,6 +22,11 @@ cryptsetup (2:1.4.1-2ubuntu1) UNRELEASED; urgency=low
     - debian/rules:
       + Do not install start symlinks for init scripts, and
         install debian/cryptdisks-{enable,udev}.upstart scripts.
+
+  [ Steve Langasek ]
+  * debian/cryptdisks.functions: handle the case where crypttab contains a
+    name for the source device that is not the kernel's preferred name for
+    it (as is the case for LVs).
 
  -- Jean-Louis Dupond <jean-louis@dupond.be>  Wed, 07 Mar 2012 14:31:05 +0100
 
