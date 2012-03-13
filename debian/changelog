@@ -1,3 +1,11 @@
+cryptsetup (2:1.4.1-2ubuntu2) precise; urgency=low
+
+  * Split up package in cryptsetup and cryptsetup-bin. (LP: #343363).
+  * Do not overwrite existing filesystems when creating swap (LP: #474258).
+  * Add aesni module when we have hardware encryption.
+
+ -- Jean-Louis Dupond <jean-louis@dupond.be>  Mon, 12 Mar 2012 10:14:30 +0100
+
 cryptsetup (2:1.4.1-2ubuntu1) precise; urgency=low
 
   [ Jean-Louis Dupond ]

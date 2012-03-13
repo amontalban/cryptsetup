@@ -81,33 +81,34 @@ install-stamp: build-stamp
 	dh_testroot
 	dh_clean
 	dh_installdirs
+	mkdir -p $(CURDIR)/debian/cryptsetup-bin
 	mkdir -p $(CURDIR)/debian/cryptsetup-udeb
 	mkdir -p $(CURDIR)/debian/libcryptsetup4-udeb
-	$(MAKE) DESTDIR=$(CURDIR)/debian/cryptsetup install
+	$(MAKE) DESTDIR=$(CURDIR)/debian/cryptsetup-bin install
 
 	# Copy library files to library packages
-	cp -a $(CURDIR)/debian/cryptsetup/lib/libcryptsetup.so.* \
+	cp -a $(CURDIR)/debian/cryptsetup-bin/lib/libcryptsetup.so.* \
 		$(CURDIR)/debian/libcryptsetup4/lib/
 	#cp -a $(CURDIR)/debian/cryptsetup/lib/libcryptsetup.la \
 	#	$(CURDIR)/debian/libcryptsetup-dev/usr/lib/
 	#cp -a $(CURDIR)/debian/cryptsetup/lib/libcryptsetup.a \
 	#	$(CURDIR)/debian/libcryptsetup-dev/usr/lib/
-	cp -a $(CURDIR)/debian/cryptsetup/lib/pkgconfig/libcryptsetup.pc \
+	cp -a $(CURDIR)/debian/cryptsetup-bin/lib/pkgconfig/libcryptsetup.pc \
 		$(CURDIR)/debian/libcryptsetup-dev/usr/lib/pkgconfig/
-	cp -a $(CURDIR)/debian/cryptsetup/usr/include/libcryptsetup.h \
+	cp -a $(CURDIR)/debian/cryptsetup-bin/usr/include/libcryptsetup.h \
 		$(CURDIR)/debian/libcryptsetup-dev/usr/include/
 	#cp -a $(CURDIR)/debian/cryptsetup/lib/libcryptsetup.so \
 	#	$(CURDIR)/debian/libcryptsetup-dev/usr/lib/
-	dh_link -plibcryptsetup-dev lib/$$(basename $$(readlink debian/cryptsetup/lib/libcryptsetup.so)) usr/lib/libcryptsetup.so
+	dh_link -plibcryptsetup-dev lib/$$(basename $$(readlink debian/cryptsetup-bin/lib/libcryptsetup.so)) usr/lib/libcryptsetup.so
 
 	# Remove libraries from cryptsetup package, they're shiped in seperate library packags
-	rm -rf $(CURDIR)/debian/cryptsetup/lib/libcryptsetup*
-	rm -rf $(CURDIR)/debian/cryptsetup/lib/pkgconfig
-	rm -rf $(CURDIR)/debian/cryptsetup/usr/include
+	rm -rf $(CURDIR)/debian/cryptsetup-bin/lib/libcryptsetup*
+	rm -rf $(CURDIR)/debian/cryptsetup-bin/lib/pkgconfig
+	rm -rf $(CURDIR)/debian/cryptsetup-bin/usr/include
 
 	install -m 0644 debian/cryptdisks.functions $(CURDIR)/debian/cryptsetup/lib/cryptsetup/
 	install -m 0755 debian/checks/* $(CURDIR)/debian/cryptsetup/lib/cryptsetup/checks/
-	install -m 0755 debian/scripts/luksformat $(CURDIR)/debian/cryptsetup/usr/sbin/
+	install -m 0755 debian/scripts/luksformat $(CURDIR)/debian/cryptsetup-bin/usr/sbin/
 	install -m 0755 debian/scripts/cryptdisks_start $(CURDIR)/debian/cryptsetup/sbin/
 	install -m 0755 debian/scripts/cryptdisks_stop $(CURDIR)/debian/cryptsetup/sbin/
 	dh_link -pcryptsetup sbin/cryptdisks_start usr/sbin/cryptdisks_start
@@ -142,7 +143,7 @@ ifeq ($(shell dpkg-vendor --is Ubuntu && echo yes),yes)
 	install -m 0644 debian/cryptsetup.apport \
 		$(CURDIR)/debian/cryptsetup/usr/share/apport/package-hooks/cryptsetup.py
 endif
-	$(MAKE) -C debian/scripts/po DESTDIR=$(CURDIR)/debian/cryptsetup install
+	$(MAKE) -C debian/scripts/po DESTDIR=$(CURDIR)/debian/cryptsetup-bin install
 	touch $@
 
 binary-indep: build install
@@ -159,12 +160,14 @@ binary-arch: build install
 	dh_installinit -a --no-start --name=cryptdisks --update-rcd-params="start 48 0 6 ."
 	dh_installinit -a --no-start --name=cryptdisks-enable --upstart-only
 	dh_installinit -a --no-start --name=cryptdisks-udev --upstart-only
-	dh_installman -a debian/doc/crypttab.5 debian/doc/cryptdisks_start.8 debian/doc/cryptdisks_stop.8 debian/luksformat.8
+	dh_installman -a debian/doc/crypttab.5 debian/doc/cryptdisks_start.8 debian/doc/cryptdisks_stop.8
+	dh_installman -p cryptsetup-bin debian/luksformat.8
 	# Copy relevant parts to cryptsetup-udeb package
 	cp -a $(CURDIR)/debian/cryptsetup/etc $(CURDIR)/debian/cryptsetup-udeb/
 	cp -a $(CURDIR)/debian/cryptsetup/lib $(CURDIR)/debian/cryptsetup-udeb/
+	cp -a $(CURDIR)/debian/cryptsetup-bin/lib $(CURDIR)/debian/cryptsetup-udeb/
 	mkdir $(CURDIR)/debian/cryptsetup-udeb/sbin
-	cp -a $(CURDIR)/debian/cryptsetup/sbin/cryptsetup $(CURDIR)/debian/cryptsetup-udeb/sbin/
+	cp -a $(CURDIR)/debian/cryptsetup-bin/sbin/cryptsetup $(CURDIR)/debian/cryptsetup-udeb/sbin/
 	# Copy relevant parts to libcryptsetup4-udeb package
 	cp -a $(CURDIR)/debian/libcryptsetup4/lib $(CURDIR)/debian/libcryptsetup4-udeb/
 	dh_lintian -a
