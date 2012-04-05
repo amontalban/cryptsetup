@@ -1,3 +1,10 @@
+cryptsetup (2:1.4.1-2ubuntu3) UNRELEASED; urgency=low
+
+  * Start cryptdisks-enable upstart job on 'or container', to let us
+    simplify the udevtrigger job.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 04 Apr 2012 16:57:39 -0700
+
 cryptsetup (2:1.4.1-2ubuntu2) precise; urgency=low
 
   * Split up package in cryptsetup and cryptsetup-bin. (LP: #343363).
