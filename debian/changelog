@@ -1,3 +1,14 @@
+cryptsetup (2:1.4.1-2ubuntu4) UNRELEASED; urgency=low
+
+  * Our swap creation can trigger udev change events, which means udev may be
+    holding the device open at the time we try to call 'dmsetup rename' and
+    cause the /subsequent/ events to be missed because of dmsetup creating
+    device nodes by hand.  So call 'udevadm settle' before 'dmsetup rename',
+    to ensure blkid is out of the way first.  This should ensure swap
+    partitions are found by mountall in a non-racy manner.  LP: #874774.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Fri, 13 Apr 2012 18:22:48 -0700
+
 cryptsetup (2:1.4.1-2ubuntu3) precise; urgency=low
 
   * Start cryptdisks-enable upstart job on 'or container', to let us
