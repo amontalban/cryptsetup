@@ -55,7 +55,7 @@ encrypted partition /dev/hda2 during boot.
 In addition, you must also make sure that the root device is listed in 
 /etc/fstab, for example:
 
-  /dev/mapper/cryptroot / ext3 defaults 0 1
+  /dev/mapper/cryptroot / ext4 defaults 0 1
 
 This will allow the initramfs support scripts to know which of the devices
 in the crypttab that is the root device.
@@ -100,7 +100,7 @@ the above mentioned /etc/crypttab line, so that it looks something like this:
   cryptroot /dev/sda2 none luks,keyscript=/usr/local/sbin/cryptkey
 
 Next, regenerate your initramfs image. This will copy the script into the
-initramfs image under the /keyscripts/ directory.
+initramfs image under the /lib/cryptsetup/keyscripts/ directory.
 
 NOTE: there is a limited set of tools available when the script is executing
 as part of the initramfs bootup, you have to make sure that you do not use
@@ -207,4 +207,20 @@ device, then initramfs-tools needs to be configured to add these modules to
 the initramfs. This can be done by listing the required modules in
 /etc/initramfs-tools/modules.
 
--- David Härdeman <david@hardeman.nu>
+11. Limitation: renaming of target name for encrypted root device
+-----------------------------------------------------------------
+As spotted by Adam Lee in bug report #671037[1], it's not possible to simply
+rename the target name for encrypted root devices. It breaks the initramfs
+creation process. The bug report submitter found a solution to work around this
+limitation:
+
+0. enter another system (like livecd)
+1. luksOpen with the new name, change the target name to the new one
+2. chroot into it (now, the current target name is the same as it in conf)
+3. update-initramfs -u
+4. reboot
+
+[1] http://bugs.debian.org/671037
+
+ -- David Härdeman <david@hardeman.nu>
+ -- Jonas Meurer <mejo@debian.org>  Thu, 01 Nov 2012 13:44:31 +0100

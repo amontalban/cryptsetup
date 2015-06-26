@@ -8,7 +8,7 @@
 # X-Start-Before:    checkfs
 # X-Stop-After:      umountfs
 # X-Interactive:     true
-# Default-Start:
+# Default-Start:     S
 # Default-Stop:      0 6
 # Short-Description: Setup remaining encrypted block devices.
 # Description:
@@ -33,6 +33,7 @@ esac
 
 case "$1" in
 start)
+	do_start
 	;;
 stop)
 	do_stop

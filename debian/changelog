@@ -1,3 +1,304 @@
+cryptsetup (2:1.6.1-1ubuntu7) vivid; urgency=medium
+
+  * Drop explicit libgcrypt11 dependency from libcryptsetup4.
+
+ -- Adam Conrad <adconrad@ubuntu.com>  Fri, 27 Mar 2015 18:24:38 -0600
+
+cryptsetup (2:1.6.1-1ubuntu6) vivid; urgency=medium
+
+  * No-change rebuild for the libgcrypt20 transition.
+
+ -- Adam Conrad <adconrad@ubuntu.com>  Fri, 27 Mar 2015 06:16:08 -0600
+
+cryptsetup (2:1.6.1-1ubuntu5) vivid; urgency=medium
+
+  * ./debian/scripts/luksformat: Drop luksFormat -s and --ciper options. They
+    aren't necessary any more, and aes-cbc-essiv:sha256 is obsolete. This will
+    now use aes-xts-plain64 by default. (LP: #1414719)
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Fri, 27 Feb 2015 09:37:05 +0100
+
+cryptsetup (2:1.6.1-1ubuntu4) vivid; urgency=medium
+
+  * No change rebuild to get debug symbols for all architectures.
+
+ -- Brian Murray <brian@ubuntu.com>  Wed, 03 Dec 2014 08:03:31 -0800
+
+cryptsetup (2:1.6.1-1ubuntu3) utopic; urgency=high
+
+  * No change rebuild against new dh_installinit, to call update-rc.d at
+    postinst.
+
+ -- Dimitri John Ledkov <xnox@ubuntu.com>  Wed, 28 May 2014 10:39:30 +0100
+
+cryptsetup (2:1.6.1-1ubuntu2) utopic; urgency=medium
+
+  * debian/askpass.c:
+    - Fix bug (LP: #1301086) where askpass fails to restore terminal
+      settings.
+
+ -- Robert Barabas <dc@0xdc.org>  Fri, 18 Apr 2014 14:08:51 -0400
+
+cryptsetup (2:1.6.1-1ubuntu1) trusty; urgency=low
+
+  * Merge from debian unstable, remaining changes:
+    - debian/control:
+      + Bump initramfs-tools Suggests to Depends: so system is not
+        potentially rendered unbootable.
+      + Depend on plymouth.
+
+    - Invert the "busybox | busybox-static" Recommends, as the latter is
+      the one we ship in main as part of the ubuntu-standard task.
+  
+    - Remove hardcoded paths to udevadm (LP: #1184066).  
+  
+    - debian/initramfs/cryptroot-hook:
+      + Do not unconditionally include cryptsetup utils in the initramfs.
+      + Do not include any modules or utils in the initramfs, unless
+        rootfs/resume devices are encrypted or CRYPTSETUP is set to 'y' in
+        the initramfs.conf configuration file.
+  
+    - debian/cryptsetup.maintscripts:
+      + Migrate upstart jobs to new names.
+
+ -- Dmitrijs Ledkovs <dmitrij.ledkov@ubuntu.com>  Fri, 01 Nov 2013 16:48:57 +0000
+
+cryptsetup (2:1.6.1-1) unstable; urgency=low
+
+  [ Milan Broz ]
+  * new upstream version. (closes: #704827, 707997)
+    - default LUKS encryption mode is XTS (aes-xts-plain64) (closes: #714331)
+    - adds native support for Truecrypt and compatible on-disk format
+    - adds benchmark command
+    - adds cryptsetup-reencrypt, a tool to offline reencrypt LUKS device
+    - adds veritysetup, a tool for dm-verity block device verification module
+  * install docs/examples into docs at cryptsetup-dev package.
+  * fix compilation warnings in askpass.c.
+
+  [ Steve Langasek ]
+  * fix upstart jobs to not cause boot hangs when actually used in
+    conjunction with startpar.  (closes: #694499, #677712).
+  * in connection with the above, make the cryptdisks-early job explicitly
+    wait for 'umountfs' on shutdown just like cryptdisks does; otherwise,
+    the teardown of the cryptdisks upstart job may cause the cryptdisks-early
+    init script run before we're done unmounting filesystems.
+
+  [ Jonas Meurer ]
+  * minor wording fixes to README.initramfs, suggested by intrigeri and Adam
+    D. Barrett.
+  * add bash-completion script for cryptdisks_{start,stop}. Thanks to Claudius
+    Hubig for providing a patch. (closes: #700777)
+  * support specifying key-slot in crypttab. Thanks to Kevin Locke for the
+    patch. (closes: #704470)
+  * remove evms support code from cryptroot initramfs script. (closes: #713918)
+  * fix location of keyscripts in initramfs documentation. (closes: #697446)
+  * fix a typo in decrypt_ssl script that prevented stdout from beeing
+    redirected to /dev/null. (closes: #700285)
+  * give full path to blkid in crytproot initramfs script. (closes: #697155)
+  * export number of previous tries from cryptroot and cryptdisks to
+    keyscript. Thanks to Laurens Blankers for the idea. Opens the possibility
+    to fallback after a given number of tries for keyscripts. (closes: #438481,
+    #471729, #697455)
+  * improve check for cpu hardware encryption support in initramfs cryptroot
+    hook. (closes: #714326)
+
+ -- Jonas Meurer <mejo@debian.org>  Fri, 28 Jun 2013 12:10:41 +0200
+
+cryptsetup (2:1.4.3-4ubuntu4) saucy; urgency=low
+
+  * debian/initramfs/cryptroot-hook:
+    - Do not unconditionally include cryptsetup utils in the initramfs.
+    - Do not include any modules or utils in the initramfs, unless
+      rootfs/resume devices are encrypted or CRYPTSETUP is set to 'y' in
+      the initramfs.conf configuration file.
+
+ -- Dmitrijs Ledkovs <dmitrij.ledkov@ubuntu.com>  Mon, 10 Jun 2013 16:25:46 +0100
+
+cryptsetup (2:1.4.3-4ubuntu3) saucy; urgency=low
+
+  * Remove hardcoded paths to udevadm (LP: #1184066).
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 28 May 2013 11:27:27 +0100
+
+cryptsetup (2:1.4.3-4ubuntu2) raring; urgency=low
+
+  * Invert the "busybox | busybox-static" Recommends, as the latter
+    is the one we ship in main as part of the ubuntu-standard task.
+
+ -- Adam Conrad <adconrad@ubuntu.com>  Fri, 16 Nov 2012 01:14:35 -0700
+
+cryptsetup (2:1.4.3-4ubuntu1) raring; urgency=low
+
+  * Merge from debian unstable, remaining changes:
+    - debian/control:
+      + Bump initramfs-tools Suggests to Depends: so system is not
+        potentially rendered unbootable.
+      + Depend on plymouth.
+
+    - init/upstart jobs:
+      + Rename cryptddisks{,-early}.upstart jobs to
+        cryptdisks-{enable,udev}.upstart, as we need both init & upstart jobs
+        for now.
+      + debian/cryptdisks{,-early}.init: Make the 'start' action of the init
+        script a no-op, this should be handled entirely by the upstart job;
+      	and fix the LSB header to not declare this should be started in
+      	runlevel 'S'.
+      + Do not install start symlinks for init scripts
+      + NB! shutdown is still handled by the SystemV init scripts
+
+ -- Dmitrijs Ledkovs <dmitrij.ledkov@ubuntu.com>  Tue, 13 Nov 2012 11:17:57 +0000
+
+cryptsetup (2:1.4.3-4) unstable; urgency=medium
+
+  * change recommends for busybox to busybox | busybox-static. Thanks to
+    Armin Haas for the bugreport. (closes: #692151)
+
+ -- Jonas Meurer <mejo@debian.org>  Wed, 07 Nov 2012 16:12:25 +0100
+
+cryptsetup (2:1.4.3-3) unstable; urgency=medium
+
+  * add recommends for 'kbd, console-setup' to cryptsetup package. Both are
+    necessary to support local keymap in initramfs. Thanks to Raphaël Hertzog
+    for the bugreport. (closes: #689722)
+  * move suggestion for 'initramfs-tools (>= 0.91) | linux-initramfs-tool,
+    busybox' to recommends. Both are required for encrypted root fs.
+  * remove suggestion for udev, most debian systems have it installed anyway.
+  * mention option to use UUID=<luks_uuid> for source device in crypttab(5).
+    Thanks to Felicitus for the bug report. (closes: #688786)
+  * add a paragraph in README.initramfs: Describe, why renaming the target
+    name is not supported for encrypted root devices. Thanks to Adam Lee for
+    bugreport and proposed workaround for this limitation. (closes: #671037)
+  * fix keyfile permission checks in cryptdisks init scripts to follow
+    symlinks. Thanks to intrigeri for the bugreport. (closes: #691517)
+  * fix owner group check for keyfile in cryptdisks init scripts to really
+    check owner group.
+  * update debconf translations:
+    - brasilian portuguese, thanks to Adriano Rafael Gomes. (closes: #685762)
+    - japanese, thanks to victory. (closes: #690784)
+  * fix typo in manpages: s/passphase/passphrase. Thanks to Milan Broz for
+    the bugreport. (closes: #684086)
+
+ -- Jonas Meurer <mejo@debian.org>  Thu, 01 Nov 2012 15:34:09 +0100
+
+cryptsetup (2:1.4.3-2ubuntu1) quantal; urgency=low
+
+  * Merge from debian unstable (LP: #1015753), remaining changes:
+    - debian/control:
+      + Bump initramfs-tools Suggests to Depends: so system is not
+        potentially rendered unbootable.
+      + Depend on plymouth.
+
+    - init/upstart jobs:
+      + Add debian/cryptdisks-{enable,udev}.upstart for bootup.
+      + debian/cryptdisks{,-early}.init: Make the 'start' action of the init
+        script a no-op, this should be handled entirely by the upstart job;
+      	and fix the LSB header to not declare this should be started in
+      	runlevel 'S'.
+      + Do not install start symlinks for init scripts
+      + NB! shutdown is still handled by the SystemV init scripts
+
+  * Rename cryptddisks{,-early}.upstart jobs back to
+    cryptdisks-{enable,udev}.upstart, as we need both init & upstart jobs
+    for now.
+
+  * Dropped Changes, included in Debian:
+    - debian/control:
+      + Split up package in cryptsetup and cryptsetup-bin. (LP: #343363).
+
+    - debian/cryptdisks.functions:
+      + Do not overwrite existing filesystems when creating swap (LP: #474258).
+      + Add aesni module when we have hardware encryption.
+      + Call 'udevadm settle' before 'dmsetup rename' http://pad.lv/874774
+      + Suppress "Starting init crypto disks" message in "init" phase, to
+        avoid writing over fsck progress text.
+      + new function, crypttab_start_one_disk, to look for the named source
+        device in /etc/crypttab (by device name, UUID, or label) and start it
+        if configured to do so
+      + handle the case where crypttab contains a name for the source
+        device that is not the kernel's preferred name for it (as is the case
+        for LVs).
+
+    - debian/initramfs/cryptroot-hook:
+      + Quiet warnings from find on arches that don't have all the
+        kernel/{arch,crypto} bits we're testing for.
+
+ -- Dmitrijs Ledkovs <dmitrij.ledkov@ubuntu.com>  Tue, 21 Aug 2012 11:57:28 +0100
+
+cryptsetup (2:1.4.3-2) unstable; urgency=medium
+
+  * fix the shared library symbols magic: so far, the symbols file for
+    libcryptsetup4 included just a wildcard for all exported symbols, with
+    libcrypsetup4 (>= 2:1.4) as minimum version. This was wrong. Symbols
+    that were added later need adjusted minimum versions. Thanks for the
+    great help in #debian-mentors. (closes: #677127)
+  * remove emtpy directory /lib from cryptsetup-bin package.
+  * compile askpass and passdev with CFLAGS, CPPFLAGS and LDFLAGS.
+
+ -- Jonas Meurer <mejo@debian.org>  Tue, 12 Jun 2012 21:26:18 +0200
+
+cryptsetup (2:1.4.3-1) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * mention limitations for keyscripts in crypttab(5) manpage: keyscripts
+    must not depend on binaries/files which are part of the to-be-unlocked
+    device. (closes: #665494)
+  * bump versioned build-dependency on debhelper now that we install
+    upstart initscripts in debian as well.
+  * change versioned breaks/replaces for cryptsetup-bin on cryptsetup to
+    1.4.3-1~, fixing upgrades in debian.
+
+  [ Jean-Louis Dupond ]
+  * New upstream version. (closes: #670071)
+    - Fix keyslot removal (closes: #672299)
+    - Add -r to cryptsetup.8 (closes: #674027)
+  * Split up package in cryptsetup and cryptsetup-bin.
+  * I'm now co-maintainer (closes: #600777).
+  * Start cryptdisks-enable upstart job on 'or container', to let us
+    simplify the udevtrigger job.
+  * debian/cryptdisks.functions: handle the case where crypttab contains a
+    name for the source device that is not the kernel's preferred name for
+    it (as is the case for LVs). (Thanks Steve Langasek)
+  * debian/cryptdisks.functions: fix a race condition in some cases by
+    adding and udevadm settle before rename.
+  * debian/cryptdisks.functions: add UUID & LABEL support to do_start.
+  * debian/copyright: really fix lintian warning.
+  * debian/rules: also include upstart files in debian.
+
+ -- Jonas Meurer <mejo@debian.org>  Fri, 08 Jun 2012 13:42:51 +0200
+
+cryptsetup (2:1.4.1-3) unstable; urgency=low
+
+  [ Jonas Meurer ]
+  * finally add back support for configuration of custom rootfs-devices through
+    the boot parameter 'root' to initramfs cryptroot script. Thanks a lot to
+    August Martin for the bugreport as well as continuously debugging and
+    providing patches. (closes: #546610)
+  * use blkid instead of fstype to detect the content of devices in initramfs
+    cryptroot script. Unfortunately fstype doesn't recognize md-raid devices,
+    which leads to errors with encrypted devices on top of software raid.
+  * check whether $NEWROOT already exists before actually invoking cryptsetup
+    in initramfs cryptroot script. (closes: #653241)
+  * fix conditions for prechecks at do_noluks() in cryptdisks.functions. Should
+    prevent data loss with encrypted swap in most cases. (closes: #652497)
+  * change default value for tmpfs and examples from ext2 to ext4.
+  * minor code cleanup.
+  * update debconf translations:
+    - russian, thanks to Yuri Kozlov. (closes: #661303)
+    - spanish, thanks to Camaleón. (closes: #661316)
+
+  [ Jean-Louis Dupond ]
+  * fix watch file.
+  * always add aesni module to initramfs if we have hardware aes support.
+    (closes: #639832).
+  * debian/copyright: fix lintain warning.
+  * add upstart scripts for ubuntu.
+  * silent warnings on kernels without kernel/{arch,crypto}.
+  * add crypttab_start_one_disk in function script to handle udev startup
+    in ubuntu.
+  * bump standards-version to 3.9.3, no changes needed.
+
+ -- Jonas Meurer <mejo@debian.org>  Wed, 11 Apr 2012 23:55:35 +0200
+
 cryptsetup (2:1.4.1-2ubuntu4) precise; urgency=low
 
   * Our swap creation can trigger udev change events, which means udev may be

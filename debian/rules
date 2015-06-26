@@ -36,16 +36,17 @@ endif
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	find -xtype f ! -name manifest > manifest
+	find -xtype f ! -name manifest >manifest
 	autoreconf --force --install
 	./configure $(confflags)  \
 		--prefix=/usr \
 		--libdir=/lib \
 		--sbindir=/sbin \
 		--mandir=/usr/share/man \
-		--enable-shared
-	find -xtype f > manifest.new
-	diff manifest manifest.new | grep '>' | cut -b3- > config.mess
+		--enable-shared \
+		--enable-cryptsetup-reencrypt
+	find -xtype f >manifest.new
+	diff manifest manifest.new | grep '>' | cut -b3- >config.mess
 	touch $@
 
 build-stamp: configure-stamp
@@ -56,7 +57,7 @@ build-indep: build-stamp
 	dh_testdir
 	# generate manpages
 	sed 's/VERSION/$(DEB_VERSION)/;s/DATE/$(DEB_DATE)/' \
-		debian/doc/variables.xml.in > debian/doc/variables.xml
+		debian/doc/variables.xml.in >debian/doc/variables.xml
 	xsltproc --nonet --xinclude -o debian/doc/ \
 		/usr/share/xml/docbook/stylesheet/docbook-xsl/manpages/docbook.xsl \
 		debian/doc/manpages.xml
@@ -70,8 +71,8 @@ build-arch: build-stamp
 	# build upstream cryptsetup
 	$(MAKE)
 	# build askpass and passdev keyscripts
-	gcc -Wall -pedantic -std=c99 debian/askpass.c -o debian/askpass
-	gcc -Wall -pedantic -std=c99 debian/passdev.c -o debian/scripts/passdev
+	gcc $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -pedantic -std=c99 debian/askpass.c -o debian/askpass
+	gcc $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -pedantic -std=c99 debian/passdev.c -o debian/scripts/passdev
 
 build: build-indep build-arch
 
@@ -81,7 +82,6 @@ install-stamp: build-stamp
 	dh_testroot
 	dh_clean
 	dh_installdirs
-	mkdir -p $(CURDIR)/debian/cryptsetup-bin
 	mkdir -p $(CURDIR)/debian/cryptsetup-udeb
 	mkdir -p $(CURDIR)/debian/libcryptsetup4-udeb
 	$(MAKE) DESTDIR=$(CURDIR)/debian/cryptsetup-bin install
@@ -89,21 +89,20 @@ install-stamp: build-stamp
 	# Copy library files to library packages
 	cp -a $(CURDIR)/debian/cryptsetup-bin/lib/libcryptsetup.so.* \
 		$(CURDIR)/debian/libcryptsetup4/lib/
-	#cp -a $(CURDIR)/debian/cryptsetup/lib/libcryptsetup.la \
+	#cp -a $(CURDIR)/debian/cryptsetup-bin/lib/libcryptsetup.la \
 	#	$(CURDIR)/debian/libcryptsetup-dev/usr/lib/
-	#cp -a $(CURDIR)/debian/cryptsetup/lib/libcryptsetup.a \
+	#cp -a $(CURDIR)/debian/cryptsetup-bin/lib/libcryptsetup.a \
 	#	$(CURDIR)/debian/libcryptsetup-dev/usr/lib/
 	cp -a $(CURDIR)/debian/cryptsetup-bin/lib/pkgconfig/libcryptsetup.pc \
 		$(CURDIR)/debian/libcryptsetup-dev/usr/lib/pkgconfig/
 	cp -a $(CURDIR)/debian/cryptsetup-bin/usr/include/libcryptsetup.h \
 		$(CURDIR)/debian/libcryptsetup-dev/usr/include/
-	#cp -a $(CURDIR)/debian/cryptsetup/lib/libcryptsetup.so \
+	#cp -a $(CURDIR)/debian/cryptsetup-bin/lib/libcryptsetup.so \
 	#	$(CURDIR)/debian/libcryptsetup-dev/usr/lib/
 	dh_link -plibcryptsetup-dev lib/$$(basename $$(readlink debian/cryptsetup-bin/lib/libcryptsetup.so)) usr/lib/libcryptsetup.so
 
-	# Remove libraries from cryptsetup package, they're shiped in seperate library packags
-	rm -rf $(CURDIR)/debian/cryptsetup-bin/lib/libcryptsetup*
-	rm -rf $(CURDIR)/debian/cryptsetup-bin/lib/pkgconfig
+	# Remove libraries from cryptsetup package, they're shiped in seperate library packages
+	rm -rf $(CURDIR)/debian/cryptsetup-bin/lib
 	rm -rf $(CURDIR)/debian/cryptsetup-bin/usr/include
 
 	install -m 0644 debian/cryptdisks.functions $(CURDIR)/debian/cryptsetup/lib/cryptsetup/
@@ -136,6 +135,8 @@ install-stamp: build-stamp
 		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/hooks/cryptroot
 	install -m 0755 debian/initramfs/cryptroot-script \
 		$(CURDIR)/debian/cryptsetup/usr/share/initramfs-tools/scripts/local-top/cryptroot
+	install -m 0644 debian/cryptdisks.bash_completion \
+		$(CURDIR)/debian/cryptsetup/etc/bash_completion.d/cryptdisks
 	install -m 0755 debian/cryptsetup.reportbug-script \
 		$(CURDIR)/debian/cryptsetup/usr/share/bug/cryptsetup
 ifeq ($(shell dpkg-vendor --is Ubuntu && echo yes),yes)
@@ -143,6 +144,7 @@ ifeq ($(shell dpkg-vendor --is Ubuntu && echo yes),yes)
 	install -m 0644 debian/cryptsetup.apport \
 		$(CURDIR)/debian/cryptsetup/usr/share/apport/package-hooks/cryptsetup.py
 endif
+
 	$(MAKE) -C debian/scripts/po DESTDIR=$(CURDIR)/debian/cryptsetup-bin install
 	touch $@
 
@@ -156,16 +158,14 @@ binary-arch: build install
 	dh_installchangelogs -a ChangeLog
 	dh_installdocs -a
 	dh_installexamples -a debian/scripts/gen-ssl-key
-	dh_installinit -a --no-start --name=cryptdisks-early --update-rcd-params="start 59 0 6 ."
-	dh_installinit -a --no-start --name=cryptdisks --update-rcd-params="start 48 0 6 ."
-	dh_installinit -a --no-start --name=cryptdisks-enable --upstart-only
-	dh_installinit -a --no-start --name=cryptdisks-udev --upstart-only
+	dh_installinit -a --no-start --name=cryptdisks-early --update-rcd-params="start 26 S . start 59 0 6 ."
+	dh_installinit -a --no-start --name=cryptdisks-udev
+	dh_installinit -a --no-start --name=cryptdisks --update-rcd-params="start 28 S . start 48 0 6 ."
 	dh_installman -a debian/doc/crypttab.5 debian/doc/cryptdisks_start.8 debian/doc/cryptdisks_stop.8
 	dh_installman -p cryptsetup-bin debian/luksformat.8
 	# Copy relevant parts to cryptsetup-udeb package
 	cp -a $(CURDIR)/debian/cryptsetup/etc $(CURDIR)/debian/cryptsetup-udeb/
 	cp -a $(CURDIR)/debian/cryptsetup/lib $(CURDIR)/debian/cryptsetup-udeb/
-	cp -a $(CURDIR)/debian/cryptsetup-bin/lib $(CURDIR)/debian/cryptsetup-udeb/
 	mkdir $(CURDIR)/debian/cryptsetup-udeb/sbin
 	cp -a $(CURDIR)/debian/cryptsetup-bin/sbin/cryptsetup $(CURDIR)/debian/cryptsetup-udeb/sbin/
 	# Copy relevant parts to libcryptsetup4-udeb package
@@ -174,6 +174,8 @@ binary-arch: build install
 	dh_compress -a
 	dh_fixperms -a
 	dh_strip -a
+	# Check for new/changed symbols in libcryptsetup
+	#dpkg-gensymbols -plibcryptsetup4 -Pdebian/libcryptsetup4 -Odebian/libcrypsetup4.symbols
 	dh_makeshlibs -a -V --add-udeb=libcryptsetup4-udeb
 	dh_shlibdeps -a
 	dh_gencontrol -a

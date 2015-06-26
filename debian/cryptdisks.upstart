@@ -17,19 +17,29 @@ description    "enable remaining boot-time encrypted block devices"
 
 start on stopped udevtrigger or container
 
+# Currently stopping is a no-op, so we can stop this anywhere during the
+# shutdown sequence.  We let the cryptdisks-early init script take care of
+# device teardown instead; it happens that the distinction between the
+# 'cryptdisks' and 'cryptdisks-early' jobs is irrelevant on shutdown because
+# the only sequencing difference is lvm2, which has no init script that's
+# called on shutdown.
+stop on unmounted-remote-filesystems
+
 task
 
-script
-    [ -r /lib/cryptsetup/cryptdisks.functions ] || { stop; exit 0; }
+pre-start script
+	if [ -r /lib/cryptsetup/cryptdisks.functions ]; then
+		. /lib/cryptsetup/cryptdisks.functions
+	else
+		exit 0
+	fi
 
-    . /lib/cryptsetup/cryptdisks.functions
+	case "$CRYPTDISKS_ENABLE" in
+	[Nn]*)
+		exit 1
+		;;
+	esac
 
-    case "$CRYPTDISKS_ENABLE" in
-    [Nn]*)
-        exit 1
-        ;;
-    esac
-
-    INITSTATE="init"
-    do_start
+	INITSTATE="init"
+	do_start
 end script
